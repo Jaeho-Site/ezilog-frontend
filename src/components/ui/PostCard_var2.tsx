@@ -34,7 +34,7 @@ interface PostCardProps {
 
 export default function PostCard({
   post,
-  aspect = '4/3',
+  aspect = 'square',
   minimal = false,
   preloadImage = false,
   fontSize = 'default',
@@ -71,12 +71,12 @@ export default function PostCard({
   };
   
   return (
-    <div className="group cursor-pointer flex flex-col overflow-hidden rounded-md bg-white dark:bg-gray-950 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div className="group cursor-pointer flex flex-col overflow-hidden rounded-md bg-white dark:bg-gray-950 shadow-sm hover:shadow-md transition-shadow duration-200 h-full">
       {/* 이미지 */}
       {post.coverImage ? (
         <Link
           href={`/post/${post.slug}`}
-          className="relative block w-full aspect-[4/3] overflow-hidden"
+          className="relative block w-full aspect-square overflow-hidden"
         >
           <Image
             src={getImageUrl(post.coverImage.url)}
@@ -90,7 +90,7 @@ export default function PostCard({
       ) : (
         <Link
           href={`/post/${post.slug}`}
-          className="relative block w-full aspect-[4/3] bg-gray-200 dark:bg-gray-800"
+          className="relative block w-full aspect-square bg-gray-200 dark:bg-gray-800"
         >
           <div className="flex h-full items-center justify-center">
             <span className="text-gray-500 dark:text-gray-400">이미지 없음</span>
@@ -99,9 +99,9 @@ export default function PostCard({
       )}
 
       {/* 텍스트 컨텐츠 */}
-      <div className="flex flex-col p-3 flex-grow">
+      <div className="flex flex-col p-4 flex-grow">
         {/* 태그 표시 */}
-        <div className="mb-1.5 flex flex-wrap">
+        <div className="mb-2 flex flex-wrap">
           {post.tags && post.tags.length > 0 ? (
             post.tags.map((tag, index) => (
               <Link 
@@ -119,7 +119,7 @@ export default function PostCard({
         </div>
         
         {/* 제목 (최대 2줄) */}
-        <h2 className="text-lg md:text-xl font-bold leading-snug mb-1.5 text-gray-900 dark:text-white line-clamp-2">
+        <h2 className="text-lg md:text-xl font-bold leading-snug mb-2 text-gray-900 dark:text-white line-clamp-2">
           <Link href={`/post/${post.slug}`}>
             <span className="bg-gradient-to-r from-green-200 to-green-100 bg-[length:0px_10px] bg-left-bottom
               bg-no-repeat transition-[background-size] duration-500
@@ -138,7 +138,7 @@ export default function PostCard({
         )}
         
         {/* 날짜 */}
-        <div className="mt-auto pt-1 flex items-center text-gray-500 dark:text-gray-400 text-xs">
+        <div className="mt-auto pt-2 flex items-center text-gray-500 dark:text-gray-400 text-xs">
           <FiCalendar className="mr-1" />
           <time dateTime={post.publishedDate}>
             {formatDate(post.publishedDate)}
