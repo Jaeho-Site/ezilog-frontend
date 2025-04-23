@@ -1,14 +1,19 @@
-import Image from "next/image";
-import Link from "next/link";
 import { Suspense } from "react";
 import PostCard, { PostData } from "@/components/ui/PostCard";
 import { getAllPosts } from "@/lib/api";
+import Link from "next/link";
 
 // 페이지네이션을 위한 페이지당 포스트 수
 const POSTS_PER_PAGE = 6;
 
+// 페이지 번호 확인 함수
+function getPageNumber(params: { number: string }): number {
+  const pageNumber = parseInt(params.number, 10);
+  return isNaN(pageNumber) || pageNumber < 1 ? 1 : pageNumber;
+}
+
 // 포스트 목록을 가져오는 비동기 컴포넌트
-async function PostList({ page = 1 }: { page?: number }) {
+async function PostList({ page = 1 }: { page: number }) {
   try {
     // Strapi에서 포스트 가져오기 (페이지네이션 적용)
     const posts = await getAllPosts(POSTS_PER_PAGE, (page - 1) * POSTS_PER_PAGE);
@@ -33,7 +38,10 @@ async function PostList({ page = 1 }: { page?: number }) {
         <div className="mt-12 flex justify-center">
           <nav className="flex items-center space-x-2">
             {page > 1 && (
-              <Link href={`/page/${page - 1}`} className="px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+              <Link 
+                href={page > 2 ? `/page/${page - 1}` : '/'}
+                className="px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
                 이전
               </Link>
             )}
@@ -59,7 +67,9 @@ async function PostList({ page = 1 }: { page?: number }) {
   }
 }
 
-export default function Home() {
+export default function NumberedPage({ params }: { params: { number: string } }) {
+  const pageNumber = getPageNumber(params);
+  
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Suspense fallback={
@@ -67,8 +77,8 @@ export default function Home() {
           <p className="text-gray-600 dark:text-gray-400">포스트를 불러오는 중...</p>
         </div>
       }>
-        <PostList page={1} />
+        <PostList page={pageNumber} />
       </Suspense>
     </div>
   );
-}
+} 

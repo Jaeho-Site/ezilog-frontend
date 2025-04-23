@@ -64,13 +64,14 @@ export async function getPostsByCategory(categoryId: string) {
 /**
  * 모든 포스트 가져오기
  * @param limit 가져올 포스트 수 (기본값: 10)
+ * @param offset 건너뛸 포스트 수 (기본값: 0)
  * @returns 포스트 목록
  */
-export async function getAllPosts(limit = 10) {
+export async function getAllPosts(limit = 10, offset = 0) {
   try {
     // 포스트를 최신순(발행일 기준)으로 정렬하고 태그 정보도 함께 가져옴
     // publishedAt을 기준으로 정렬 (PublishedDate가 null일 수 있으므로)
-    const data = await fetchAPI(`/api/posts?sort=publishedAt:desc&pagination[limit]=${limit}&populate=*`);
+    const data = await fetchAPI(`/api/posts?sort=publishedAt:desc&pagination[limit]=${limit}&pagination[start]=${offset}&populate=*`);
     
     // Strapi v4 응답 구조 처리
     if (data && data.data && Array.isArray(data.data)) {
