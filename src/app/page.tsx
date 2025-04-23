@@ -1,52 +1,41 @@
 import Image from "next/image";
 import Link from "next/link";
-import { FiCalendar, FiTag } from "react-icons/fi";
+import { Suspense } from "react";
+import PostCard, { PostData } from "@/components/ui/PostCard";
+import { getAllPosts } from "@/lib/api";
 
-// 임시 데이터 - 나중에 Strapi로부터 가져올 데이터
-const posts = [
-  {
-    id: 1,
-    title: "Next.js와 Strapi로 헤드리스 블로그 만들기",
-    description: "Next.js와 Strapi를 활용하여 빠르고 SEO에 최적화된 블로그를 구축하는 방법을 알아봅니다.",
-    slug: "nextjs-strapi-headless-blog",
-    coverImage: "/placeholder-image.jpg",
-    publishedDate: "2023-12-10",
-    category: { name: "웹 개발", slug: "web-development" },
-    tags: [
-      { name: "Next.js", slug: "nextjs" },
-      { name: "Strapi", slug: "strapi" },
-      { name: "헤드리스 CMS", slug: "headless-cms" }
-    ]
-  },
-  {
-    id: 2,
-    title: "Supabase로 실시간 댓글 시스템 구현하기",
-    description: "Supabase의 실시간 기능을 활용하여 블로그에 댓글 시스템을 추가하는 방법을 알아봅니다.",
-    slug: "supabase-realtime-comments",
-    coverImage: "/placeholder-image.jpg",
-    publishedDate: "2023-12-15",
-    category: { name: "데이터베이스", slug: "database" },
-    tags: [
-      { name: "Supabase", slug: "supabase" },
-      { name: "실시간", slug: "realtime" },
-      { name: "React", slug: "react" }
-    ]
-  },
-  {
-    id: 3,
-    title: "AWS S3와 CloudFront로 이미지 최적화하기",
-    description: "AWS S3와 CloudFront를 활용하여 블로그 이미지를 효율적으로 관리하고 전달하는 방법을 알아봅니다.",
-    slug: "aws-s3-cloudfront-image-optimization",
-    coverImage: "/placeholder-image.jpg",
-    publishedDate: "2023-12-20",
-    category: { name: "클라우드", slug: "cloud" },
-    tags: [
-      { name: "AWS", slug: "aws" },
-      { name: "S3", slug: "s3" },
-      { name: "CloudFront", slug: "cloudfront" }
-    ]
+// 포스트 목록을 가져오는 비동기 컴포넌트
+async function PostList() {
+  try {
+    // Strapi에서 최신 12개 포스트 가져오기
+    const posts = await getAllPosts(12);
+    
+    if (!posts || posts.length === 0) {
+      return (
+        <div className="text-center py-10">
+          <p className="text-gray-600 dark:text-gray-400">포스트가 없습니다.</p>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {posts.map((post: PostData) => (
+          <div key={post.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+            <PostCard post={post} />
+          </div>
+        ))}
+      </div>
+    );
+  } catch (error) {
+    console.error("포스트 목록을 가져오는 중 오류 발생:", error);
+    return (
+      <div className="text-center py-10">
+        <p className="text-red-600 dark:text-red-400">포스트를 불러오는 중 오류가 발생했습니다.</p>
+      </div>
+    );
   }
-];
+}
 
 export default function Home() {
   return (
@@ -63,54 +52,13 @@ export default function Home() {
       <div className="mb-12">
         <h2 className="text-2xl font-semibold mb-6 border-b pb-2">최근 게시물</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {posts.map((post) => (
-            <div key={post.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-transform hover:translate-y-[-4px]">
-              <Link href={`/post/${post.slug}`}>
-                <div className="relative h-48 w-full">
-                  <Image
-                    src={post.coverImage}
-                    alt={post.title}
-                    className="object-cover"
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-              </Link>
-              
-              <div className="p-5">
-                <Link href={`/category/${post.category.slug}`}>
-                  <span className="text-xs font-medium text-blue-600 dark:text-blue-400 mb-2 inline-block">
-                    {post.category.name}
-                  </span>
-                </Link>
-                
-                <Link href={`/post/${post.slug}`}>
-                  <h3 className="text-xl font-semibold mb-2 line-clamp-2 hover:text-blue-600 dark:hover:text-blue-400">
-                    {post.title}
-                  </h3>
-                </Link>
-                
-                <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-3">
-                  {post.description}
-                </p>
-                
-                <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-                  <div className="flex items-center">
-                    <FiCalendar className="mr-1" />
-                    <span>{post.publishedDate}</span>
-                  </div>
-                  
-                  <div className="flex items-center">
-                    <FiTag className="mr-1" />
-                    <span>{post.tags[0].name}</span>
-                    {post.tags.length > 1 && <span> 외 {post.tags.length - 1}개</span>}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <Suspense fallback={
+          <div className="text-center py-10">
+            <p className="text-gray-600 dark:text-gray-400">포스트를 불러오는 중...</p>
+          </div>
+        }>
+          <PostList />
+        </Suspense>
       </div>
       
       {/* CTA 섹션 */}
