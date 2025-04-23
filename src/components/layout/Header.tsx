@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
-import { FiMenu, FiMoon, FiSun, FiLogIn, FiX, FiChevronDown, FiChevronRight } from "react-icons/fi";
+import { FiMenu, FiMoon, FiSun, FiX, FiChevronDown, FiChevronRight } from "react-icons/fi";
 import { getTopLevelCategories } from "@/lib/api";
 
 // Category 타입 정의
@@ -16,6 +16,7 @@ interface Category {
   level: number;
   childCategories?: Category[];
   children?: Category[];
+  categories?: Category[]; // Strapi API에서 반환하는 실제 자식 카테고리 필드
 }
 
 const Header = () => {
@@ -97,7 +98,9 @@ const Header = () => {
 
   // 카테고리 아이템 렌더링 함수
   const renderCategoryItem = (category: Category) => {
-    const hasChildren = (category.childCategories?.length ?? 0) > 0;
+    // Strapi API에서는 자식 카테고리가 categories 필드에 있음
+    const hasChildren = (category.categories?.length ?? 0) > 0;
+    const childCategories = category.categories || [];
     const isExpanded = expandedCategories[category.id];
     
     return (
@@ -130,7 +133,7 @@ const Header = () => {
         {/* 확장된 상태이고 자식 카테고리가 있다면 자식 카테고리 렌더링 */}
         {isExpanded && hasChildren && (
           <div className="ml-6 mt-1 border-l-2 border-gray-200 dark:border-gray-700 pl-2">
-            {category.childCategories?.map(child => (
+            {childCategories.map((child: Category) => (
               <div key={child.id} className="py-1">
                 <Link 
                   href={`/category/${child.slug}`}

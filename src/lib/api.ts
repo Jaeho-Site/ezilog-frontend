@@ -1,10 +1,8 @@
 /**
  * Strapi API 통신을 위한 유틸리티 함수
  */
-
 const API_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 const API_TOKEN = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
-
 /**
  * 기본 Strapi API 요청 함수
  * @param endpoint API 엔드포인트 경로
@@ -18,19 +16,15 @@ export async function fetchAPI(endpoint: string, options = {}) {
       'Authorization': `Bearer ${API_TOKEN}`
     },
   };
-
   const mergedOptions = {
     ...defaultOptions,
     ...options,
   };
-
   try {
-    const res = await fetch(`${API_URL}${endpoint}`, mergedOptions);
-    
+    const res = await fetch(`${API_URL}${endpoint}`, mergedOptions);   
     if (!res.ok) {
       throw new Error(`API 오류: ${res.status} ${res.statusText}`);
-    }
-    
+    }  
     const data = await res.json();
     return data;
   } catch (error) {
@@ -57,7 +51,6 @@ export async function getCategoryBySlug(slug: string) {
   const data = await fetchAPI(`/api/categories?filters[slug]=${slug}&populate=*`);
   return data.data[0] || null;
 }
-
 /**
  * 특정 카테고리에 속한 포스트 가져오기
  * @param categoryId 카테고리 ID
