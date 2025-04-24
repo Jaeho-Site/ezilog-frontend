@@ -3,6 +3,19 @@
  */
 const API_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 const API_TOKEN = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
+
+// axios 라이브러리 import
+import axios from 'axios';
+
+// axios 인스턴스 생성
+export const strapiAPI = axios.create({
+  baseURL: `${API_URL}/api`,
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${API_TOKEN}`
+  }
+});
+
 /**
  * 기본 Strapi API 요청 함수
  * @param endpoint API 엔드포인트 경로
@@ -60,7 +73,6 @@ export async function getPostsByCategory(categoryId: string) {
   const data = await fetchAPI(`/api/posts?filters[category][id]=${categoryId}&populate=*`);
   return data;
 }
-
 /**
  * 모든 포스트 가져오기
  * @param limit 가져올 포스트 수 (기본값: 10)
@@ -81,14 +93,11 @@ export async function getAllPosts(limit = 10, offset = 0) {
         if (!post) {
           console.warn('유효하지 않은 포스트 데이터');
           return null;
-        }
-        
+        }   
         // 응답에서 attributes가 없고 직접 필드를 포함하는 구조로 반환될 수 있음
-        const attrs = post.attributes || post;
-        
+        const attrs = post.attributes || post;       
         // 날짜 처리 - PublishedDate가 없으면 publishedAt 사용
-        const publishedDate = attrs.PublishedDate || attrs.publishedAt || new Date().toISOString().split('T')[0];
-        
+        const publishedDate = attrs.PublishedDate || attrs.publishedAt || new Date().toISOString().split('T')[0];       
         // 이미지 URL 처리
         let coverImage = null;
         if (attrs.cover) {
@@ -98,8 +107,7 @@ export async function getAllPosts(limit = 10, offset = 0) {
             url: cover.url || '',
             alt: attrs.title || '이미지'
           };
-        }
-        
+        }   
         // 태그 처리
         let tags: any[] = [];
         if (attrs.tags) {
@@ -143,11 +151,113 @@ export async function getAllPosts(limit = 10, offset = 0) {
       }).filter(Boolean); // null 값 필터링
       
       return posts;
-    }
-    
+    }   
     return [];
   } catch (error) {
     console.error('포스트 목록 가져오기 실패:', error);
     return [];
+  }
+}
+
+/**
+ * 포스트 슬러그로 단일 포스트 정보 가져오기 (axios 사용)
+ * @param slug 포스트 슬러그
+ * @returns 포스트 정보
+ */
+export async function getPostBySlug(slug: string) {
+  try {
+    console.log(`getPostBySlug 함수 호출: slug=${slug}`);
+    
+    const response = await strapiAPI.get('/posts', {
+      params: {
+        filters: { slug: { $eq: slug } },
+        populate: '*'
+      }
+    });
+    
+    if (!response.data.data || response.data.data.length === 0) {
+      console.log('해당 slug와 일치하는 포스트가 없습니다:', slug);
+      return null;
+    }
+    
+    // 서버 응답 전체 구조 로깅
+    console.log('===== 서버 응답 전체 구조 =====');
+    console.log('response.data:', JSON.stringify(response.data, null, 2));
+    
+    const post = response.data.data[0];
+    const attrs = post.attributes || post;
+    
+    // 포스트 데이터 구조 자세히 로깅
+    console.log('===== 포스트 데이터 구조 =====');
+    console.log('post ID:', post.id);
+    console.log('post 키목록:', Object.keys(post));
+    console.log('attributes 키목록:', Object.keys(attrs));
+    
+    // 중첩 객체 구조 로깅
+    if (attrs.cover) {
+      console.log('cover 구조:', JSON.stringify(attrs.cover, null, 2));
+    }
+    
+    if (attrs.tags) {
+      console.log('tags 구조:', JSON.stringify(attrs.tags, null, 2));
+    }
+    
+    // 날짜 처리
+    const publishedDate = attrs.PublishedDate || attrs.publishedAt || new Date().toISOString().split('T')[0];
+    
+    // 이미지 URL 처리
+    let coverImage = null;
+    if (attrs.cover && attrs.cover.data) {
+      const cover = attrs.cover.data.attributes || attrs.cover.data;
+      coverImage = {
+        url: cover.url || '',
+        alt: attrs.title || '이미지'
+      };
+    }
+    
+    // 태그 처리
+    let tags: any[] = [];
+    if (attrs.tags && attrs.tags.data) {
+      tags = attrs.tags.data.map((tag: any) => {
+        const tagData = tag.attributes || tag;
+        return {
+          id: tag.id,
+          name: tagData.name || '태그',
+          slug: tagData.slug || `tag-${tag.id}`
+        };
+      });
+    }
+    
+    // 최종 반환 데이터 로깅
+    const result = {
+      id: post.id,
+      title: attrs.title || '제목 없음',
+      description: attrs.description || '',
+      slug: attrs.slug,
+      coverImage,
+      cover: coverImage, // 두 형식 모두 지원
+      publishedDate,
+      publishedAt: attrs.publishedAt,
+      tags,
+      markdown: attrs.markdown || '',
+      html: attrs.html || '',
+      htmlContent: attrs.html || '',
+      markdownContent: attrs.markdown || '',
+      attributes: attrs
+    };
+    
+    console.log('===== 최종 반환 데이터 =====');
+    console.log('반환 데이터 키목록:', Object.keys(result));
+    
+    return result;
+  } catch (error: any) {
+    console.error('포스트 가져오기 실패:', error.message);
+    
+    if (error.response) {
+      console.error('에러 응답 데이터:', error.response.data);
+      console.error('에러 상태 코드:', error.response.status);
+    }
+    
+    return null;
   }
 }
