@@ -31,14 +31,10 @@ const getImageUrl = (url: string) => {
   if (url.startsWith('http')) {
     // S3 URL을 CloudFront URL로 변환
     if (url.includes('amazonaws.com')) {
-      try {
-        return url.replace(
-          /https:\/\/jaehomade-ezilog\.s3\.ap-northeast-2\.amazonaws\.com/g,
-          CLOUDFRONT_DOMAIN.replace(/\/$/, '')
-        );
-      } catch (error) {
-        return url;
-      }
+      return url.replace(
+        /https:\/\/jaehomade-ezilog\.s3\.ap-northeast-2\.amazonaws\.com/g,
+        CLOUDFRONT_DOMAIN.replace(/\/$/, '')
+      );
     }
     return url;
   }
@@ -48,6 +44,58 @@ const getImageUrl = (url: string) => {
   
   // 그 외의 경우 CDN URL과 결합
   return `${process.env.NEXT_PUBLIC_CDN_URL || ''}/${url}`;
+};
+
+// 공통 렌더링 컴포넌트
+// 이미지 렌더링 컴포넌트
+const RenderImage = ({ src, alt = '이미지' }: { src: string; alt?: string }) => {
+  const imageSrc = getImageUrl(src);
+  return (
+    <div className="relative w-full my-4" style={{ height: '400px' }}>
+      <Image
+        src={imageSrc}
+        alt={alt}
+        fill
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+        className="object-contain"
+        loading="lazy"
+      />
+    </div>
+  );
+};
+
+// 링크 렌더링 컴포넌트
+const RenderLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
+  if (!href) return <>{children}</>;
+  
+  const isExternal = href.startsWith('http');
+  const linkProps = isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {};
+  
+  return (
+    <Link
+      href={href}
+      {...linkProps} 
+      className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+    >
+      {children}
+    </Link>
+  );
+};
+
+// 코드 블록 렌더링 컴포넌트
+const RenderCodeBlock = ({ language = '', children }: { language?: string; children: string }) => {
+  return (
+    <div className="my-4 overflow-hidden rounded-md">
+      <SyntaxHighlighter
+        language={language}
+        style={vscDarkPlus}
+        PreTag="div"
+        className="bg-gray-800 rounded-md"
+      >
+        {String(children).replace(/\n$/, '')}
+      </SyntaxHighlighter>
+    </div>
+  );
 };
 
 // SEO 메타데이터 생성
@@ -72,85 +120,42 @@ export async function generateMetadata(
   };
 }
 
-// HTML 이미지 처리 함수
-const createImageElement = (src: string, alt: string) => (
-  <div className="relative w-full my-4" style={{ height: '400px' }}>
-    <Image
-      src={src}
-      alt={alt}
-      fill
-      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
-      className="object-contain"
-      loading="lazy"
-    />
-  </div>
-);
-
 // HTML 콘텐츠 파서
 const HtmlContent = ({ html, postTitle }: { html: string; postTitle: string }) => {
   const parseOptions: HTMLReactParserOptions = {
     replace: (domNode: any) => {
       // 이미지 처리
       if (domNode instanceof Element && domNode.name === 'img' && domNode.attribs?.src) {
-        const src = getImageUrl(domNode.attribs.src);
-        const alt = domNode.attribs.alt || postTitle || '이미지';
-        
-        // p 태그 내에 div가 들어가는 것을 방지하기 위해 부모 노드 확인
-        const parentIsP = domNode.parent instanceof Element && domNode.parent.name === 'p';
-        
-        if (parentIsP) {
-          // 부모 p 태그의 내용이 이미지 하나뿐인지 확인
-          const parentHasOnlyThisImage = 
-            domNode.parent?.children.length === 1 || 
-            (domNode.parent?.children.length === 3 && 
-             domNode.parent?.children[0].type === 'text' && 
-             domNode.parent?.children[0].data.trim() === '' && 
-             domNode.parent?.children[2].type === 'text' && 
-             domNode.parent?.children[2].data.trim() === '');
-          
-          if (parentHasOnlyThisImage) {
-            if (domNode.parent) {
-              (domNode.parent as any).replaceWithDiv = true;
-            }
-            return null;
-          }
-        }
-        
-        return createImageElement(src, alt);
+        return <RenderImage 
+          src={domNode.attribs.src} 
+          alt={domNode.attribs.alt || postTitle} 
+        />;
       }
       
-      // 이미지만 있는 p 태그를 div로 교체
+      // p > img 처리 (단순화)
       if (domNode instanceof Element && domNode.name === 'p') {
-        if ((domNode as any).replaceWithDiv) {
-          const imageElements = domNode.children.filter((child: any) => 
-            child instanceof Element && child.name === 'img'
-          );
-          
-          if (imageElements.length > 0) {
-            const imageElement = imageElements[0] as Element;
-            if (imageElement.attribs?.src) {
-              const src = getImageUrl(imageElement.attribs.src);
-              const alt = imageElement.attribs.alt || postTitle || '이미지';
-              return createImageElement(src, alt);
-            }
+        const imageElements = domNode.children.filter((child: any) => 
+          child instanceof Element && child.name === 'img'
+        );
+        
+        // p 태그에 이미지만 있는 경우
+        if (imageElements.length === 1 && domNode.children.length === 1) {
+          const imageElement = imageElements[0] as Element;
+          if (imageElement.attribs?.src) {
+            return <RenderImage 
+              src={imageElement.attribs.src}
+              alt={imageElement.attribs.alt || postTitle}
+            />;
           }
         }
       }
       
       // 링크 처리
       if (domNode instanceof Element && domNode.name === 'a' && domNode.attribs?.href) {
-        const href = domNode.attribs.href;
-        const isExternal = href.startsWith('http');
-        const props = isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {};
-        
         return (
-          <Link
-            href={href}
-            {...props} 
-            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-          >
+          <RenderLink href={domNode.attribs.href}>
             {domToReact(domNode.children as any)}
-          </Link>
+          </RenderLink>
         );
       }
       
@@ -165,34 +170,22 @@ const HtmlContent = ({ html, postTitle }: { html: string; postTitle: string }) =
 const MarkdownContent = ({ markdown, postTitle }: { markdown: string; postTitle: string }) => {
   return (
     <ReactMarkdown
-      remarkPlugins={[remarkGfm]} // GitHub Flavored Markdown 지원
-      rehypePlugins={[rehypeRaw, rehypeSlug, rehypeSanitize]} // HTML 처리, 헤더에 ID 부여, XSS 방지
+      remarkPlugins={[remarkGfm]}
+      rehypePlugins={[rehypeRaw, rehypeSlug, rehypeSanitize]}
       components={{
         // 헤딩 태그 처리
-        h1: ({ node, ...props }: any) => (
-          <h1 className="text-2xl font-bold mt-8 mb-4" {...props} />
-        ),
-        h2: ({ node, ...props }: any) => (
-          <h2 className="text-xl font-bold mt-6 mb-3" {...props} />
-        ),
-        h3: ({ node, ...props }: any) => (
-          <h3 className="text-lg font-bold mt-5 mb-2" {...props} />
-        ),
-        h4: ({ node, ...props }: any) => (
-          <h4 className="text-base font-bold mt-4 mb-2" {...props} />
-        ),
-        h5: ({ node, ...props }: any) => (
-          <h5 className="text-sm font-bold mt-3 mb-1" {...props} />
-        ),
-        h6: ({ node, ...props }: any) => (
-          <h6 className="text-xs font-bold mt-3 mb-1" {...props} />
-        ),
+        h1: ({ ...props }: any) => <h1 className="text-2xl font-bold mt-8 mb-4" {...props} />,
+        h2: ({ ...props }: any) => <h2 className="text-xl font-bold mt-6 mb-3" {...props} />,
+        h3: ({ ...props }: any) => <h3 className="text-lg font-bold mt-5 mb-2" {...props} />,
+        h4: ({ ...props }: any) => <h4 className="text-base font-bold mt-4 mb-2" {...props} />,
+        h5: ({ ...props }: any) => <h5 className="text-sm font-bold mt-3 mb-1" {...props} />,
+        h6: ({ ...props }: any) => <h6 className="text-xs font-bold mt-3 mb-1" {...props} />,
         
         // 문단 처리
-        p: ({ node, children, ...props }: any) => {
+        p: ({ children, ...props }: any) => {
           const childElements = React.Children.toArray(children);
           
-          // 자식 요소에 코드 블록이 있는지 확인
+          // 코드 블록이 있는 경우 Fragment 반환
           const hasCodeBlock = childElements.some(
             child => React.isValidElement(child) && 
               typeof (child.props as any)?.node?.tagName === 'string' && 
@@ -200,10 +193,7 @@ const MarkdownContent = ({ markdown, postTitle }: { markdown: string; postTitle:
               !(child.props as any).inline
           );
           
-          // 코드 블록을 포함하면 p 태그를 사용하지 않고 Fragment 반환
-          if (hasCodeBlock) {
-            return <>{children}</>;
-          }
+          if (hasCodeBlock) return <>{children}</>;
           
           // 이미지 확인
           const hasImage = childElements.some(
@@ -216,42 +206,16 @@ const MarkdownContent = ({ markdown, postTitle }: { markdown: string; postTitle:
         // 이미지 처리
         img: ({ src, alt, ...props }: any) => {
           if (!src) return null;
-          const imgSrc = getImageUrl(src);
-          
-          return (
-            <div className="block relative w-full my-4" style={{ height: '400px' }}>
-              <Image
-                src={imgSrc}
-                alt={alt || postTitle || '이미지'}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
-                className="object-contain"
-                loading="lazy"
-              />
-            </div>
-          );
+          return <RenderImage src={src} alt={alt || postTitle} />;
         },
         
         // 링크 처리
         a: ({ href, children, ...props }: any) => {
-          if (!href) return null;
-          const isExternal = href.startsWith('http');
-          const linkProps = isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {};
-          
-          return (
-            <Link
-              href={href} 
-              {...linkProps} 
-              className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300" 
-              {...props}
-            >
-              {children}
-            </Link>
-          );
+          return <RenderLink href={href || ''}>{children}</RenderLink>;
         },
         
         // 코드 블록 처리
-        code: ({ node, inline, className, children, ...props }: any) => {
+        code: ({ inline, className, children, ...props }: any) => {
           // 인라인 코드인 경우
           if (inline) {
             return (
@@ -268,23 +232,7 @@ const MarkdownContent = ({ markdown, postTitle }: { markdown: string; postTitle:
           const match = /language-(\w+)/.exec(className || '');
           const language = match ? match[1] : '';
           
-          // pre 태그를 직접 사용하지 않고 div로 감싸서 반환
-          return (
-            <div className="my-4 overflow-hidden rounded-md">
-              <div className="bg-gray-800 rounded-md p-0 m-0"> 
-                <SyntaxHighlighter
-                  language={language}
-                  style={vscDarkPlus}
-                  PreTag="div" // pre 태그 대신 div 사용
-                  wrapLines={true}
-                  wrapLongLines={true}
-                  {...props}
-                >
-                  {String(children).replace(/\n$/, '')}
-                </SyntaxHighlighter>
-              </div>
-            </div>
-          );
+          return <RenderCodeBlock language={language}>{String(children)}</RenderCodeBlock>;
         },
         
         // 표 처리
@@ -350,7 +298,7 @@ export default async function PostPage({ params }: PostPageProps) {
     const CLOUDFRONT_DOMAIN = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN || '';
     markdownContent = markdownContent.replace(
       /!\[(.*?)\]\((https:\/\/jaehomade-ezilog\.s3\.ap-northeast-2\.amazonaws\.com\/[^)]+)\)/g,
-      (_:string, alt:string, url:string) => {
+      (_: string, alt: string, url: string) => {
         const cloudFrontUrl = url.replace(
           /https:\/\/jaehomade-ezilog\.s3\.ap-northeast-2\.amazonaws\.com/g,
           CLOUDFRONT_DOMAIN.replace(/\/$/, '')
@@ -383,7 +331,6 @@ export default async function PostPage({ params }: PostPageProps) {
   
   return (
     <div className="max-w-4xl mx-auto p-4">
-      {/* 뒤로 가기 링크 */}
       <div className="mb-4">
         <Link href="/" className="text-blue-500 hover:underline">
           ← 홈으로 돌아가기
@@ -391,7 +338,6 @@ export default async function PostPage({ params }: PostPageProps) {
       </div>
       
       <article className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-        {/* 커버 이미지 */}
         {coverImageUrl && (
           <div className="relative w-full h-64 sm:h-80 md:h-96">
             <Image
@@ -406,17 +352,14 @@ export default async function PostPage({ params }: PostPageProps) {
         )}
         
         <div className="p-6">
-          {/* 제목 */}
           <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
           
-          {/* 날짜 */}
           {post.publishedDate && (
             <div className="text-gray-500 mb-6">
               {formatDate(post.publishedDate)}
             </div>
           )}
           
-          {/* 태그 */}
           {tags && tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-6">
               {tags.map((tag: any) => (
@@ -431,7 +374,6 @@ export default async function PostPage({ params }: PostPageProps) {
             </div>
           )}
           
-          {/* 콘텐츠 */}
           <div className="mt-6 prose prose-lg max-w-none dark:prose-invert
             prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-white
             prose-h1:text-2xl prose-h1:mt-8 prose-h1:mb-4
@@ -445,14 +387,6 @@ export default async function PostPage({ params }: PostPageProps) {
           </div>
         </div>
       </article>
-      
-      {/* 개발용 디버그 정보 */}
-      <div className="mt-10 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-        <h2 className="text-xl font-bold mb-2">서버 응답 데이터 구조</h2>
-        <div className="overflow-auto max-h-96">
-          <pre className="text-xs">{JSON.stringify(post, null, 2)}</pre>
-        </div>
-      </div>
     </div>
   );
 }
