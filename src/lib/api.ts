@@ -179,25 +179,12 @@ export async function getPostBySlug(slug: string) {
       console.log('해당 slug와 일치하는 포스트가 없습니다:', slug);
       return null;
     }
-    
-    // 서버 응답 전체 구조 로깅
-    console.log('===== 서버 응답 전체 구조 =====');
-    console.log('response.data:', JSON.stringify(response.data, null, 2));
-    
     const post = response.data.data[0];
     const attrs = post.attributes || post;
-    
-    // 포스트 데이터 구조 자세히 로깅
-    console.log('===== 포스트 데이터 구조 =====');
-    console.log('post ID:', post.id);
-    console.log('post 키목록:', Object.keys(post));
-    console.log('attributes 키목록:', Object.keys(attrs));
-    
     // 중첩 객체 구조 로깅
     if (attrs.cover) {
       console.log('cover 구조:', JSON.stringify(attrs.cover, null, 2));
-    }
-    
+    } 
     if (attrs.tags) {
       console.log('tags 구조:', JSON.stringify(attrs.tags, null, 2));
     }
@@ -244,11 +231,7 @@ export async function getPostBySlug(slug: string) {
       htmlContent: attrs.html || '',
       markdownContent: attrs.markdown || '',
       attributes: attrs
-    };
-    
-    console.log('===== 최종 반환 데이터 =====');
-    console.log('반환 데이터 키목록:', Object.keys(result));
-    
+    };  
     return result;
   } catch (error: any) {
     console.error('포스트 가져오기 실패:', error.message);
