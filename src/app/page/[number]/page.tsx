@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import PostCard, { PostData } from "@/components/ui/PostCard";
 import { getAllPosts } from "@/lib/api";
-import Link from "next/link";
+import Pagination from "@/components/ui/Pagination";
 
 // 페이지네이션을 위한 페이지당 포스트 수
 const POSTS_PER_PAGE = 6;
@@ -35,26 +35,11 @@ async function PostList({ page = 1 }: { page: number }) {
         </div>
         
         {/* 페이지네이션 */}
-        <div className="mt-12 flex justify-center">
-          <nav className="flex items-center space-x-2">
-            {page > 1 && (
-              <Link 
-                href={page > 2 ? `/page/${page - 1}` : '/'}
-                className="px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                이전
-              </Link>
-            )}
-            <span className="px-4 py-2 border rounded-md bg-blue-100 dark:bg-blue-900">
-              {page}
-            </span>
-            {posts.length === POSTS_PER_PAGE && (
-              <Link href={`/page/${page + 1}`} className="px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
-                다음
-              </Link>
-            )}
-          </nav>
-        </div>
+        <Pagination 
+          currentPage={page} 
+          hasMore={posts.length === POSTS_PER_PAGE} 
+          basePath="/"
+        />
       </>
     );
   } catch (error) {

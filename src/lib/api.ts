@@ -61,8 +61,41 @@ export async function getTopLevelCategories() {
  * @returns 카테고리 정보
  */
 export async function getCategoryBySlug(slug: string) {
-  const data = await fetchAPI(`/api/categories?filters[slug]=${slug}&populate=*`);
-  return data.data[0] || null;
+  try {
+    console.log(`[getCategoryBySlug] 시작: slug=${slug}`);
+    
+    // Strapi v5 형식으로 요청
+    const response = await strapiAPI.get('/categories', {
+      params: {
+        filters: { 
+          slug: { $eq: slug } 
+        },
+        populate: '*'  // 모든 관계 필드 가져오기
+      }
+    });
+    
+    console.log(`[getCategoryBySlug] 응답 상태:`, response.status);
+    
+    if (!response.data.data || response.data.data.length === 0) {
+      console.log('해당 슬러그와 일치하는 카테고리가 없습니다:', slug);
+      return null;
+    }
+    
+    // Strapi v5에서는 데이터가 data 배열의 첫 번째 요소에 직접 있음
+    const category = response.data.data[0];
+    console.log(`[getCategoryBySlug] 카테고리 정보:`, JSON.stringify(category, null, 2));
+    
+    return category;
+  } catch (error: any) {
+    console.error('카테고리 정보 가져오기 실패:', error.message);
+    
+    if (error.response) {
+      console.error('에러 응답 데이터:', JSON.stringify(error.response.data, null, 2));
+      console.error('에러 응답 상태:', error.response.status);
+    }
+    
+    return null;
+  }
 }
 /**
  * 특정 카테고리에 속한 포스트 가져오기
@@ -242,5 +275,194 @@ export async function getPostBySlug(slug: string) {
     }
     
     return null;
+  }
+}
+
+/**
+ * 카테고리 슬러그로 해당 카테고리와 그 자식 카테고리의 포스트를 가져오는 함수
+ * 1레벨 카테고리의 경우 자신과 자식 카테고리의 포스트를 모두 가져오고,
+ * 2레벨 카테고리의 경우 자신의 포스트만 가져옵니다.
+ * @param slug 카테고리 슬러그
+ * @param limit 가져올 포스트 수 (기본값: 6)
+ * @param offset 건너뛸 포스트 수 (기본값: 0)
+ * @returns 포스트 목록
+ */
+export async function getCategoryPosts(slug: string, limit = 6, offset = 0) {
+  try {
+    console.log(`[getCategoryPosts] 시작: slug=${slug}, limit=${limit}, offset=${offset}`);
+    
+    // 카테고리 정보를 가져옵니다 (포스트와 자식 카테고리 정보 포함)
+    console.log(`[getCategoryPosts] 카테고리 정보 요청 중...`);
+    const categoryResponse = await strapiAPI.get('/categories', {
+      params: {
+        filters: { 
+          slug: { $eq: slug } 
+        },
+        populate: '*'  // 모든 관계 필드 가져오기
+      }
+    });
+    
+    console.log(`[getCategoryPosts] 카테고리 응답:`, JSON.stringify(categoryResponse.data, null, 2));
+
+    if (!categoryResponse.data.data || categoryResponse.data.data.length === 0) {
+      console.log('해당 슬러그와 일치하는 카테고리가 없습니다:', slug);
+      return [];
+    }
+
+    const category = categoryResponse.data.data[0];
+    const level = category.level || 2; // 기본값은 2레벨로 가정
+    
+    console.log(`[getCategoryPosts] 카테고리 정보: id=${category.id}, level=${level}`);
+    
+    // 카테고리 포스트 목록
+    let allPosts: any[] = [];
+    
+    // 현재 카테고리 포스트 추가
+    if (category.posts && Array.isArray(category.posts)) {
+      console.log(`[getCategoryPosts] 카테고리 자체 포스트 개수: ${category.posts.length}`);
+      allPosts = [...category.posts];
+    }
+    
+    // 1레벨 카테고리이고 자식 카테고리가 있는 경우, 자식 카테고리의 포스트도 추가
+    if (level === 1 && category.categories && Array.isArray(category.categories) && category.categories.length > 0) {
+      console.log(`[getCategoryPosts] 자식 카테고리 개수: ${category.categories.length}`);
+      
+      // 자식 카테고리 ID 목록
+      const childCategoryIds = category.categories.map((child: any) => child.id);
+      console.log(`[getCategoryPosts] 자식 카테고리 IDs: ${childCategoryIds.join(', ')}`);
+      
+      // 각 자식 카테고리별로 개별 요청을 보냄 (Strapi v5에서 복잡한 $or 필터 대신)
+      for (const childId of childCategoryIds) {
+        try {
+          console.log(`[getCategoryPosts] 자식 카테고리 ID=${childId}의 포스트 요청 중...`);
+          
+          const childPostsResponse = await strapiAPI.get('/posts', {
+            params: {
+              filters: {
+                // Strapi v5 호환 필터 구문
+                category: { id: { $eq: childId } }
+              },
+              sort: ['publishedAt:desc'],
+              pagination: {
+                limit: 100 // 자식 카테고리의 모든 포스트를 가져옴
+              },
+              populate: '*'
+            }
+          });
+          
+          if (childPostsResponse.data.data && Array.isArray(childPostsResponse.data.data)) {
+            console.log(`[getCategoryPosts] 자식 카테고리 ID=${childId}의 포스트 개수: ${childPostsResponse.data.data.length}`);
+            // 자식 카테고리 포스트 추가
+            allPosts = [...allPosts, ...childPostsResponse.data.data];
+          }
+        } catch (childError) {
+          console.error(`자식 카테고리 ID=${childId} 포스트 가져오기 실패:`, childError);
+          // 특정 자식 카테고리 포스트를 가져오지 못했더라도 계속 진행
+        }
+      }
+    }
+    
+    // 중복 제거 (같은 포스트가 여러 카테고리에 속할 수 있음)
+    const uniquePosts = allPosts.filter((post, index, self) => 
+      index === self.findIndex(p => p.id === post.id)
+    );
+    
+    // 페이지네이션 적용
+    const paginatedPosts = uniquePosts
+      .sort((a, b) => new Date(b.publishedAt || '').getTime() - new Date(a.publishedAt || '').getTime())
+      .slice(offset, offset + limit);
+    
+    console.log(`[getCategoryPosts] 총 포스트 개수: ${uniquePosts.length}, 페이지네이션 적용 후: ${paginatedPosts.length}`);
+    
+    // 포스트 데이터 변환
+    const posts = paginatedPosts.map((post: any) => {
+      if (!post) {
+        console.warn('유효하지 않은 포스트 데이터');
+        return null;
+      }
+      
+      // 발행일 처리
+      const publishedDate = post.publishedAt || new Date().toISOString();
+      
+      // 이미지 URL 처리
+      let coverImage = null;
+      if (post.cover) {
+        // Strapi v5에서는 데이터 구조가 다양할 수 있음
+        // getAllPosts와 동일한 방식으로 처리
+        const cover = post.cover.data ? post.cover.data : post.cover;
+        
+        // URL이 cover.url에 직접 있거나 cover.attributes.url에 있을 수 있음
+        const url = cover.url || (cover.attributes ? cover.attributes.url : '');
+        
+        if (url) {
+          coverImage = {
+            url: url,
+            alt: post.title || '이미지'
+          };
+        } else {
+          console.log(`[getCategoryPosts] 이미지 URL을 찾을 수 없음:`, JSON.stringify(post.cover, null, 2));
+        }
+      } else if (post.html && post.html.includes('<img')) {
+        // HTML 본문에서 첫 번째 이미지를 추출하여 커버 이미지로 사용
+        const imgMatch = post.html.match(/<img[^>]+src="([^"]+)"[^>]*>/);
+        if (imgMatch && imgMatch[1]) {
+          coverImage = {
+            url: imgMatch[1],
+            alt: post.title || '이미지'
+          };
+        }
+      }
+      
+      // 태그 처리
+      let tags: any[] = [];
+      if (post.tags && Array.isArray(post.tags)) {
+        tags = post.tags.map((tag: any) => ({
+          id: tag.id,
+          name: tag.name || '태그',
+          slug: tag.slug || `tag-${tag.id}`
+        }));
+      }
+      
+      // 카테고리 처리
+      const postCategory = post.category
+        ? {
+            id: post.category.id,
+            name: post.category.name || '미분류',
+            slug: post.category.slug || 'uncategorized'
+          }
+        : { name: "미분류", slug: "uncategorized" };
+      
+      return {
+        id: post.id,
+        documentId: post.documentId,
+        title: post.title || '제목 없음',
+        description: post.description || '',
+        slug: post.slug || `post-${post.id}`,
+        coverImage,
+        publishedDate,
+        category: postCategory,
+        tags
+      };
+    }).filter(Boolean); // null 값 필터링
+    
+    console.log(`[getCategoryPosts] 최종 반환 포스트 개수: ${posts.length}`);
+    return posts;
+  } catch (error: any) {
+    console.error('카테고리 포스트 가져오기 실패:', error);
+    
+    if (error.response) {
+      console.error('에러 응답 데이터:', JSON.stringify(error.response.data, null, 2));
+      console.error('에러 응답 상태:', error.response.status);
+      console.error('에러 응답 헤더:', JSON.stringify(error.response.headers, null, 2));
+      
+      // 요청 정보도 함께 로깅
+      if (error.config) {
+        console.error('요청 URL:', error.config.url);
+        console.error('요청 메서드:', error.config.method);
+        console.error('요청 파라미터:', error.config.params ? JSON.stringify(error.config.params, null, 2) : '없음');
+      }
+    }
+    
+    return [];
   }
 }

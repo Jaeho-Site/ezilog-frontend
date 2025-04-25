@@ -7,12 +7,6 @@ import { notFound } from "next/navigation";
 // 페이지네이션을 위한 페이지당 포스트 수
 const POSTS_PER_PAGE = 6;
 
-// 페이지 번호 확인 함수
-function getPageNumber(params: { number: string }): number {
-  const pageNumber = parseInt(params.number, 10);
-  return isNaN(pageNumber) || pageNumber < 1 ? 1 : pageNumber;
-}
-
 // 카테고리별 포스트 목록을 가져오는 비동기 컴포넌트
 async function CategoryPostList({ slug, page = 1 }: { slug: string, page: number }) {
   try {
@@ -23,8 +17,8 @@ async function CategoryPostList({ slug, page = 1 }: { slug: string, page: number
       return notFound();
     }
     
-    // 카테고리 포스트 가져오기 (페이지네이션 적용)
-    const posts = await getCategoryPosts(slug, POSTS_PER_PAGE, (page - 1) * POSTS_PER_PAGE);
+    // 카테고리 포스트 가져오기
+    const posts = await getCategoryPosts(slug, POSTS_PER_PAGE, 0);
     
     if (!posts || posts.length === 0) {
       return (
@@ -74,9 +68,7 @@ async function CategoryPostList({ slug, page = 1 }: { slug: string, page: number
 }
 
 // Next.js의 페이지 컴포넌트 (async/await 사용하지 않음)
-export default function CategoryNumberedPage({ params }: { params: { slug: string, number: string } }) {
-  const pageNumber = getPageNumber(params);
-  
+export default function CategoryPage({ params }: { params: { slug: string } }) {  
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Suspense fallback={
@@ -85,8 +77,8 @@ export default function CategoryNumberedPage({ params }: { params: { slug: strin
         </div>
       }>
         {/* CategoryPostList 컴포넌트에서 비동기 작업 처리 */}
-        <CategoryPostList slug={params.slug} page={pageNumber} />
+        <CategoryPostList slug={params.slug} page={1} />
       </Suspense>
     </div>
   );
-}
+} 

@@ -84,8 +84,9 @@ const RenderLink = ({ href, children }: { href: string; children: React.ReactNod
 
 // 코드 블록 렌더링 컴포넌트
 const RenderCodeBlock = ({ language = '', children }: { language?: string; children: string }) => {
+  // p 태그 내부에서 렌더링되는 경우를 방지하기 위해 span 태그 사용
   return (
-    <div className="my-4 overflow-hidden rounded-md">
+    <span className="block my-4 overflow-hidden rounded-md">
       <SyntaxHighlighter
         language={language}
         style={vscDarkPlus}
@@ -94,7 +95,7 @@ const RenderCodeBlock = ({ language = '', children }: { language?: string; child
       >
         {String(children).replace(/\n$/, '')}
       </SyntaxHighlighter>
-    </div>
+    </span>
   );
 };
 
@@ -232,7 +233,12 @@ const MarkdownContent = ({ markdown, postTitle }: { markdown: string; postTitle:
           const match = /language-(\w+)/.exec(className || '');
           const language = match ? match[1] : '';
           
-          return <RenderCodeBlock language={language}>{String(children)}</RenderCodeBlock>;
+          // div가 p 태그 안에 들어가지 않도록 React.Fragment로 감싸기
+          return (
+            <>{/* p 태그 하이드레이션 오류 방지를 위한 Fragment */}
+              <RenderCodeBlock language={language}>{String(children)}</RenderCodeBlock>
+            </>
+          );
         },
         
         // 표 처리
