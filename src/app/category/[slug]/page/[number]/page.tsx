@@ -1,11 +1,32 @@
 import { Suspense } from "react";
 import PostCard, { PostData } from "@/components/ui/PostCard";
-import { getCategoryPosts, getCategoryBySlug } from "@/lib/api";
+import { getCategoryPosts, getCategoryBySlug, getAllCategories } from "@/lib/api";
 import Pagination from "@/components/ui/Pagination";
 import { notFound } from "next/navigation";
 
 // 페이지네이션을 위한 페이지당 포스트 수
 const POSTS_PER_PAGE = 6;
+
+// 정적 페이지 생성 설정
+export const dynamic = 'force-static';
+
+// 빌드 시 정적으로 생성할 경로 정의
+export async function generateStaticParams() {
+  const categories = await getAllCategories();
+  const pages = [1, 2, 3]; // 기본적으로 각 카테고리당 3개 페이지까지 생성
+  
+  const paths = [];
+  for (const category of categories) {
+    for (const page of pages) {
+      paths.push({
+        slug: category.slug,
+        number: page.toString()
+      });
+    }
+  }
+  
+  return paths;
+}
 
 // 페이지 번호 확인 함수
 function getPageNumber(params: { number: string }): number {

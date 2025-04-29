@@ -5,13 +5,22 @@ import Pagination from "@/components/ui/Pagination";
 
 // 페이지네이션을 위한 페이지당 포스트 수
 const POSTS_PER_PAGE = 6;
-
+// 정적 페이지 생성 설정
+export const dynamic = 'force-static';
+// 빌드 시 정적으로 생성할 경로 정의
+export async function generateStaticParams() {
+  // 기본적으로 5개 페이지까지 정적 생성 (필요에 따라 조정 가능)
+  const pages = [1, 2, 3, 4, 5];
+  
+  return pages.map((page) => ({
+    number: page.toString()
+  }));
+}
 // 페이지 번호 확인 함수
 function getPageNumber(params: { number: string }): number {
   const pageNumber = parseInt(params.number, 10);
   return isNaN(pageNumber) || pageNumber < 1 ? 1 : pageNumber;
 }
-
 // 포스트 목록을 가져오는 비동기 컴포넌트
 async function PostList({ page = 1 }: { page: number }) {
   try {
@@ -24,8 +33,7 @@ async function PostList({ page = 1 }: { page: number }) {
           <p className="text-gray-600 dark:text-gray-400">포스트가 없습니다.</p>
         </div>
       );
-    }
-    
+    }    
     return (
       <>
         <div className="mt-10 grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
@@ -51,10 +59,8 @@ async function PostList({ page = 1 }: { page: number }) {
     );
   }
 }
-
 export default function NumberedPage({ params }: { params: { number: string } }) {
-  const pageNumber = getPageNumber(params);
-  
+  const pageNumber = getPageNumber(params); 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Suspense fallback={

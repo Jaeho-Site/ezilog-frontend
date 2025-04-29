@@ -4,6 +4,9 @@ import { Suspense } from "react";
 import PostCard, { PostData } from "@/components/ui/PostCard";
 import { getAllPosts } from "@/lib/api";
 
+// 정적 페이지 생성 설정
+export const dynamic = 'force-static';
+
 // 페이지네이션을 위한 페이지당 포스트 수
 const POSTS_PER_PAGE = 6;
 

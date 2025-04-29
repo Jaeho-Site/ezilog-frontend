@@ -1,11 +1,23 @@
 import { Suspense } from "react";
 import PostCard, { PostData } from "@/components/ui/PostCard";
-import { getCategoryPosts, getCategoryBySlug } from "@/lib/api";
+import { getCategoryPosts, getCategoryBySlug, getAllCategories } from "@/lib/api";
 import Pagination from "@/components/ui/Pagination";
 import { notFound } from "next/navigation";
 
 // 페이지네이션을 위한 페이지당 포스트 수
 const POSTS_PER_PAGE = 6;
+
+// 빌드 시 정적으로 생성할 경로 정의
+export async function generateStaticParams() {
+  const categories = await getAllCategories();
+  
+  return categories.map((category: { slug: string }) => ({
+    slug: category.slug
+  }));
+}
+
+// 정적 페이지 생성 설정
+export const dynamic = 'force-static';
 
 // 카테고리별 포스트 목록을 가져오는 비동기 컴포넌트
 async function CategoryPostList({ slug, page = 1 }: { slug: string, page: number }) {

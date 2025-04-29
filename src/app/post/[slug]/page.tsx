@@ -2,7 +2,7 @@ import { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { getPostBySlug } from "@/lib/api";
+import { getPostBySlug, getAllPosts } from "@/lib/api";
 import parse, { Element, domToReact, HTMLReactParserOptions } from 'html-react-parser';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
@@ -12,6 +12,18 @@ import rehypeSanitize from 'rehype-sanitize';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import remarkGfm from 'remark-gfm';
+
+// 정적 페이지 생성 설정
+export const dynamic = 'force-static';
+
+// 빌드 시 정적으로 생성할 경로 정의
+export async function generateStaticParams() {
+  const posts = await getAllPosts(100, 0); // 최대 100개 포스트 가져오기
+  
+  return posts.map((post: { slug: string }) => ({
+    slug: post.slug
+  }));
+}
 
 // 포스트 페이지 속성 타입
 interface PostPageProps {

@@ -44,6 +44,40 @@ export async function fetchAPI(endpoint: string, options = {}) {
     throw error;
   }
 }
+
+/**
+ * 모든 카테고리 가져오기
+ * @returns 카테고리 목록
+ */
+export async function getAllCategories() {
+  try {
+    const response = await strapiAPI.get('/categories', {
+      params: {
+        pagination: {
+          limit: 100 // 최대 개수 제한 (필요에 따라 조정)
+        }
+      }
+    });
+    
+    if (!response.data.data || !Array.isArray(response.data.data)) {
+      return [];
+    }
+    
+    return response.data.data.map((category: any) => {
+      const attrs = category.attributes || category;
+      return {
+        id: category.id,
+        name: attrs.name || '카테고리',
+        slug: attrs.slug || `category-${category.id}`,
+        level: attrs.level || 2
+      };
+    });
+  } catch (error) {
+    console.error('카테고리 목록을 가져오는 중 오류 발생:', error);
+    return [];
+  }
+}
+
 /**
  * 최상위 카테고리(level=1)와 그 자식 카테고리들을 가져오는 함수
  * @returns 카테고리 트리 구조
@@ -54,6 +88,7 @@ export async function getTopLevelCategories() {
   const data = await fetchAPI('/api/categories?filters[level]=1&populate=*');
   return data;
 }
+
 /**
  * 카테고리 슬러그로 카테고리 정보 가져오기
  * @param slug 카테고리 슬러그
@@ -83,6 +118,7 @@ export async function getCategoryBySlug(slug: string) {
     return null;
   }
 }
+
 /**
  * 특정 카테고리에 속한 포스트 가져오기
  * @param categoryId 카테고리 ID
@@ -92,6 +128,7 @@ export async function getPostsByCategory(categoryId: string) {
   const data = await fetchAPI(`/api/posts?filters[category][id]=${categoryId}&populate=*`);
   return data;
 }
+
 /**
  * 모든 포스트 가져오기
  * @param limit 가져올 포스트 수 (기본값: 10)
