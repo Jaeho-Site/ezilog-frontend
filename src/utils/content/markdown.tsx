@@ -7,6 +7,7 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { RenderImage, RenderLink } from './html';
+import { getImageUrl } from './image';
 
 // 코드 블록 렌더링 컴포넌트
 export const RenderCodeBlock = ({ language = '', children }: { language?: string; children: string }) => {
@@ -64,7 +65,16 @@ export const MarkdownContent = ({ markdown, postTitle }: { markdown: string; pos
         // 이미지 처리
         img: ({ src, alt, ...props }: any) => {
           if (!src) return null;
-          return <RenderImage src={src} alt={alt || postTitle} />;
+          return (
+            <span className="block my-4">
+              <img
+                src={getImageUrl(src)}
+                alt={alt || postTitle}
+                className="max-w-full h-auto mx-auto"
+                {...props}
+              />
+            </span>
+          );
         },
         
         // 링크 처리
