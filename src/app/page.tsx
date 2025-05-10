@@ -8,7 +8,7 @@ import { getAllPosts } from "@/lib/api";
 export const dynamic = 'force-static';
 
 // 페이지네이션을 위한 페이지당 포스트 수
-const POSTS_PER_PAGE = 6;
+const POSTS_PER_PAGE = 10;
 
 // 포스트 목록을 가져오는 비동기 컴포넌트
 async function PostList({ page = 1 }: { page?: number }) {

@@ -71,7 +71,7 @@ async function CategoryPostList({ slug, page = 1 }: { slug: string, page: number
         </h1>
         
         <div className="mt-10 grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-          {posts.filter(Boolean).map((post) => (
+          {posts.filter(Boolean).map((post:PostData) => (
             <PostCard key={post!.id} post={post!} />
           ))}
         </div>

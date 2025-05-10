@@ -21,24 +21,35 @@ export const RenderImage = ({ src, alt = '이미지' }: { src: string; alt?: str
   );
 };
 
-// 링크 렌더링 컴포넌트
 export const RenderLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
   if (!href) return <>{children}</>;
   
   const isExternal = href.startsWith('http');
-  const linkProps = isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {};
   
+  // 외부 링크는 일반 <a> 태그 사용
+  if (isExternal) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+      >
+        {children}
+      </a>
+    );
+  }
+  
+  // 내부 링크만 Next.js Link 컴포넌트 사용
   return (
     <Link
       href={href}
-      {...linkProps}
       className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
     >
       {children}
     </Link>
   );
 };
-
 // HTML 콘텐츠 파서
 export const HtmlContent = ({ html, postTitle }: { html: string; postTitle: string }) => {
   const parseOptions: HTMLReactParserOptions = {
