@@ -17,7 +17,7 @@ export async function generateStaticParams() {
   }));
 }
 // 페이지 번호 확인 함수
-function getPageNumber(params: { number: string }): number {
+function getPageNumber(params: any): number {
   const pageNumber = parseInt(params.number, 10);
   return isNaN(pageNumber) || pageNumber < 1 ? 1 : pageNumber;
 }
@@ -59,7 +59,7 @@ async function PostList({ page = 1 }: { page: number }) {
     );
   }
 }
-export default function NumberedPage({ params }: { params: { number: string } }) {
+export default function NumberedPage({ params }: any) {
   const pageNumber = getPageNumber(params); 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

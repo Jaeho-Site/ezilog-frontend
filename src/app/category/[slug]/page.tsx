@@ -10,6 +10,7 @@ const POSTS_PER_PAGE = 6;
 // 빌드 시 정적으로 생성할 경로 정의
 export async function generateStaticParams() {
   const categories = await getAllCategories();
+  console.dir(categories, { depth: null });
   
   return categories.map((category: { slug: string }) => ({
     slug: category.slug
@@ -20,7 +21,7 @@ export async function generateStaticParams() {
 export const dynamic = 'force-static';
 
 // 카테고리별 포스트 목록을 가져오는 비동기 컴포넌트
-async function CategoryPostList({ slug, page = 1 }: { slug: string, page: number }) {
+async function CategoryPostList({ slug }: { slug: string }) {
   try {
     // 카테고리 정보 가져오기
     const category = await getCategoryBySlug(slug);
@@ -29,7 +30,7 @@ async function CategoryPostList({ slug, page = 1 }: { slug: string, page: number
       return notFound();
     }
     
-    // 카테고리 포스트 가져오기
+    // 카테고리 포스트 가져오기 (첫 페이지)
     const posts = await getCategoryPosts(slug, POSTS_PER_PAGE, 0);
     
     if (!posts || posts.length === 0) {
@@ -56,14 +57,14 @@ async function CategoryPostList({ slug, page = 1 }: { slug: string, page: number
         </h1>
         
         <div className="mt-10 grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-          {posts.filter(Boolean).map((post) => (
-            <PostCard key={post!.id} post={post!} />
+          {posts.filter(Boolean).map((post: PostData) => (
+            <PostCard key={post.id} post={post} />
           ))}
         </div>
         
         {/* 페이지네이션 */}
         <Pagination 
-          currentPage={page} 
+          currentPage={1} 
           hasMore={posts.length === POSTS_PER_PAGE} 
           basePath={`/category/${slug}`}
         />
@@ -79,18 +80,34 @@ async function CategoryPostList({ slug, page = 1 }: { slug: string, page: number
   }
 }
 
-// Next.js의 페이지 컴포넌트 (async/await 사용하지 않음)
-export default function CategoryPage({ params }: { params: { slug: string } }) {  
+// // 올바른 Next.js 페이지 컴포넌트
+// export default async function CategoryPage({ params }: { params: { slug: string } }) {
+//   // params 객체를 먼저 await
+//   const resolvedParams = await params;
+//   const slug = resolvedParams.slug;
+  
+//   return (
+//     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+//       <Suspense fallback={
+//         <div className="text-center py-10">
+//           <p className="text-gray-600 dark:text-gray-400">포스트를 불러오는 중...</p>
+//         </div>
+//       }>
+//         <CategoryPostList slug={slug} />
+//       </Suspense>
+//     </div>
+//   );
+// }
+// /category/[slug]/page.tsx
+// 내장 Next.js 타입 대신 any 타입 사용
+export default async function CategoryPage({ params }: any) {
+  const slug = params.slug;
+  
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <Suspense fallback={
-        <div className="text-center py-10">
-          <p className="text-gray-600 dark:text-gray-400">포스트를 불러오는 중...</p>
-        </div>
-      }>
-        {/* CategoryPostList 컴포넌트에서 비동기 작업 처리 */}
-        <CategoryPostList slug={params.slug} page={1} />
+      <Suspense fallback={<div className="text-center py-10">포스트를 불러오는 중...</div>}>
+        <CategoryPostList slug={slug} />
       </Suspense>
     </div>
   );
-} 
+}

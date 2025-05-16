@@ -71,8 +71,8 @@ async function CategoryPostList({ slug, page = 1 }: { slug: string, page: number
         </h1>
         
         <div className="mt-10 grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-          {posts.filter(Boolean).map((post:PostData) => (
-            <PostCard key={post!.id} post={post!} />
+          {posts.filter(Boolean).map((post: PostData) => (
+            <PostCard key={post.id} post={post} />
           ))}
         </div>
         
@@ -94,8 +94,7 @@ async function CategoryPostList({ slug, page = 1 }: { slug: string, page: number
   }
 }
 
-// Next.js의 페이지 컴포넌트 (async/await 사용하지 않음)
-export default function CategoryNumberedPage({ params }: { params: { slug: string, number: string } }) {
+export default async function CategoryNumberedPage({ params }: any) {
   const pageNumber = getPageNumber(params);
   
   return (
@@ -105,7 +104,6 @@ export default function CategoryNumberedPage({ params }: { params: { slug: strin
           <p className="text-gray-600 dark:text-gray-400">포스트를 불러오는 중...</p>
         </div>
       }>
-        {/* CategoryPostList 컴포넌트에서 비동기 작업 처리 */}
         <CategoryPostList slug={params.slug} page={pageNumber} />
       </Suspense>
     </div>

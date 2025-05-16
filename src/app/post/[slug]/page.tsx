@@ -34,10 +34,11 @@ interface PostPageProps {
 
 // SEO 메타데이터 생성
 export async function generateMetadata(
-  { params }: PostPageProps,
+  { params }: any,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug);
+  const slug = params.slug;
+  const post = await getPostBySlug(slug);
   
   if (!post) {
     return { title: '게시물을 찾을 수 없습니다' };
@@ -55,9 +56,10 @@ export async function generateMetadata(
 }
 
 // 포스트 페이지 컴포넌트
-export default async function PostPage({ params }: PostPageProps) {
+export default async function PostPage({ params }: any) {
   // 포스트 데이터 가져오기
-  const post = await getPostBySlug(params.slug);
+  const slug = params.slug; // await 제거
+  const post = await getPostBySlug(slug);
   
   // 데이터가 없으면 404 페이지 표시
   if (!post) notFound();
