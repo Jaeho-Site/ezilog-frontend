@@ -267,3 +267,27 @@ export async function getCategoryPosts(slug: string, limit = 6, offset = 0) {
   }
 }
 
+export async function getTopLevelCategories() {
+  try {
+    const response = await strapiAPI.get('/categories', {
+      params: {
+        filters: {
+          level: { $eq: 1 }
+        },
+        populate: {
+          categories: {
+            fields: ['name', 'slug'],
+          },
+        },
+        fields: ['name', 'slug']
+      }
+    });
+
+    return response.data ?? { data: [] };
+  } catch (error) {
+    console.error('상위 카테고리 목록 가져오기 오류:', error);
+    return { data: [] };
+  }
+}
+
+
