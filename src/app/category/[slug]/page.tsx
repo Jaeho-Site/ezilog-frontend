@@ -10,7 +10,6 @@ const POSTS_PER_PAGE = 6;
 // 빌드 시 정적으로 생성할 경로 정의
 export async function generateStaticParams() {
   const categories = await getAllCategories();
-  console.dir(categories, { depth: null });
   
   return categories.map((category: { slug: string }) => ({
     slug: category.slug
@@ -25,7 +24,9 @@ async function CategoryPostList({ slug }: { slug: string }) {
   try {
     // 카테고리 정보 가져오기
     const category = await getCategoryBySlug(slug);
-    
+    console.log('🔍 카테고리 정보:');
+    console.dir(category, { depth: null });
+    console.log('🔍 카테고리 정보 끝');
     if (!category) {
       return notFound();
     }
@@ -40,20 +41,13 @@ async function CategoryPostList({ slug }: { slug: string }) {
         </div>
       );
     }
-    
     // Strapi v5에서는 attributes가 최상위 레벨로 이동됨
     const categoryName = category.name || slug;
-    const categoryLevel = category.level || 2;
-    
+
     return (
       <>
         <h1 className="text-3xl font-bold mb-6">
           {categoryName}
-          {categoryLevel === 2 && category.parent && (
-            <span className="text-lg ml-2 text-gray-500">
-              ({category.parent.name || '상위 카테고리'})
-            </span>
-          )}
         </h1>
         
         <div className="mt-10 grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
@@ -79,27 +73,6 @@ async function CategoryPostList({ slug }: { slug: string }) {
     );
   }
 }
-
-// // 올바른 Next.js 페이지 컴포넌트
-// export default async function CategoryPage({ params }: { params: { slug: string } }) {
-//   // params 객체를 먼저 await
-//   const resolvedParams = await params;
-//   const slug = resolvedParams.slug;
-  
-//   return (
-//     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-//       <Suspense fallback={
-//         <div className="text-center py-10">
-//           <p className="text-gray-600 dark:text-gray-400">포스트를 불러오는 중...</p>
-//         </div>
-//       }>
-//         <CategoryPostList slug={slug} />
-//       </Suspense>
-//     </div>
-//   );
-// }
-// /category/[slug]/page.tsx
-// 내장 Next.js 타입 대신 any 타입 사용
 export default async function CategoryPage({ params }: any) {
   const slug = params.slug;
   

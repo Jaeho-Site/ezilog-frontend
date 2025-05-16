@@ -81,10 +81,30 @@ function formatPost(post: any): any {
     tags
   };
 }
-/**
- * 모든 카테고리 가져오기
- * @returns 카테고리 목록
- */
+
+export async function getTopLevelCategories() {
+  try {
+    const response = await strapiAPI.get('/categories', {
+      params: {
+        filters: {
+          level: { $eq: 1 }
+        },
+        populate: {
+          categories: {
+            fields: ['name', 'slug'],
+          },
+        },
+        fields: ['name', 'slug']
+      }
+    });
+
+    return response.data ?? { data: [] };
+  } catch (error) {
+    console.error('상위 카테고리 목록 가져오기 오류:', error);
+    return { data: [] };
+  }
+}
+
 export async function getAllCategories() {
   try {
     const response = await strapiAPI.get('/categories', {
@@ -113,11 +133,7 @@ export async function getAllCategories() {
     return [];
   }
 }
-/**
- * 카테고리 슬러그로 카테고리 정보 가져오기
- * @param slug 카테고리 슬러그
- * @returns 카테고리 정보
- */
+
 export async function getCategoryBySlug(slug: string) {
   try {
     const response = await strapiAPI.get('/categories', {
@@ -125,14 +141,11 @@ export async function getCategoryBySlug(slug: string) {
         filters: { 
           slug: { $eq: slug } 
         },
-        populate: '*'
-      }
+      }  
     });
-    
     if (!response.data.data || response.data.data.length === 0) {
       return null;
     }
-    
     return response.data.data[0];
   } catch (error: any) {
     return null;
@@ -266,28 +279,4 @@ export async function getCategoryPosts(slug: string, limit = 6, offset = 0) {
     return [];
   }
 }
-
-export async function getTopLevelCategories() {
-  try {
-    const response = await strapiAPI.get('/categories', {
-      params: {
-        filters: {
-          level: { $eq: 1 }
-        },
-        populate: {
-          categories: {
-            fields: ['name', 'slug'],
-          },
-        },
-        fields: ['name', 'slug']
-      }
-    });
-
-    return response.data ?? { data: [] };
-  } catch (error) {
-    console.error('상위 카테고리 목록 가져오기 오류:', error);
-    return { data: [] };
-  }
-}
-
 

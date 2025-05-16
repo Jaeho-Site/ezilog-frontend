@@ -54,20 +54,13 @@ async function CategoryPostList({ slug, page = 1 }: { slug: string, page: number
         </div>
       );
     }
-    
     // Strapi v5에서는 attributes가 최상위 레벨로 이동됨
     const categoryName = category.name || slug;
-    const categoryLevel = category.level || 2;
-    
+  
     return (
       <>
         <h1 className="text-3xl font-bold mb-6">
           {categoryName}
-          {categoryLevel === 2 && category.parent && (
-            <span className="text-lg ml-2 text-gray-500">
-              ({category.parent.name || '상위 카테고리'})
-            </span>
-          )}
         </h1>
         
         <div className="mt-10 grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
