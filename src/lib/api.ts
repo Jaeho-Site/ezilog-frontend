@@ -151,12 +151,89 @@ export async function getCategoryBySlug(slug: string) {
     return null;
   }
 }
-/**
- * 모든 포스트 가져오기
- * @param limit 가져올 포스트 수 (기본값: 10)
- * @param offset 건너뛸 포스트 수 (기본값: 0)
- * @returns 포스트 목록
- */
+
+async function getPostsByCategoryFilter(categoryFilter: any, limit: number, offset: number) {
+  const postsResponse = await strapiAPI.get('/posts', {
+    params: {
+      filters: {
+        category: categoryFilter
+      },
+      sort: ['publishedAt:desc'],
+      pagination: {
+        limit: limit,
+        start: offset
+      },
+      populate: {
+        cover: {
+          fields: ['url']
+        },
+        tags: {
+          fields: ['name', 'slug']
+        },
+        category: {
+          fields: ['name', 'slug']
+        }
+      },
+      fields: ['title', 'description', 'slug', 'publishedAt']
+    }
+  });
+
+  if (!postsResponse.data.data) {
+    return [];
+  }
+  return postsResponse.data.data.map(formatPost).filter(Boolean);
+}
+
+export async function getCategoryPosts(slug: string, limit = 6, offset = 0) {
+  try {
+    // 1. 먼저 카테고리 정보를 가져옴
+    const categoryResponse = await strapiAPI.get('/categories', {
+      params: {
+        filters: { 
+          slug: { $eq: slug } 
+        },
+        populate: {
+          categories: {
+            fields: ['id']
+          }
+        },
+        fields: ['level']
+      }
+    });
+
+    if (!categoryResponse.data.data || categoryResponse.data.data.length === 0) {
+      return [];
+    }
+
+    const category = categoryResponse.data.data[0];
+    const categoryData = category.attributes || category;
+    const level = categoryData.level || 2;
+    
+    // 레벨에 따라 다른 쿼리 전략 사용
+    if (level === 1) {
+      // 1레벨 카테고리인 경우: 자식 카테고리들의 포스트를 가져옴
+      const childCategories = categoryData.categories || [];
+      const childCategoryIds = childCategories.map((child: any) => child.id);
+
+      return getPostsByCategoryFilter(
+        { id: { $in: childCategoryIds } },
+        limit,
+        offset
+      );  
+    } else {
+      // 2레벨 카테고리인 경우: 해당 카테고리의 포스트만 직접 가져옴
+      return getPostsByCategoryFilter(
+        { id: { $eq: category.id } },
+        limit,
+        offset
+      );
+    }
+  } catch (error) {
+    console.error('카테고리 포스트 가져오기 오류:', error);
+    return [];
+  }
+}
+
 export async function getAllPosts(limit = 10, offset = 0) {
   try {
     const response = await strapiAPI.get('/posts', {
@@ -179,11 +256,7 @@ export async function getAllPosts(limit = 10, offset = 0) {
     return [];
   }
 }
-/**
- * 포스트 슬러그로 단일 포스트 정보 가져오기
- * @param slug 포스트 슬러그
- * @returns 포스트 정보
- */
+
 export async function getPostBySlug(slug: string) {
   try {
     const response = await strapiAPI.get('/posts', {
@@ -215,68 +288,3 @@ export async function getPostBySlug(slug: string) {
     return null;
   }
 }
-/**
- * 카테고리 슬러그로 해당 카테고리와 그 자식 카테고리의 포스트를 가져오는 함수
- * @param slug 카테고리 슬러그
- * @param limit 가져올 포스트 수 (기본값: 6)
- * @param offset 건너뛸 포스트 수 (기본값: 0)
- * @returns 포스트 목록
- */
-export async function getCategoryPosts(slug: string, limit = 6, offset = 0) {
-  try {
-    // 카테고리 정보를 가져옵니다 (포스트와 자식 카테고리 정보 포함)
-    const categoryResponse = await strapiAPI.get('/categories', {
-      params: {
-        filters: { 
-          slug: { $eq: slug } 
-        },
-        populate: '*'
-      }
-    });
-
-    if (!categoryResponse.data.data || categoryResponse.data.data.length === 0) {
-      return [];
-    }
-
-    const category = categoryResponse.data.data[0];
-    const level = category.level || 2; // 기본값은 2레벨로 가정
-    
-    let allCategoryIds = [category.id];
-    
-    // 1레벨 카테고리이고 자식 카테고리가 있는 경우, 자식 카테고리 ID도 포함
-    if (level === 1 && category.categories && Array.isArray(category.categories) && category.categories.length > 0) {
-      const childCategoryIds = category.categories.map((child: any) => child.id);
-      allCategoryIds = [...allCategoryIds, ...childCategoryIds];
-    }
-
-    // 모든 관련 카테고리의 포스트를 한 번에 가져오기
-    const postsResponse = await strapiAPI.get('/posts', {
-      params: {
-        filters: {
-          category: { id: { $in: allCategoryIds } }
-        },
-        sort: ['publishedAt:desc'],
-        pagination: {
-          limit: 100 // 충분히 많은 포스트를 가져옴
-        },
-        populate: '*'
-      }
-    });
-    
-    if (!postsResponse.data.data || !Array.isArray(postsResponse.data.data)) {
-      return [];
-    } 
-    // 중복 제거 및 페이지네이션 적용
-    const uniquePosts = postsResponse.data.data
-      .filter((post: any, index: number, self: any[]) => 
-        index === self.findIndex((p: any) => p.id === post.id)
-      )
-      .sort((a: any, b: any) => new Date(b.publishedAt || '').getTime() - new Date(a.publishedAt || '').getTime())
-      .slice(offset, offset + limit);
-    
-    return uniquePosts.map(formatPost).filter(Boolean);
-  } catch (error: any) {
-    return [];
-  }
-}
-

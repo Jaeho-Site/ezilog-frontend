@@ -24,13 +24,9 @@ async function CategoryPostList({ slug }: { slug: string }) {
   try {
     // 카테고리 정보 가져오기
     const category = await getCategoryBySlug(slug);
-    console.log('🔍 카테고리 정보:');
-    console.dir(category, { depth: null });
-    console.log('🔍 카테고리 정보 끝');
     if (!category) {
       return notFound();
     }
-    
     // 카테고리 포스트 가져오기 (첫 페이지)
     const posts = await getCategoryPosts(slug, POSTS_PER_PAGE, 0);
     
