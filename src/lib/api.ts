@@ -109,23 +109,29 @@ export async function getAllCategories() {
   try {
     const response = await strapiAPI.get('/categories', {
       params: {
+        populate: {
+          posts: {
+            count: true
+          }
+        },
         pagination: {
           limit: 100
         }
       }
     });
-    
+
     if (!response.data.data || !Array.isArray(response.data.data)) {
       return [];
     }
-    
+
     return response.data.data.map((category: any) => {
       const attrs = category.attributes || category;
       return {
         id: category.id,
         name: attrs.name || '카테고리',
         slug: attrs.slug || `category-${category.id}`,
-        level: attrs.level || 2
+        level: attrs.level || 2,
+        postCount: attrs.posts?.meta?.count ?? 0 // ← 여기에 포스트 수
       };
     });
   } catch (error) {

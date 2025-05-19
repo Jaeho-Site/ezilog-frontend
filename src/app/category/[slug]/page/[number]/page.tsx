@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { getAllCategories } from "@/lib/api";
-import CategoryPostList from "@/components/category/CategoryPostList";
+import CategoryPostList, { POSTS_PER_PAGE } from "@/components/category/CategoryPostList";
 
 // 정적 페이지 생성 설정
 export const dynamic = 'force-static';
@@ -8,18 +8,27 @@ export const dynamic = 'force-static';
 // 빌드 시 정적으로 생성할 경로 정의
 export async function generateStaticParams() {
   const categories = await getAllCategories();
-  const pages = [1, 2, 3]; // 기본적으로 각 카테고리당 3개 페이지까지 생성
-  
   const paths = [];
+  
   for (const category of categories) {
-    for (const page of pages) {
-      paths.push({
-        slug: category.slug,
-        number: page.toString()
-      });
+    // 카테고리가 가진 포스트 수 확인
+    const postCount = category.postCount || 0;
+    // 필요한 페이지 수 계산 (올림)
+    const totalPages = Math.ceil(postCount / POSTS_PER_PAGE);
+    // 1페이지는 [slug]/page.tsx에서 처리하므로 2페이지부터 생성
+    // 포스트가 충분히 있어 2페이지 이상 필요한 경우에만 생성
+    if (totalPages >= 2) {
+      // 최대 5페이지까지만 정적 생성 (필요에 따라 조정 가능)
+      const maxPages = Math.min(totalPages, 5); 
+      
+      for (let page = 2; page <= maxPages; page++) {
+        paths.push({
+          slug: category.slug,
+          number: page.toString()
+        });
+      }
     }
   }
-  
   return paths;
 }
 
