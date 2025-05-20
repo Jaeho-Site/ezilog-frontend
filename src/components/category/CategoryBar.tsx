@@ -15,6 +15,7 @@ interface Category {
   childCategories?: Category[];
   children?: Category[];
   categories?: Category[]; // Strapi API에서 반환하는 실제 자식 카테고리 필드
+  posts?: Array<{ id: number; documentId: string }>; // 포스트 목록
 }
 
 interface CategoryBarProps {
@@ -41,6 +42,7 @@ const CategoryBar = ({ isOpen, onClose }: CategoryBarProps) => {
       setIsLoading(true);
       setError(null);
       const response = await getTopLevelCategories();
+      
       if (response.data) {
         setCategories(response.data);
       }
@@ -67,6 +69,9 @@ const CategoryBar = ({ isOpen, onClose }: CategoryBarProps) => {
     const childCategories = category.categories || [];
     const isExpanded = expandedCategories[category.id];
     
+    // 포스트 수 계산
+    const postCount = category.posts?.length ?? 0;
+    
     return (
       <div key={category.id} className="mb-2">
         <div className="flex items-center">
@@ -91,23 +96,38 @@ const CategoryBar = ({ isOpen, onClose }: CategoryBarProps) => {
             onClick={onClose}
           >
             {category.name}
+            {postCount > 0 && (
+              <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                ({postCount})
+              </span>
+            )}
           </Link>
         </div>
         
         {/* 확장된 상태이고 자식 카테고리가 있다면 자식 카테고리 렌더링 */}
         {isExpanded && hasChildren && (
           <div className="ml-6 mt-1 border-l-2 border-gray-200 dark:border-gray-700 pl-2">
-            {childCategories.map((child: Category) => (
-              <div key={child.id} className="py-1">
-                <Link 
-                  href={`/category/${child.slug}`}
-                  className="block px-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
-                  onClick={onClose}
-                >
-                  {child.name}
-                </Link>
-              </div>
-            ))}
+            {childCategories.map((child: Category) => {
+              // 자식 카테고리의 포스트 수 계산
+              const childPostCount = child.posts?.length ?? 0;
+              
+              return (
+                <div key={child.id} className="py-1">
+                  <Link 
+                    href={`/category/${child.slug}`}
+                    className="block px-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
+                    onClick={onClose}
+                  >
+                    {child.name}
+                    {childPostCount > 0 && (
+                      <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                        ({childPostCount})
+                      </span>
+                    )}
+                  </Link>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

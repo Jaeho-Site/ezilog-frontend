@@ -1,5 +1,6 @@
 const API_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 const API_TOKEN = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
+import qs from 'qs';
 import axios from 'axios';
 // axios 인스턴스 생성
 export const strapiAPI = axios.create({
@@ -13,12 +14,7 @@ export const strapiAPI = axios.create({
 function formatDate(data: any): string {
   return data?.PublishedDate || data?.publishedAt || new Date().toISOString().split('T')[0];
 }
-/**
- * 이미지 처리 함수
- * @param imageData 이미지 데이터
- * @param title 대체 텍스트로 사용할 제목
- * @returns 처리된 이미지 객체
- */
+
 function formatImage(imageData: any, title: string = '이미지'): any {
   if (!imageData) return null;
   
@@ -84,19 +80,28 @@ function formatPost(post: any): any {
 
 export async function getTopLevelCategories() {
   try {
-    const response = await strapiAPI.get('/categories', {
-      params: {
-        filters: {
-          level: { $eq: 1 }
-        },
-        populate: {
-          categories: {
-            fields: ['name', 'slug'],
-          },
-        },
-        fields: ['name', 'slug']
+    const query = qs.stringify({
+      filters: {
+        level: {
+          $eq: 1
+        }
+      },
+      fields: ['name', 'slug'],
+      populate: {
+        categories: {
+          fields: ['name', 'slug'],
+          populate: {
+            posts: {
+              fields: ['id'] 
+            }
+          }
+        }
       }
+    }, {
+      encodeValuesOnly: true
     });
+
+    const response = await strapiAPI.get(`/categories?${query}`);
 
     return response.data ?? { data: [] };
   } catch (error) {
@@ -104,7 +109,6 @@ export async function getTopLevelCategories() {
     return { data: [] };
   }
 }
-
 export async function getAllCategories() {
   try {
     const response = await strapiAPI.get('/categories', {
