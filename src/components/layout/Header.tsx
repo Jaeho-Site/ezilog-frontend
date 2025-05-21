@@ -4,13 +4,15 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
-import { FiMenu, FiMoon, FiSun, FiX } from "react-icons/fi";
+import { FiMenu, FiMoon, FiSun, FiX, FiSearch } from "react-icons/fi";
 import CategoryBar from "@/components/category/CategoryBar";
+import SearchBar from "@/components/ui/SearchBar";
 
 const Header = () => {
   const { theme, setTheme } = useTheme();
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [visible, setVisible] = useState(true);
@@ -48,70 +50,93 @@ const Header = () => {
     if (isCategoryOpen) setIsCategoryOpen(false);
   };
 
+  const toggleSearch = () => {
+    setIsSearchExpanded(!isSearchExpanded);
+  };
+
   return (
     <header 
       className={`sticky top-0 z-50 bg-white dark:bg-gray-900 py-8 transition-transform duration-300 ${
         visible ? 'transform-none' : '-translate-y-full'
       }`}
     >
-      <div className="container mx-auto px-6">
-        {/* PC 헤더 */}
-        <div className="hidden md:flex md:items-center md:justify-between">
+      <div className="container mx-auto px-6 relative">
+        {/* PC 헤더 - Grid 레이아웃 사용 */}
+        <div className="hidden md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
           {/* 왼쪽: 카테고리 버튼 */}
-          <button
-            onClick={toggleCategory}
-            className="p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            aria-label="카테고리 메뉴"
-          >
-            <FiMenu className="h-7 w-7 text-gray-700 dark:text-gray-300" />
-          </button>
-
-          {/* 중앙: 메인 네비게이션 */}
-          <div className="flex items-center">
-            <Link
-              href="/"
-              className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors mr-16"
+          <div className="flex justify-start">
+            <button
+              onClick={toggleCategory}
+              className="p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              aria-label="카테고리 메뉴"
             >
-              Home
-            </Link>
-            
-            <Link
-              href="/about"
-              className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors mr-16"
-            >
-              About
-            </Link>
-            
-            {/* 로고 */}
-            <Link href="/" className="flex items-center mx-10">
-              <div className="relative w-[122px] h-[69px] sm:h-12 md:h-14 lg:h-16 xl:h-[69px]">
-                <Image 
-                  src="/Ezilog2.svg"
-                  alt="EziLog"
-                  fill
-                  className="object-contain dark:invert"
-                  priority
-                />
-              </div>
-            </Link>
-            
-            <Link
-              href="/archive"
-              className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors ml-16 mr-10"
-            >
-              Archive
-            </Link>
-            
-            <Link
-              href="/latest"
-              className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
-            >
-              Latest
-            </Link>
+              <FiMenu className="h-7 w-7 text-gray-700 dark:text-gray-300" />
+            </button>
           </div>
 
-          {/* 오른쪽: 로그인 버튼과 다크모드 토글 */}
-          <div className="flex items-center space-x-4">
+          {/* 중앙: 메인 네비게이션 - 화면 중앙에 고정 */}
+          <div className="flex justify-center">
+            <nav className="flex items-center">
+              {/* 왼쪽 링크 그룹 */}
+              <div className="flex items-center">
+                <Link
+                  href="/"
+                  className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors mr-12"
+                >
+                  Home
+                </Link>
+                
+                <Link
+                  href="/about"
+                  className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors mr-14"
+                >
+                  About
+                </Link>
+              </div>
+              
+              {/* 로고 */}
+              <Link href="/" className="flex items-center mx-8">
+                <div className="relative w-[122px] h-[69px] sm:h-12 md:h-14 lg:h-16 xl:h-[69px]">
+                  <Image 
+                    src="/Ezilog2.svg"
+                    alt="EziLog"
+                    fill
+                    className="object-contain dark:invert"
+                    priority
+                  />
+                </div>
+              </Link>
+              
+              {/* 오른쪽 링크 그룹 */}
+              <div className="flex items-center">
+                <Link
+                  href="/search"
+                  className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors ml-14"
+                >
+                  Archive
+                </Link>
+                
+                <Link
+                  href="/latest"
+                  className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors ml-12 mr-6"
+                >
+                  Latest
+                </Link>
+              </div>
+            </nav>
+          </div>
+
+          {/* 오른쪽: 검색바, 다크모드 토글 */}
+          <div className="flex justify-end items-center space-x-4">
+            {/* 검색바 (PC) - 항상 표시 */}
+            <div className="hidden md:block ml-4">
+              <SearchBar 
+                variant="compact" 
+                placeholder="포스트 검색..."
+                className="transition-all duration-300"
+              />
+            </div>
+
             {/* 다크모드 토글 버튼 */}
             {mounted && (
               <button
@@ -153,12 +178,21 @@ const Header = () => {
             </div>
           </Link>
 
-          {/* 오른쪽: 모바일 메뉴 버튼 */}
+          {/* 오른쪽: 검색, 다크모드, 모바일 메뉴 버튼 */}
           <div className="flex items-center">
+            {/* 검색 버튼 (모바일) */}
+            <button
+              onClick={toggleSearch}
+              className="p-2 mr-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              aria-label="검색"
+            >
+              <FiSearch className="h-6 w-6 text-gray-700 dark:text-gray-300" />
+            </button>
+
             {mounted && (
               <button
                 onClick={toggleTheme}
-                className="p-2 mr-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="p-2 mr-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 aria-label={theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
               >
                 {theme === "dark" ? (
@@ -181,6 +215,17 @@ const Header = () => {
             </button>
           </div>
         </div>
+
+        {/* 모바일 검색바 (확장 시에만 표시) */}
+        {isSearchExpanded && (
+          <div className="md:hidden mt-4">
+            <SearchBar 
+              expanded={isSearchExpanded} 
+              onToggle={toggleSearch} 
+              placeholder="포스트 검색..."
+            />
+          </div>
+        )}
       </div>
 
       {/* 카테고리 바 컴포넌트 */}
@@ -205,7 +250,7 @@ const Header = () => {
               About
             </Link>
             <Link
-              href="/archive"
+              href="/search"
               className="text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
               onClick={() => setIsMobileMenuOpen(false)}
             >
@@ -217,15 +262,6 @@ const Header = () => {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Latest
-            </Link>
-            
-            {/* 로그인 링크 */}
-            <Link
-              href="/login"
-              className="flex items-center text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <span>Login</span>
             </Link>
           </nav>
         </div>
