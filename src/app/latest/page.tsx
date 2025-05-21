@@ -1,40 +1,76 @@
-export default function Archive() {
+import Link from "next/link";
+import { Suspense } from "react";
+import PostCard, { PostData } from "@/components/ui/PostCard";
+import { getAllPosts } from "@/lib/api";
+
+// 정적 페이지 생성 설정
+export const dynamic = 'force-static';
+
+// 페이지네이션을 위한 페이지당 포스트 수
+const POSTS_PER_PAGE = 12;
+
+// 포스트 목록을 가져오는 비동기 컴포넌트
+async function PostList({ page = 1 }: { page?: number }) {
+  try {
+    // Strapi에서 포스트 가져오기 (페이지네이션 적용)
+    const posts = await getAllPosts(POSTS_PER_PAGE, (page - 1) * POSTS_PER_PAGE);
+    
+    if (!posts || posts.length === 0) {
+      return (
+        <div className="text-center py-10">
+          <p className="text-gray-600 dark:text-gray-400">포스트가 없습니다.</p>
+        </div>
+      );
+    }
+    
     return (
-      <div className="container mx-auto px-4 py-12">
-        <h1 className="text-3xl font-bold mb-8 text-center">EziLog 소개</h1>
-        
-        <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">프로젝트 소개</h2>
-          <p className="text-gray-700 dark:text-gray-300 mb-6">
-            EziLog는 Strapi CMS, Next.js, Supabase, AWS S3를 사용한 헤드리스 블로그 플랫폼입니다.
-            정적 생성(SSG) 기반의 SEO 최적화 구조를 통해 빠른 로딩 속도와 검색 엔진 최적화를 제공합니다.
-          </p>
-          
-          <h2 className="text-xl font-semibold mb-4">기술 스택</h2>
-          <ul className="list-disc pl-6 mb-6 text-gray-700 dark:text-gray-300">
-            <li className="mb-2">CMS: Strapi - 콘텐츠 관리 시스템</li>
-            <li className="mb-2">프론트엔드: Next.js - React 기반 프레임워크</li>
-            <li className="mb-2">댓글 시스템: Supabase Realtime - 실시간 데이터 동기화</li>
-            <li className="mb-2">이미지 스토리지: AWS S3 + CloudFront - 이미지 저장 및 CDN 서비스</li>
-            <li>배포: Vercel - 프론트엔드 호스팅 및 CI/CD</li>
-          </ul>
-          
-          <h2 className="text-xl font-semibold mb-4">주요 기능</h2>
-          <ul className="list-disc pl-6 text-gray-700 dark:text-gray-300">
-            <li className="mb-2">SEO 최적화된 정적 페이지 생성</li>
-            <li className="mb-2">마크다운 및 리치 텍스트 지원</li>
-            <li className="mb-2">카테고리 및 태그 기반 콘텐츠 분류</li>
-            <li className="mb-2">Supabase를 활용한 실시간 댓글 시스템</li>
-            <li>다크 모드 지원</li>
-          </ul>
+      <>
+        <div className="mt-10 grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+          {posts.map((post: PostData) => (
+            <PostCard key={post.id} post={post} />
+          ))}
         </div>
         
-        <div className="max-w-3xl mx-auto text-center">
-          <p className="text-gray-600 dark:text-gray-400 text-sm">
-            이 프로젝트는 개발 중이며, 추가 기능 및 개선 사항이 계속 업데이트될 예정입니다.
-          </p>
+        {/* 페이지네이션 */}
+        <div className="mt-12 flex justify-center">
+          <nav className="flex items-center space-x-2">
+            {page > 1 && (
+              <Link href={`/page/${page - 1}`} className="px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                이전
+              </Link>
+            )}
+            <span className="px-4 py-2 border rounded-md bg-blue-100 dark:bg-blue-900">
+              {page}
+            </span>
+            {posts.length === POSTS_PER_PAGE && (
+              <Link href={`/page/${page + 1}`} className="px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                다음
+              </Link>
+            )}
+          </nav>
         </div>
+      </>
+    );
+  } catch (error) {
+    console.error("포스트 목록을 가져오는 중 오류 발생:", error);
+    return (
+      <div className="text-center py-10">
+        <p className="text-red-600 dark:text-red-400">포스트를 불러오는 중 오류가 발생했습니다.</p>
       </div>
     );
   }
-  
+}
+
+export default function Latest() {
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <Suspense fallback={
+        <div className="text-center py-10">
+          <p className="text-gray-600 dark:text-gray-400">포스트를 불러오는 중...</p>
+        </div>
+      }>
+        <PostList page={1} />
+      </Suspense>
+    </div>
+  );
+}

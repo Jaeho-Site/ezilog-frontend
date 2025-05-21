@@ -170,9 +170,6 @@ async function getPostsByCategoryFilter(categoryFilter: any, limit: number, offs
         },
         tags: {
           fields: ['name', 'slug']
-        },
-        category: {
-          fields: ['name', 'slug']
         }
       },
       fields: ['title', 'description', 'slug', 'publishedAt']
@@ -242,6 +239,7 @@ export async function getAllPosts(limit = 10, offset = 0) {
           limit: limit,
           start: offset
         },
+        fields: ['title', 'slug', 'publishedAt', 'description'],
         populate:  {
           cover: {
             fields: ['url']
