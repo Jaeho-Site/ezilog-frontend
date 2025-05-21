@@ -135,7 +135,7 @@ export async function getAllCategories() {
         name: attrs.name || '카테고리',
         slug: attrs.slug || `category-${category.id}`,
         level: attrs.level || 2,
-        postCount: attrs.posts?.meta?.count ?? 0 // ← 여기에 포스트 수
+        postCount: attrs.posts?.count ?? 0 // ← 여기에 포스트 수
       };
     });
   } catch (error) {
@@ -253,7 +253,13 @@ export async function getAllPosts(limit = 10, offset = 0) {
           limit: limit,
           start: offset
         },
-        populate: '*'
+        populate:  {
+          cover: {
+            fields: ['url']
+          },
+          tags: {
+            fields: ['name', 'slug']
+        }},
       }
     });
     
@@ -272,7 +278,13 @@ export async function getPostBySlug(slug: string) {
     const response = await strapiAPI.get('/posts', {
       params: {
         filters: { slug: { $eq: slug } },
-        populate: '*'
+        populate: {
+          cover: {
+            fields: ['url']
+          },
+          tags: {
+            fields: ['name', 'slug']
+        }},
       }
     });
     
