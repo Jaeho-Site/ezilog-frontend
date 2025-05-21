@@ -2,6 +2,7 @@ const API_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 const API_TOKEN = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
 import qs from 'qs';
 import axios from 'axios';
+import PostCard from '@/components/ui/PostCard';
 // axios 인스턴스 생성
 export const strapiAPI = axios.create({
   baseURL: `${API_URL}/api`,
@@ -19,10 +20,9 @@ function formatImage(imageData: any, title: string = '이미지'): any {
   if (!imageData) return null;
   
   const cover = imageData.data ? imageData.data : imageData;
-  const coverAttributes = cover.attributes || cover;
   
   return {
-    url: coverAttributes.url || cover.url || '',
+    url: cover.url || '',
     alt: title || '이미지'
   };
 }
@@ -32,45 +32,37 @@ function formatTags(tagsData: any): any[] {
   const tagsList = tagsData.data ? tagsData.data : (Array.isArray(tagsData) ? tagsData : []);
   
   return tagsList.map((tag: any) => {
-    const tagData = tag.attributes || tag;
     return {
       id: tag.id,
-      name: tagData.name || '태그',
-      slug: tagData.slug || `tag-${tag.id}`
+      name: tag.name || '태그',
+      slug: tag.slug || `tag-${tag.id}`
     };
   });
 }
 function formatCategory(categoryData: any): any {
-  if (!categoryData) return { name: "미분류", slug: "uncategorized" };
-  
-  if (categoryData.data) {
-    const catData = categoryData.data.attributes || categoryData.data;
-    return {
-      id: categoryData.data.id,
-      name: catData.name || '미분류',
-      slug: catData.slug || 'uncategorized'
-    };
+  const data = categoryData?.data || categoryData;
+
+  if (!data) {
+    return { id: 0, name: "미분류", slug: "uncategorized" };
   }
   return {
-    id: categoryData.id || 0,
-    name: categoryData.name || '미분류',
-    slug: categoryData.slug || 'uncategorized'
+    id: data.id || 0,
+    name: data.name || '미분류',
+    slug: data.slug || 'uncategorized'
   };
 }
 function formatPost(post: any): any {
   if (!post) return null;
-  
-  const attrs = post.attributes || post;
-  const publishedDate = formatDate(attrs);
-  const coverImage = formatImage(attrs.cover, attrs.title);
-  const tags = formatTags(attrs.tags);
-  const category = formatCategory(attrs.category);
+  const publishedDate = formatDate(post);
+  const coverImage = formatImage(post.cover, post.title);
+  const tags = formatTags(post.tags);
+  const category = formatCategory(post.category);
   
   return {
     id: post.id,
-    title: attrs.title || '제목 없음',
-    description: attrs.description || '',
-    slug: attrs.slug || `post-${post.id}`,
+    title: post.title || '제목 없음',
+    description: post.description || '',
+    slug: post.slug || `post-${post.id}`,
     coverImage,
     publishedDate,
     category,
@@ -129,13 +121,12 @@ export async function getAllCategories() {
     }
 
     return response.data.data.map((category: any) => {
-      const attrs = category.attributes || category;
       return {
         id: category.id,
-        name: attrs.name || '카테고리',
-        slug: attrs.slug || `category-${category.id}`,
-        level: attrs.level || 2,
-        postCount: attrs.posts?.count ?? 0 // ← 여기에 포스트 수
+        name: category.name || '카테고리',
+        slug: category.slug || `category-${category.id}`,
+        level: category.level || 2,
+        postCount: category.posts?.count ?? 0 
       };
     });
   } catch (error) {
@@ -216,13 +207,11 @@ export async function getCategoryPosts(slug: string, limit = 6, offset = 0) {
     }
 
     const category = categoryResponse.data.data[0];
-    const categoryData = category.attributes || category;
-    const level = categoryData.level || 2;
-    
+    const level = category.level || 2;
     // 레벨에 따라 다른 쿼리 전략 사용
     if (level === 1) {
       // 1레벨 카테고리인 경우: 자식 카테고리들의 포스트를 가져옴
-      const childCategories = categoryData.categories || [];
+      const childCategories = category.categories || [];
       const childCategoryIds = childCategories.map((child: any) => child.id);
 
       return getPostsByCategoryFilter(
@@ -290,21 +279,13 @@ export async function getPostBySlug(slug: string) {
     
     if (!response.data.data || response.data.data.length === 0) {
       return null;
-    }
-    
+    }  
     const post = response.data.data[0];
-    const attrs = post.attributes || post;
     const formattedPost = formatPost(post);
-    
-    // 추가 필드 포함
     return {
       ...formattedPost,
-      markdown: attrs.markdown || '',
-      html: attrs.html || '',
-      htmlContent: attrs.html || '',
-      markdownContent: attrs.markdown || '',
-      publishedAt: attrs.publishedAt,
-      attributes: attrs
+       markdown: post.markdown || '',
+       html: post.html || '',
     };  
   } catch (error: any) {
     return null;
