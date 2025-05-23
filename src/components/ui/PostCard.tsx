@@ -123,7 +123,7 @@ export default function PostCard({
         </div>
         
         {/* 제목 (최대 2줄) */}
-        <h2 
+        <h3 
           className="text-lg md:text-xl leading-snug mb-1.5 text-gray-900 dark:text-white line-clamp-2 font-semibold"
         >
           <Link href={`/post/${slug}`}>
@@ -134,11 +134,18 @@ export default function PostCard({
               {title}
             </span>
           </Link>
-        </h2>
+        </h3>
+
+        {/* 설명 (1줄) */}
+        {description && !minimal && (
+          <p className="text-gray-600 dark:text-gray-400 mb-2 line-clamp-1 text-sm leading-relaxed">
+            {description}
+          </p>
+        )}
 
         {/* 날짜 */}
-        <div className="mt-auto pt-1 flex items-center text-gray-500 dark:text-gray-400 text-xs">
-          <FiCalendar className="mr-1" />
+        <div className="mt-auto pt-1 flex items-center text-gray-500 dark:text-gray-400 text-sm">
+          <FiCalendar className="mr-1.5 w-4 h-4" />
           <time dateTime={publishedDate}>
             {formattedDate}
           </time>
