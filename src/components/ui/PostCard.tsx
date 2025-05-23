@@ -68,20 +68,7 @@ export default function PostCard({
     return `${process.env.NEXT_PUBLIC_CDN_URL || ''}/${url}`;
   };
   
-  // 날짜 형식 변환 (YYYY-MM-DD -> Month DD, YYYY)
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    } catch (e) {
-      return dateString; // 변환 실패 시 원본 문자열 반환
-    }
-  };
-  
+
   // 날짜 포맷팅 (YYYY-MM-DD)
   const formattedDate = new Date(publishedDate).toLocaleDateString('ko-KR', {
     year: 'numeric',
@@ -90,37 +77,38 @@ export default function PostCard({
   }).replace(/\. /g, '-').replace('.', '');
 
   return (
-    <div className="group cursor-pointer flex flex-col overflow-hidden rounded-md bg-white dark:bg-gray-950 shadow-sm hover:shadow-md transition-shadow duration-200">
-      {/* 이미지 */}
-      <Link
-        href={`/post/${slug}`}
-        className="relative block w-full aspect-[4/3] overflow-hidden"
-      >
-        {coverImage ? (
-          <Image
-            src={getImageUrl(coverImage.url)}
-            alt={coverImage.alt || title}
-            priority={preloadImage}
-            className="object-cover hover:scale-105 transition-transform duration-500"
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center bg-gray-200 dark:bg-gray-800">
-            <span className="text-gray-500 dark:text-gray-400">이미지 없음</span>
-          </div>
-        )}
-      </Link>
+    <div className="group cursor-pointer flex flex-col">
+     {/* 이미지 */}
+<Link
+  href={`/post/${slug}`}
+  className="relative block w-full aspect-square rounded-md overflow-hidden border border-gray-300 transition-transform duration-300 hover:scale-[1.03]"
+>
+  {coverImage ? (
+    <Image
+      src={getImageUrl(coverImage.url)}
+      alt={coverImage.alt || title}
+      priority={preloadImage}
+      fill
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      className="object-cover transition-transform duration-500"
+    />
+  ) : (
+    <div className="flex h-full items-center justify-center bg-gray-200 dark:bg-gray-800">
+      <span className="text-gray-500 dark:text-gray-400">이미지 없음</span>
+    </div>
+  )}
+</Link>
+
 
       {/* 텍스트 컨텐츠 */}
-      <div className="flex flex-col p-3 flex-grow">
+      <div className="flex flex-col mt-3 flex-grow">
         {/* 태그 표시 */}
         <div className="mb-1.5 flex flex-wrap">
           {post.tags && post.tags.length > 0 ? (
             post.tags.map((tag, index) => (
               <Link 
                 key={index} 
-                href={`/tag/${tag.slug}`}
+                href={`/post/${slug}`}
                 className="mr-1.5 mb-1 px-1.5 py-0.5 text-xs font-medium uppercase text-blue-600 dark:text-blue-400 
                   hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors rounded-sm tracking-wide"
               >
@@ -128,12 +116,16 @@ export default function PostCard({
               </Link>
             ))
           ) : (
-            <span className="text-xs text-gray-500 dark:text-gray-400">태그 없음</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              태그 없음
+            </span>
           )}
         </div>
         
         {/* 제목 (최대 2줄) */}
-        <h2 className="text-lg md:text-xl font-bold leading-snug mb-1.5 text-gray-900 dark:text-white line-clamp-2">
+        <h2 
+          className="text-lg md:text-xl leading-snug mb-1.5 text-gray-900 dark:text-white line-clamp-2 font-semibold"
+        >
           <Link href={`/post/${slug}`}>
             <span className="bg-gradient-to-r from-green-200 to-green-100 bg-[length:0px_10px] bg-left-bottom
               bg-no-repeat transition-[background-size] duration-500
@@ -143,14 +135,7 @@ export default function PostCard({
             </span>
           </Link>
         </h2>
-        
-        {/* 설명 (minimal이 아닌 경우에만 표시하되, 한 줄로만 표시) */}
-        {description && !minimal && (
-          <p className="text-gray-600 dark:text-gray-400 mb-2 line-clamp-1 text-sm">
-            {description}
-          </p>
-        )}
-        
+
         {/* 날짜 */}
         <div className="mt-auto pt-1 flex items-center text-gray-500 dark:text-gray-400 text-xs">
           <FiCalendar className="mr-1" />

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import PostCard, { PostData } from "@/components/ui/PostCard";
+import PostListGrid from "@/components/ui/PostListGrid";
 import { FiSearch } from "react-icons/fi";
 
 interface SearchResultsProps {
@@ -86,19 +87,10 @@ export default function SearchResults({ initialPosts }: SearchResultsProps) {
         )}
       </div>
       
-      {visiblePosts.length > 0 && (
-        <div className="mt-6 grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-          {visiblePosts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-        </div>
-      )}
-      
-      {!searchQuery && visiblePosts.length === 0 && (
-        <div className="text-center py-10">
-          <p className="text-gray-600 dark:text-gray-400">포스트가 없습니다.</p>
-        </div>
-      )}
+      <PostListGrid 
+        posts={visiblePosts}
+        emptyMessage={!searchQuery ? "포스트가 없습니다." : ""}
+      />
       
       {visiblePosts.length < posts.length && (
         <div className="mt-12 text-center">

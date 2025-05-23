@@ -1,11 +1,11 @@
-import { PostData } from "@/components/ui/PostCard";
-import PostCard from "@/components/ui/PostCard";
-import { getCategoryPosts, getCategoryBySlug } from "@/lib/api";
-import Pagination from "@/components/ui/Pagination";
 import { notFound } from "next/navigation";
+import PostCard, { PostData } from "@/components/ui/PostCard";
+import PostListGrid from "@/components/ui/PostListGrid";
+import Pagination from "@/components/ui/Pagination";
+import { getCategoryBySlug, getCategoryPosts } from "@/lib/api";
 
 // 페이지네이션을 위한 페이지당 포스트 수
-export const POSTS_PER_PAGE = 6;
+const POSTS_PER_PAGE = 12;
 
 interface CategoryPostListProps {
   slug: string;
@@ -22,32 +22,26 @@ export default async function CategoryPostList({ slug, page = 1 }: CategoryPostL
     // 카테고리 포스트 가져오기
     const posts = await getCategoryPosts(slug, POSTS_PER_PAGE, (page - 1) * POSTS_PER_PAGE);
     
-    if (!posts || posts.length === 0) {
-      return (
-        <div className="text-center py-10">
-          <p className="text-gray-600 dark:text-gray-400">해당 카테고리에 포스트가 없습니다.</p>
-        </div>
-      );
-    }
     const categoryName = category.name || slug;
+    const filteredPosts = posts.filter(Boolean);
+    
     return (
       <>
-        <h1 className="text-3xl font-bold mb-6">
-          {categoryName}
-        </h1>
-        
-        <div className="mt-10 grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-          {posts.filter(Boolean).map((post: PostData) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-        </div>
+        <PostListGrid 
+          posts={filteredPosts}
+          showTitle={true}
+          title={categoryName}
+          emptyMessage="해당 카테고리에 포스트가 없습니다."
+        />
         
         {/* 페이지네이션 */}
-        <Pagination 
-          currentPage={page} 
-          hasMore={posts.length === POSTS_PER_PAGE} 
-          basePath={`/category/${slug}`}
-        />
+        {filteredPosts.length > 0 && (
+          <Pagination 
+            currentPage={page} 
+            hasMore={posts.length === POSTS_PER_PAGE} 
+            basePath={`/category/${slug}`}
+          />
+        )}
       </>
     );
   } catch (error) {

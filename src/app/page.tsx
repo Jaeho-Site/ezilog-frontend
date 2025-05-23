@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import PostCard, { PostData } from "@/components/ui/PostCard";
+import PostListGrid from "@/components/ui/PostListGrid";
 import { getPostBySlug } from "@/lib/api";
 
 // 정적 페이지 생성 설정
@@ -18,21 +19,7 @@ async function PostList() {
     // null이 아닌 포스트들만 필터링
     const posts = postsResults.filter((post): post is PostData => post !== null);
     
-    if (!posts || posts.length === 0) {
-      return (
-        <div className="text-center py-10">
-          <p className="text-gray-600 dark:text-gray-400">포스트가 없습니다.</p>
-        </div>
-      );
-    }
-    
-    return (
-      <div className="mt-10 grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-        {posts.map((post: PostData) => (
-          <PostCard key={post.id} post={post} />
-        ))}
-      </div>
-    );
+    return <PostListGrid posts={posts} />;
   } catch (error) {
     console.error("포스트 목록을 가져오는 중 오류 발생:", error);
     return (
