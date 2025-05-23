@@ -5,7 +5,7 @@ module.exports = {
   content: [
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: "class", // or 'media' or 'class'
+  darkMode: 'class', // TailwindCSS 3.x에서는 'class' 사용
   theme: {
     extend: {
       colors: {

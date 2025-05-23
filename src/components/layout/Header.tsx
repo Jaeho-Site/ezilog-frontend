@@ -9,7 +9,7 @@ import CategoryBar from "@/components/category/CategoryBar";
 import SearchBar from "@/components/ui/SearchBar";
 
 const Header = () => {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
@@ -36,8 +36,13 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [prevScrollPos]);
 
+  // 공식문서 권장: 더 명확한 테마 토글 함수
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    if (theme === 'system') {
+      setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+    } else {
+      setTheme(theme === 'dark' ? 'light' : 'dark');
+    }
   };
 
   const toggleCategory = () => {
@@ -52,6 +57,32 @@ const Header = () => {
 
   const toggleSearch = () => {
     setIsSearchExpanded(!isSearchExpanded);
+  };
+
+  // 공식문서 권장: mounted가 false일 때 null 반환하는 대신 플레이스홀더 렌더링
+  const ThemeToggleButton = ({ mobile = false }: { mobile?: boolean }) => {
+    if (!mounted) {
+      // Layout Shift 방지를 위한 플레이스홀더
+      return (
+        <div className={`p-2 rounded-md w-10 h-10 ${mobile ? 'mr-1' : ''}`}>
+          <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+        </div>
+      );
+    }
+
+    return (
+      <button
+        onClick={toggleTheme}
+        className={`p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${mobile ? 'mr-1' : ''}`}
+        aria-label={resolvedTheme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
+      >
+        {resolvedTheme === "dark" ? (
+          <FiSun className="h-6 w-6 text-yellow-500" />
+        ) : (
+          <FiMoon className="h-6 w-6 text-gray-700 dark:text-gray-300" />
+        )}
+      </button>
+    );
   };
 
   return (
@@ -138,19 +169,7 @@ const Header = () => {
             </div>
 
             {/* 다크모드 토글 버튼 */}
-            {mounted && (
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                aria-label={theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
-              >
-                {theme === "dark" ? (
-                  <FiSun className="h-6 w-6 text-gray-300" />
-                ) : (
-                  <FiMoon className="h-6 w-6 text-gray-700" />
-                )}
-              </button>
-            )}
+            <ThemeToggleButton />
           </div>
         </div>
 
@@ -189,19 +208,7 @@ const Header = () => {
               <FiSearch className="h-6 w-6 text-gray-700 dark:text-gray-300" />
             </button>
 
-            {mounted && (
-              <button
-                onClick={toggleTheme}
-                className="p-2 mr-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                aria-label={theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
-              >
-                {theme === "dark" ? (
-                  <FiSun className="h-6 w-6 text-gray-300" />
-                ) : (
-                  <FiMoon className="h-6 w-6 text-gray-700" />
-                )}
-              </button>
-            )}
+            <ThemeToggleButton mobile />
             <button
               onClick={toggleMobileMenu}
               className="p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
