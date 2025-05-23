@@ -1,20 +1,22 @@
-import Image from "next/image";
-import Link from "next/link";
 import { Suspense } from "react";
 import PostCard, { PostData } from "@/components/ui/PostCard";
-import { getAllPosts } from "@/lib/api";
+import { getPostBySlug } from "@/lib/api";
 
 // 정적 페이지 생성 설정
 export const dynamic = 'force-static';
 
-// 페이지네이션을 위한 페이지당 포스트 수
-const POSTS_PER_PAGE = 10;
+// 원하는 포스트들의 slug 목록 (10개 선택)
+const FEATURED_POST_SLUGS = ['1', '2', '3', '4', '14', '6', '13', '8', '9', '10'];
 
-// 포스트 목록을 가져오는 비동기 컴포넌트
-async function PostList({ page = 1 }: { page?: number }) {
+// 선택된 포스트 목록을 가져오는 비동기 컴포넌트
+async function PostList() {
   try {
-    // Strapi에서 포스트 가져오기 (페이지네이션 적용)
-    const posts = await getAllPosts(POSTS_PER_PAGE, (page - 1) * POSTS_PER_PAGE);
+    // 각 slug로 개별 포스트 가져오기
+    const postPromises = FEATURED_POST_SLUGS.map(slug => getPostBySlug(slug));
+    const postsResults = await Promise.all(postPromises);
+    
+    // null이 아닌 포스트들만 필터링
+    const posts = postsResults.filter((post): post is PostData => post !== null);
     
     if (!posts || posts.length === 0) {
       return (
@@ -25,32 +27,11 @@ async function PostList({ page = 1 }: { page?: number }) {
     }
     
     return (
-      <>
-        <div className="mt-10 grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-          {posts.map((post: PostData) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-        </div>
-        
-        {/* 페이지네이션 */}
-        <div className="mt-12 flex justify-center">
-          <nav className="flex items-center space-x-2">
-            {page > 1 && (
-              <Link href={`/page/${page - 1}`} className="px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
-                이전
-              </Link>
-            )}
-            <span className="px-4 py-2 border rounded-md bg-blue-100 dark:bg-blue-900">
-              {page}
-            </span>
-            {posts.length === POSTS_PER_PAGE && (
-              <Link href={`/page/${page + 1}`} className="px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
-                다음
-              </Link>
-            )}
-          </nav>
-        </div>
-      </>
+      <div className="mt-10 grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+        {posts.map((post: PostData) => (
+          <PostCard key={post.id} post={post} />
+        ))}
+      </div>
     );
   } catch (error) {
     console.error("포스트 목록을 가져오는 중 오류 발생:", error);
@@ -70,7 +51,7 @@ export default function Home() {
           <p className="text-gray-600 dark:text-gray-400">포스트를 불러오는 중...</p>
         </div>
       }>
-        <PostList page={1} />
+        <PostList />
       </Suspense>
     </div>
   );
