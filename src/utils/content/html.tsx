@@ -2,7 +2,8 @@ import parse, { Element, domToReact, HTMLReactParserOptions } from 'html-react-p
 import Image from "next/image";
 import Link from "next/link";
 import { getImageUrl } from './image';
-import React from 'react'; 
+import React from 'react';
+import '@/styles/post-content.css';
 
 // 이미지 렌더링 컴포넌트
 export const RenderImage = ({ src, alt = '이미지' }: { src: string; alt?: string }) => {
