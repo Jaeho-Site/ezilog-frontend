@@ -41,71 +41,122 @@ export default function TableOfContents() {
     setTocItems(validItems);
   }, []);
 
-  // 스크롤 추적
+  // 스크롤 추적 (더 정확한 방식)
   useEffect(() => {
     if (tocItems.length === 0) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
-          }
-        });
-      },
-      {
-        rootMargin: '-20% 0% -80% 0%',
-        threshold: 0.1,
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const headerOffset = 100; // 헤더 높이 고려
+      
+      // 모든 헤딩 요소의 위치 계산
+      const headingPositions = tocItems.map(item => {
+        const element = document.getElementById(item.id);
+        return {
+          id: item.id,
+          offsetTop: element ? element.offsetTop : 0
+        };
+      }).filter(item => item.offsetTop > 0);
+
+      // 현재 스크롤 위치에서 가장 가까운 헤딩 찾기
+      let currentActiveId = '';
+      
+      for (let i = headingPositions.length - 1; i >= 0; i--) {
+        if (scrollTop + headerOffset >= headingPositions[i].offsetTop) {
+          currentActiveId = headingPositions[i].id;
+          break;
+        }
       }
-    );
+      
+      // 첫 번째 헤딩보다 위에 있으면 첫 번째 헤딩을 활성화
+      if (!currentActiveId && headingPositions.length > 0) {
+        currentActiveId = headingPositions[0].id;
+      }
 
-    tocItems.forEach(({ id }) => {
-      const element = document.getElementById(id);
-      if (element) observer.observe(element);
-    });
+      setActiveId(currentActiveId);
+    };
 
-    return () => observer.disconnect();
+    // 초기 실행
+    handleScroll();
+
+    // 스크롤 이벤트 리스너 등록
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, [tocItems]);
 
   if (tocItems.length === 0) return null;
 
   return (
     <div className="hidden lg:block">
-      <div className="sticky top-8 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 max-h-[calc(100vh-64px)] overflow-y-auto shadow-sm">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 max-h-[calc(100vh-64px)] overflow-y-auto shadow-sm">
         <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3">
           목차
         </h3>
         <nav>
-          <ul className="space-y-1">
-            {tocItems.map((item, index) => (
-              <li key={`${item.id}-${index}`}>
-                <a
-                  href={`#${item.id}`}
-                  className={`
-                    block py-1 text-sm transition-colors duration-200
-                    ${item.level === 3 ? 'ml-4' : ''}
-                    ${
-                      activeId === item.id
-                        ? 'text-blue-600 dark:text-blue-400 font-medium'
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                    }
-                  `}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const element = document.getElementById(item.id);
-                    if (element) {
-                      const offsetTop = element.offsetTop - 80; // 헤더 여백 고려
-                      window.scrollTo({
-                        top: offsetTop,
-                        behavior: 'smooth'
-                      });
-                    }
-                  }}
-                >
-                  {item.text}
-                </a>
-              </li>
-            ))}
+          <ul className="mt-2 flex flex-col items-start justify-start text-sm space-y-0.5">
+            {tocItems.map((item, index) => {
+              // 현재 h2 다음에 h3가 있는지 확인
+              const hasSubItems = item.level === 2 && 
+                index < tocItems.length - 1 && 
+                tocItems[index + 1]?.level === 3;
+              
+              return (
+                <li key={`${item.id}-${index}`} className={item.level === 3 ? 'ml-4' : ''}>
+                  <a
+                    href={`#${item.id}`}
+                    className={`
+                      group flex items-center py-1 text-sm transition-all duration-300
+                      ${
+                        activeId === item.id
+                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text font-bold text-transparent border-l-2 border-blue-500 pl-2 bg-blue-50/50 dark:bg-blue-900/20 rounded-r'
+                          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:drop-shadow-sm dark:hover:drop-shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded'
+                      }
+                    `}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const element = document.getElementById(item.id);
+                      if (element) {
+                        const offsetTop = element.offsetTop - 80; // 헤더 여백 고려
+                        window.scrollTo({
+                          top: offsetTop,
+                          behavior: 'smooth'
+                        });
+                      }
+                    }}
+                  >
+                    {hasSubItems && (
+                      <span className="mr-2 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+                      </span>
+                    )}
+                    
+                    {/* h3 항목에 작은 화살표 표시 */}
+                    {item.level === 3 && (
+                      <svg
+                        width="3"
+                        height="24"
+                        viewBox="0 -9 3 24"
+                        className="mr-2 overflow-visible text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors"
+                      >
+                        <path
+                          d="M0 0L3 3L0 6"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    )}
+                    
+                    <span className="flex-1">{item.text}</span>
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         </nav>
       </div>

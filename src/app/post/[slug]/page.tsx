@@ -165,7 +165,9 @@ export default async function PostPage({ params }: any) {
         
         {/* 사이드바 - 목차 */}
         <aside className="lg:w-72 lg:shrink-0">
-          <TableOfContents />
+          <div className="lg:sticky lg:top-8 lg:h-fit">
+            <TableOfContents />
+          </div>
         </aside>
       </div>
     </div>
