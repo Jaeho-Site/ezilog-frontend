@@ -12,6 +12,7 @@ import {
   formatDate 
 } from "@/utils/content";
 import TableOfContents from "@/components/ui/TableOfContents";
+import { FiHome, FiCalendar } from "react-icons/fi";
 
 // 정적 페이지 생성 설정
 export const dynamic = 'force-static';
@@ -99,40 +100,54 @@ export default async function PostPage({ params }: any) {
     <div className="max-w-7xl mx-auto p-4">
       {/* 제목 섹션 - 중앙 배치 */}
       <div className="max-w-4xl mx-auto mb-12">
-        <h1 className="text-4xl font-bold mb-6 text-gray-900 dark:text-white text-center">{post.title}</h1>
+        {/* 태그 */}
+        {tags && tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 justify-center mb-6">
+            {tags.map((tag: any) => (
+              <Link
+                key={tag.id}
+                href={`/tag/${tag.slug}`}
+                className="px-1.5 py-0.5 text-xs font-medium uppercase text-blue-600 dark:text-blue-400 
+                   transition-colors rounded-sm tracking-wide"
+              >
+                {tag.name}
+              </Link>
+            ))}
+          </div>
+        )}
         
-        <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-4 text-center">
+        <h1 className="text-4xl font-bold mb-4 text-gray-900 dark:text-white text-center">{post.title}</h1>
+        
+        {/* 메타 정보 (날짜 + 홈으로 가기) */}
+        <div className="flex items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400 mb-2">
           {post.publishedDate && (
-            <div className="text-gray-500 dark:text-gray-400">
-              {formatDate(post.publishedDate)}
+            <div className="flex items-center">
+              <FiCalendar className="w-4 h-4 mr-1.5" />
+              <time dateTime={post.publishedDate}>
+                {formatDate(post.publishedDate)}
+              </time>
             </div>
           )}
-          
-          {tags && tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 justify-center">
-              {tags.map((tag: any) => (
-                <Link
-                  key={tag.id}
-                  href={`/tag/${tag.slug}`}
-                  className="bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                >
-                  {tag.name}
-                </Link>
-              ))}
-            </div>
-          )}
+          <Link 
+            href="/" 
+            className="flex items-center hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
+            <FiHome className="w-4 h-4 mr-1.5" />
+            홈으로 돌아가기
+          </Link>
         </div>
-        
-        {/* 구분선 */}
-        <div className="border-t border-gray-200 dark:border-gray-700 mt-8"></div>
-      </div>
+      </div> 
       
+      {/* 구분선 */}
+      {/* <div className="border-t border-gray-200 dark:border-gray-700 mt-8"></div> */}
+      <div className="border-t border-gray-200 dark:border-gray-700 mt-8 max-w-[1088px] mx-auto"></div>
+
       {/* 본문 + 사이드바 섹션 */}
-      <div className="lg:flex lg:gap-8 mb-12">
-        {/* 메인 콘텐츠 */}
-        <main className="lg:flex-1 lg:max-w-4xl">
-          <article className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-            <div className="p-6">
+      <div className="lg:flex lg:gap-8 mb-12 lg:justify-center lg:max-w-6xl lg:mx-auto">
+        {/* 메인 콘텐츠  lg:flex-1 lg:max-w-4xl    lg:max-w-[800px]*/}
+        <main className="lg:flex-1 lg:max-w-[800px]">
+          <article className="bg-gray-50 dark:bg-gray-950 overflow-hidden">
+            <div className="py-6 pl-6 pr-3 lg:pr-2">
               <div className="prose prose-lg max-w-none dark:prose-invert
                 prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-white
                 prose-h1:text-2xl prose-h1:mt-8 prose-h1:mb-4
@@ -149,8 +164,8 @@ export default async function PostPage({ params }: any) {
         </main>
         
         {/* 사이드바 - 목차 */}
-        <aside className="lg:w-72 lg:shrink-0">
-          <div className="lg:sticky lg:top-8 lg:h-fit">
+        <aside className="lg:w-64 lg:shrink-0 lg:mt-12">
+          <div className="lg:sticky lg:top-12 lg:h-fit">
             <TableOfContents />
           </div>
         </aside>
