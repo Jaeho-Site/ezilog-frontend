@@ -117,7 +117,7 @@ export default function TableOfContents() {
   const scrollToComments = () => {
     // "댓글" h2 요소 찾기 (lazy loading과 무관하게 항상 존재)
     const commentsHeader = Array.from(document.querySelectorAll('h2')).find(h2 => 
-      h2.textContent?.includes('댓글')
+      h2.textContent?.includes('Comments')
     );
     
     if (commentsHeader) {
@@ -144,7 +144,7 @@ export default function TableOfContents() {
             On this page
           </h3>
           <nav>
-            <ul className="flex flex-col items-start justify-start text-sm space-y-0.5">
+            <ul className="flex flex-col items-start justify-start text-sm space-y-0">
               {tocItems.map((item, index) => {
                 // 현재 h2 다음에 h3가 있는지 확인
                 const hasSubItems = item.level === 2 && 

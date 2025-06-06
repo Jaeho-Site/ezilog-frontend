@@ -103,7 +103,8 @@ export default async function PostPage({ params }: any) {
         </Link>
       </div>
       
-      <div className="lg:flex lg:gap-8">
+      {/* 본문 + 사이드바 섹션 */}
+      <div className="lg:flex lg:gap-8 mb-12">
         {/* 메인 콘텐츠 */}
         <main className="lg:flex-1 lg:max-w-4xl">
           <article className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
@@ -156,11 +157,6 @@ export default async function PostPage({ params }: any) {
               </div>
             </div>
           </article>
-          
-          {/* Giscus 댓글 */}
-          <Suspense fallback={<div className="mt-8 text-center py-4">댓글을 불러오는 중...</div>}>
-            <GiscusComments />
-          </Suspense>
         </main>
         
         {/* 사이드바 - 목차 */}
@@ -169,6 +165,13 @@ export default async function PostPage({ params }: any) {
             <TableOfContents />
           </div>
         </aside>
+      </div>
+      
+      {/* 댓글 섹션 - 중앙 배치 */}
+      <div className="max-w-4xl mx-auto">
+        <Suspense fallback={<div className="text-center py-4">댓글을 불러오는 중...</div>}>
+          <GiscusComments />
+        </Suspense>
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ import Giscus from '@giscus/react';
 export default function GiscusComments() {
   return (
     <div className="mt-10 pt-10 border-t">
-      <h2 className="text-2xl font-bold mb-6">댓글</h2>
+      <h2 className="text-2xl font-bold mb-6">Comments</h2>
       <Giscus
         id="comments"
         repo="Jaeho-Site/ezilog-comments"
