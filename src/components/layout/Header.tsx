@@ -14,27 +14,11 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [prevScrollPos, setPrevScrollPos] = useState(0);
-  const [visible, setVisible] = useState(true);
 
   // useEffect를 사용하여 컴포넌트가 마운트된 후에만 theme 값을 사용
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // 스크롤 위치에 따라 헤더 숨김/표시 제어
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollPos = window.pageYOffset;
-      const isVisible = prevScrollPos > currentScrollPos || currentScrollPos < 10;
-      
-      setPrevScrollPos(currentScrollPos);
-      setVisible(isVisible);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [prevScrollPos]);
 
   // 공식문서 권장: 더 명확한 테마 토글 함수
   const toggleTheme = () => {
@@ -87,9 +71,7 @@ const Header = () => {
 
   return (
     <header 
-      className={`sticky top-0 z-50 bg-white dark:bg-gray-900 py-8 transition-transform duration-300 ${
-        visible ? 'transform-none' : '-translate-y-full'
-      }`}
+      className="bg-gray-50 dark:bg-gray-950 py-8"
     >
       <div className="container mx-auto px-6 relative">
         {/* PC 헤더 - Grid 레이아웃 사용 */}
