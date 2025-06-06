@@ -97,10 +97,34 @@ export default async function PostPage({ params }: any) {
   
   return (
     <div className="max-w-7xl mx-auto p-4">
-      <div className="mb-4">
-        <Link href="/" className="text-blue-500 hover:underline">
-          ← 홈으로 돌아가기
-        </Link>
+      {/* 제목 섹션 - 중앙 배치 */}
+      <div className="max-w-4xl mx-auto mb-12">
+        <h1 className="text-4xl font-bold mb-6 text-gray-900 dark:text-white text-center">{post.title}</h1>
+        
+        <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-4 text-center">
+          {post.publishedDate && (
+            <div className="text-gray-500 dark:text-gray-400">
+              {formatDate(post.publishedDate)}
+            </div>
+          )}
+          
+          {tags && tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 justify-center">
+              {tags.map((tag: any) => (
+                <Link
+                  key={tag.id}
+                  href={`/tag/${tag.slug}`}
+                  className="bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                >
+                  {tag.name}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        {/* 구분선 */}
+        <div className="border-t border-gray-200 dark:border-gray-700 mt-8"></div>
       </div>
       
       {/* 본문 + 사이드바 섹션 */}
@@ -108,43 +132,8 @@ export default async function PostPage({ params }: any) {
         {/* 메인 콘텐츠 */}
         <main className="lg:flex-1 lg:max-w-4xl">
           <article className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-            {coverImageUrl && (
-              <div className="relative w-full h-64 sm:h-80 md:h-96">
-                <Image
-                  src={coverImageUrl}
-                  alt={post.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover"
-                  priority
-                />
-              </div>
-            )}
-            
             <div className="p-6">
-              <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
-              
-              {post.publishedDate && (
-                <div className="text-gray-500 mb-6">
-                  {formatDate(post.publishedDate)}
-                </div>
-              )}
-              
-              {tags && tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {tags.map((tag: any) => (
-                    <Link
-                      key={tag.id}
-                      href={`/tag/${tag.slug}`}
-                      className="bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm"
-                    >
-                      {tag.name}
-                    </Link>
-                  ))}
-                </div>
-              )}
-              
-              <div className="mt-6 prose prose-lg max-w-none dark:prose-invert
+              <div className="prose prose-lg max-w-none dark:prose-invert
                 prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-white
                 prose-h1:text-2xl prose-h1:mt-8 prose-h1:mb-4
                 prose-h2:text-xl prose-h2:mt-6 prose-h2:mb-3
