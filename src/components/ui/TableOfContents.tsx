@@ -137,87 +137,90 @@ export default function TableOfContents() {
 
   return (
     <div className="hidden lg:block">
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 max-h-[calc(100vh-64px)] overflow-y-auto shadow-sm">
-        <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3">
-          목차
-        </h3>
-        <nav>
-          <ul className="mt-2 flex flex-col items-start justify-start text-sm space-y-0.5">
-            {tocItems.map((item, index) => {
-              // 현재 h2 다음에 h3가 있는지 확인
-              const hasSubItems = item.level === 2 && 
-                index < tocItems.length - 1 && 
-                tocItems[index + 1]?.level === 3;
-              
-              return (
-                <li key={`${item.id}-${index}`} className={item.level === 3 ? 'ml-4' : ''}>
-                  <a
-                    href={`#${item.id}`}
-                    className={`
-                      group flex items-center py-1 text-sm transition-all duration-300
-                      ${
-                        activeId === item.id
-                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text font-bold text-transparent border-l-2 border-blue-500 pl-2 bg-blue-50/50 dark:bg-blue-900/20 rounded-r'
-                          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:drop-shadow-sm dark:hover:drop-shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded'
-                      }
-                    `}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      const element = document.getElementById(item.id);
-                      if (element) {
-                        const offsetTop = element.offsetTop - 80; // 헤더 여백 고려
-                        window.scrollTo({
-                          top: offsetTop,
-                          behavior: 'smooth'
-                        });
-                      }
-                    }}
-                  >
-                    {hasSubItems && (
-                      <span className="mr-2 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
-                      </span>
-                    )}
-                    
-                    {/* h3 항목에 작은 화살표 표시 */}
-                    {item.level === 3 && (
-                      <svg
-                        width="3"
-                        height="24"
-                        viewBox="0 -9 3 24"
-                        className="mr-2 overflow-visible text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors"
-                      >
-                        <path
-                          d="M0 0L3 3L0 6"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                    )}
-                    
-                    <span className="flex-1">{item.text}</span>
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+      <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 max-h-[calc(100vh-64px)] overflow-y-auto shadow-sm flex flex-col">
+        {/* 목차 섹션 */}
+        <div className="p-4 pb-3 flex-1">
+          <h3 className="text-sm font-black text-primary mb-3">
+            On this page
+          </h3>
+          <nav>
+            <ul className="flex flex-col items-start justify-start text-sm space-y-0.5">
+              {tocItems.map((item, index) => {
+                // 현재 h2 다음에 h3가 있는지 확인
+                const hasSubItems = item.level === 2 && 
+                  index < tocItems.length - 1 && 
+                  tocItems[index + 1]?.level === 3;
+                
+                return (
+                  <li key={`${item.id}-${index}`} className={item.level === 3 ? 'ml-4' : ''}>
+                    <a
+                      href={`#${item.id}`}
+                      className={`
+                        group flex items-center py-1 text-sm transition-all duration-300
+                        ${
+                          activeId === item.id
+                            ? 'bg-gradient-to-r from-neutral-700 to-yellow-900 bg-clip-text font-black text-transparent dark:from-yellow-400 dark:to-yellow-600 border-l-2 border-blue-500 pl-2 bg-blue-50/50 dark:bg-blue-900/20 rounded-r'
+                            : 'text-secondary font-normal hover:text-primary hover:font-medium hover:drop-shadow-sm dark:hover:drop-shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700/30 rounded'
+                        }
+                      `}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const element = document.getElementById(item.id);
+                        if (element) {
+                          const offsetTop = element.offsetTop - 80; // 헤더 여백 고려
+                          window.scrollTo({
+                            top: offsetTop,
+                            behavior: 'smooth'
+                          });
+                        }
+                      }}
+                    >
+                      {hasSubItems && (
+                        <span className="mr-2 text-tertiary group-hover:text-secondary transition-colors">
+                        </span>
+                      )}
+                      
+                      {/* h3 항목에 작은 화살표 표시 */}
+                      {item.level === 3 && (
+                        <svg
+                          width="3"
+                          height="24"
+                          viewBox="0 -9 3 24"
+                          className="mr-2 overflow-visible text-tertiary group-hover:text-secondary transition-colors"
+                        >
+                          <path
+                            d="M0 0L3 3L0 6"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      )}
+                      
+                      <span className="flex-1">{item.text}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        </div>
 
         {/* 구분선 */}
-        <div className="border-t border-gray-200 dark:border-gray-700 my-4"></div>
+        <div className="border-t border-neutral-300 dark:border-neutral-600"></div>
 
         {/* 기능 섹션 */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-neutral-50/50 dark:bg-neutral-700/20">
           {/* 왼쪽: URL 복사 버튼 */}
           <button
             onClick={copyCurrentUrl}
-            className="relative p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+            className="relative p-2 rounded-md hover:bg-white dark:hover:bg-neutral-600 transition-colors group shadow-sm"
             aria-label="URL 복사"
           >
-            <FiLink className="h-4 w-4 text-gray-600 dark:text-gray-400 group-hover:text-blue-500" />
+            <FiLink className="h-4 w-4 text-secondary group-hover:text-blue-600 group-hover:scale-110 transition-all duration-200" />
             {copySuccess && (
-              <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+              <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-neutral-800 dark:bg-neutral-200 text-white dark:text-neutral-800 text-xs px-2 py-1 rounded whitespace-nowrap shadow-lg">
                 복사됨!
               </span>
             )}
@@ -228,33 +231,33 @@ export default function TableOfContents() {
             {/* 맨 위로 이동 버튼 */}
             <button
               onClick={scrollToTop}
-              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+              className="p-2 rounded-md hover:bg-white dark:hover:bg-neutral-600 transition-colors group shadow-sm"
               aria-label="맨 위로 이동"
             >
-              <FiArrowUp className="h-4 w-4 text-gray-600 dark:text-gray-400 group-hover:text-green-500" />
+              <FiArrowUp className="h-4 w-4 text-secondary group-hover:text-green-600 group-hover:scale-110 transition-all duration-200" />
             </button>
 
             {/* 댓글로 이동 버튼 */}
             <button
               onClick={scrollToComments}
-              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+              className="p-2 rounded-md hover:bg-white dark:hover:bg-neutral-600 transition-colors group shadow-sm"
               aria-label="댓글로 이동"
             >
-              <FiMessageCircle className="h-4 w-4 text-gray-600 dark:text-gray-400 group-hover:text-purple-500" />
+              <FiMessageCircle className="h-4 w-4 text-secondary group-hover:text-indigo-600 group-hover:scale-110 transition-all duration-200 stroke-2" />
             </button>
 
             {/* 테마 토글 버튼 */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+              className="p-2 rounded-md hover:bg-white dark:hover:bg-neutral-600 transition-colors group shadow-sm"
               aria-label={mounted && resolvedTheme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
             >
               {!mounted ? (
-                <div className="w-4 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse" />
+                <div className="w-4 h-4 bg-neutral-300 dark:bg-neutral-600 rounded animate-pulse" />
               ) : resolvedTheme === "dark" ? (
-                <FiSun className="h-4 w-4 text-yellow-500 group-hover:text-yellow-400" />
+                <FiSun className="h-4 w-4 text-yellow-500 group-hover:text-yellow-400 group-hover:scale-110 group-hover:drop-shadow-[0_0_6px_rgba(234,179,8,0.6)] transition-all duration-200" />
               ) : (
-                <FiMoon className="h-4 w-4 text-gray-700 dark:text-gray-300 group-hover:text-blue-500" />
+                <FiMoon className="h-4 w-4 text-secondary group-hover:text-blue-400 group-hover:scale-110 group-hover:drop-shadow-[0_0_6px_rgba(59,130,246,0.5)] transition-all duration-200" />
               )}
             </button>
           </div>
