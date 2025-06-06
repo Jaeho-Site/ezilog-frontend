@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTheme } from 'next-themes';
+import { FiLink, FiArrowUp, FiMessageCircle, FiSun, FiMoon } from 'react-icons/fi';
 
 interface TocItem {
   id: string;
@@ -11,6 +13,14 @@ interface TocItem {
 export default function TableOfContents() {
   const [tocItems, setTocItems] = useState<TocItem[]>([]);
   const [activeId, setActiveId] = useState<string>('');
+  const [mounted, setMounted] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const { theme, setTheme, resolvedTheme } = useTheme();
+
+  // 마운트 상태 관리
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // 목차 추출
   useEffect(() => {
@@ -89,6 +99,40 @@ export default function TableOfContents() {
     };
   }, [tocItems]);
 
+  // 기능 함수들
+  const copyCurrentUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (error) {
+      console.error('URL 복사 실패:', error);
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const scrollToComments = () => {
+    // "댓글" h2 요소 찾기 (lazy loading과 무관하게 항상 존재)
+    const commentsHeader = Array.from(document.querySelectorAll('h2')).find(h2 => 
+      h2.textContent?.includes('댓글')
+    );
+    
+    if (commentsHeader) {
+      commentsHeader.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const toggleTheme = () => {
+    if (theme === 'system') {
+      setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+    } else {
+      setTheme(theme === 'dark' ? 'light' : 'dark');
+    }
+  };
+
   if (tocItems.length === 0) return null;
 
   return (
@@ -159,6 +203,62 @@ export default function TableOfContents() {
             })}
           </ul>
         </nav>
+
+        {/* 구분선 */}
+        <div className="border-t border-gray-200 dark:border-gray-700 my-4"></div>
+
+        {/* 기능 섹션 */}
+        <div className="flex items-center justify-between">
+          {/* 왼쪽: URL 복사 버튼 */}
+          <button
+            onClick={copyCurrentUrl}
+            className="relative p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+            aria-label="URL 복사"
+          >
+            <FiLink className="h-4 w-4 text-gray-600 dark:text-gray-400 group-hover:text-blue-500" />
+            {copySuccess && (
+              <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                복사됨!
+              </span>
+            )}
+          </button>
+
+          {/* 오른쪽: 네비게이션 버튼들 */}
+          <div className="flex items-center space-x-2">
+            {/* 맨 위로 이동 버튼 */}
+            <button
+              onClick={scrollToTop}
+              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+              aria-label="맨 위로 이동"
+            >
+              <FiArrowUp className="h-4 w-4 text-gray-600 dark:text-gray-400 group-hover:text-green-500" />
+            </button>
+
+            {/* 댓글로 이동 버튼 */}
+            <button
+              onClick={scrollToComments}
+              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+              aria-label="댓글로 이동"
+            >
+              <FiMessageCircle className="h-4 w-4 text-gray-600 dark:text-gray-400 group-hover:text-purple-500" />
+            </button>
+
+            {/* 테마 토글 버튼 */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+              aria-label={mounted && resolvedTheme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
+            >
+              {!mounted ? (
+                <div className="w-4 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse" />
+              ) : resolvedTheme === "dark" ? (
+                <FiSun className="h-4 w-4 text-yellow-500 group-hover:text-yellow-400" />
+              ) : (
+                <FiMoon className="h-4 w-4 text-gray-700 dark:text-gray-300 group-hover:text-blue-500" />
+              )}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
