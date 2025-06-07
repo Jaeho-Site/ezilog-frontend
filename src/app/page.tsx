@@ -44,7 +44,7 @@ async function PostList() {
 
 export default function Home() {
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-6xl mx-auto py-12">
       <Suspense fallback={
         <div className="text-center py-10">
           <p className="text-gray-600 dark:text-gray-400">포스트를 불러오는 중...</p>

@@ -37,18 +37,18 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
   }).replace(/\. /g, '-').replace('.', '');
 
   return (
-    <div className="mb-12">
-      <div className="lg:flex lg:gap-8">
+    <div className="mb-10 px-4 md:px-12 xl:px-16">
+      <div className="md:flex md:gap-6 xl:gap-10">
         {/* 왼쪽: 커버 이미지 */}
-        <div className="lg:w-1/2">
+        <div className="md:w-1/2">
           <Link href={`/post/${slug}`} className="block">
-            <div className="relative w-full h-64 lg:h-80 rounded-lg overflow-hidden">
+            <div className="relative w-full h-48 md:h-56 xl:h-64 rounded-lg overflow-hidden">
               {coverImage ? (
                 <Image
                   src={getImageUrl(coverImage.url)}
                   alt={coverImage.alt || title}
                   fill
-                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover transition-transform duration-500 hover:scale-105"
                   priority
                 />
@@ -62,7 +62,7 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
         </div>
 
         {/* 오른쪽: 콘텐츠 */}
-        <div className="lg:w-1/2 mt-6 lg:mt-0 flex flex-col justify-center">
+        <div className="md:w-1/2 mt-4 md:mt-0 flex flex-col justify-center">
           {/* 태그 */}
           <div className="mb-4 flex flex-wrap">
             {post.tags && post.tags.length > 0 ? (
@@ -87,7 +87,7 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
           </div>
 
           {/* 제목 */}
-          <h2 className="text-2xl lg:text-3xl font-bold mb-4 text-gray-900 dark:text-white leading-tight">
+          <h2 className="text-xl md:text-2xl font-bold mb-3 text-gray-900 dark:text-white leading-tight">
             <Link href={`/post/${slug}`}>
               <span className="bg-gradient-to-r from-green-200 to-green-100 bg-[length:0px_10px] bg-left-bottom
                 bg-no-repeat transition-[background-size] duration-500
@@ -100,15 +100,15 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
 
           {/* 설명 */}
           {description && (
-            <p className="text-gray-600 dark:text-gray-400 mb-6 text-base lg:text-lg leading-relaxed line-clamp-3">
+            <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm md:text-base leading-relaxed line-clamp-2">
               {description}
             </p>
           )}
 
           {/* 날짜 */}
           <div className="flex items-center text-gray-500 dark:text-gray-400">
-            <FiCalendar className="mr-2 w-5 h-5" />
-            <time dateTime={publishedDate} className="text-sm lg:text-base">
+            <FiCalendar className="mr-2 w-4 h-4" />
+            <time dateTime={publishedDate} className="text-sm">
               {formattedDate}
             </time>
           </div>
