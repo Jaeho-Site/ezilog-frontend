@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FiSearch, FiX } from "react-icons/fi";
 
@@ -12,7 +12,8 @@ interface SearchBarProps {
   variant?: 'default' | 'compact'; // 새로운 prop: compact는 더 짧은 버전
 }
 
-export default function SearchBar({ 
+// SearchBar의 내부 컴포넌트 (useSearchParams 사용)
+function SearchBarInner({ 
   className = "", 
   placeholder = "검색어를 입력하세요...",
   onToggle,
@@ -109,5 +110,28 @@ export default function SearchBar({
         )}
       </div>
     </form>
+  );
+}
+
+// Suspense로 감싼 메인 컴포넌트
+export default function SearchBar(props: SearchBarProps) {
+  return (
+    <Suspense fallback={
+      <div className={`relative flex items-center ${props.className || ""}`}>
+        <div className="relative w-full">
+          <input
+            type="text"
+            placeholder={props.placeholder || "검색어를 입력하세요..."}
+            className={`${props.variant === 'compact' ? 'w-32 sm:w-40 md:w-48 lg:w-56' : 'w-full'} h-10 pl-10 pr-10 text-sm bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-colors cursor-pointer`}
+            disabled
+          />
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <FiSearch className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+          </div>
+        </div>
+      </div>
+    }>
+      <SearchBarInner {...props} />
+    </Suspense>
   );
 } 

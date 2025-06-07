@@ -5,7 +5,7 @@ import Pagination from "@/components/ui/Pagination";
 import { getCategoryBySlug, getCategoryPosts } from "@/lib/api";
 
 // 페이지네이션을 위한 페이지당 포스트 수
-const POSTS_PER_PAGE = 12;
+export const POSTS_PER_PAGE = 6;
 
 interface CategoryPostListProps {
   slug: string;
