@@ -37,23 +37,23 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
   }).replace(/\. /g, '-').replace('.', '');
 
   return (
-    <div className="mb-10 px-4 md:px-12 xl:px-16">
+    <div className="group cursor-pointer mb-10 px-4 md:px-12 xl:px-16">
       <div className="md:flex md:gap-6 xl:gap-10">
         {/* 왼쪽: 커버 이미지 */}
         <div className="md:w-1/2">
           <Link href={`/post/${slug}`} className="block">
-            <div className="relative w-full h-48 md:h-56 xl:h-64 rounded-lg overflow-hidden">
+            <div className="relative w-full h-52 md:h-60 xl:h-72 rounded-lg overflow-hidden border border-gray-300 transition-transform duration-300 hover:scale-[1.03]">
               {coverImage ? (
                 <Image
                   src={getImageUrl(coverImage.url)}
                   alt={coverImage.alt || title}
                   fill
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover transition-transform duration-500 hover:scale-105"
+                  className="object-cover transition-transform duration-500"
                   priority
                 />
               ) : (
-                <div className="flex h-full items-center justify-center bg-gray-200 dark:bg-gray-700 rounded-lg">
+                <div className="flex h-full items-center justify-center bg-gray-200 dark:bg-gray-700">
                   <span className="text-gray-500 dark:text-gray-400">이미지 없음</span>
                 </div>
               )}
@@ -100,7 +100,7 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
 
           {/* 설명 */}
           {description && (
-            <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm md:text-base leading-relaxed line-clamp-2">
+            <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm md:text-base leading-relaxed line-clamp-3">
               {description}
             </p>
           )}
