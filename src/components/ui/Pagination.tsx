@@ -13,11 +13,12 @@ export default function Pagination({
   hasMore, 
   basePath 
 }: PaginationProps) {
-  // basePath가 루트인 경우 처리
+  // 옵셔널 라우팅 방식 경로 생성
   const getPagePath = (pageNum: number) => {
-    if (basePath === '/' && pageNum === 1) return '/';
-    if (basePath === '/') return `/page/${pageNum}`;
-    return `${basePath}${pageNum === 1 ? '' : `/page/${pageNum}`}`;
+    if (pageNum === 1) {
+      return basePath; // /category/react
+    }
+    return `${basePath}/${pageNum}`; // /category/react/2, /category/react/3
   };
 
   return (
@@ -26,20 +27,20 @@ export default function Pagination({
         {currentPage > 1 && (
           <Link 
             href={getPagePath(currentPage - 1)}
-            className="px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             이전
           </Link>
         )}
         
-        <span className="px-4 py-2 border rounded-md bg-blue-100 dark:bg-blue-900">
+        <span className="px-4 py-2 border rounded-md bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
           {currentPage}
         </span>
         
         {(hasMore || (totalPages && currentPage < totalPages)) && (
           <Link 
             href={getPagePath(currentPage + 1)} 
-            className="px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             다음
           </Link>
