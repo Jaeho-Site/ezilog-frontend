@@ -109,7 +109,7 @@ export default async function PostPage({ params }: any) {
               return (
                 <Link
                   key={tag.id}
-                  href={`/tag/${tag.slug}`}
+                  href={`/search?q=${encodeURIComponent(tag.name)}&type=tag`}
                   className={`px-1.5 py-0.5 text-sm font-medium uppercase 
                     ${tagColor.text} ${tagColor.hover} transition-colors rounded-sm tracking-wide`}
                 >

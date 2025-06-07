@@ -13,6 +13,7 @@ interface SearchResultsProps {
 export default function SearchResults({ initialPosts }: SearchResultsProps) {
   const searchParams = useSearchParams();
   const searchQuery = searchParams?.get("q") || "";
+  const searchType = searchParams?.get("type") || "title"; // 기본값: title 검색
   const [posts, setPosts] = useState<PostData[]>(initialPosts);
   const [visiblePosts, setVisiblePosts] = useState<PostData[]>([]);
   const [page, setPage] = useState(1);
@@ -24,17 +25,20 @@ export default function SearchResults({ initialPosts }: SearchResultsProps) {
       setPosts(initialPosts);
     } else {
       const filteredPosts = initialPosts.filter((post) => {
-        const title = post.title?.toLowerCase() || "";
-        const description = post.description?.toLowerCase() || "";
-        const tags = post.tags?.map(tag => tag.name.toLowerCase()).join(" ") || "";
-        const content = `${title} ${description} ${tags}`;
-        
-        return content.includes(searchQuery.toLowerCase());
+        if (searchType === "tag") {
+          // tag만 검색
+          const tags = post.tags?.map(tag => tag.name.toLowerCase()).join(" ") || "";
+          return tags.includes(searchQuery.toLowerCase());
+        } else {
+          // title만 검색 (기본값)
+          const title = post.title?.toLowerCase() || "";
+          return title.includes(searchQuery.toLowerCase());
+        }
       });
       setPosts(filteredPosts);
       setPage(1); // 검색어 변경시 페이지 초기화
     }
-  }, [searchQuery, initialPosts]);
+  }, [searchQuery, searchType, initialPosts]);
   
   // 페이지 변경시 보여줄 포스트 계산
   useEffect(() => {
@@ -65,7 +69,7 @@ export default function SearchResults({ initialPosts }: SearchResultsProps) {
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-4 text-center">
           {searchQuery 
-            ? `"${searchQuery}" 검색 결과 (${posts.length})`
+            ? `"${searchQuery}" ${searchType === "tag" ? "Tag" : "제목"} 검색 결과 (${posts.length})`
             : "Archive"}
         </h1>
         {!searchQuery && (

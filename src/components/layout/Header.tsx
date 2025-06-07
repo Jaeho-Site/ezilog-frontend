@@ -74,10 +74,10 @@ const Header = () => {
       className="bg-gray-50 dark:bg-gray-950 py-8"
     >
       <div className="container mx-auto px-6 relative">
-        {/* PC 헤더 - Grid 레이아웃 사용 */}
-        <div className="hidden md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
-          {/* 왼쪽: 카테고리 버튼 */}
-          <div className="flex justify-start">
+        {/* PC 헤더 - 중앙 네비게이션 우선 배치 */}
+        <div className="hidden md:flex md:items-center md:justify-center md:relative">
+          {/* 카테고리 버튼 - 절대 위치로 왼쪽에 고정 */}
+          <div className="absolute left-0 flex items-center">
             <button
               onClick={toggleCategory}
               className="p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -87,62 +87,54 @@ const Header = () => {
             </button>
           </div>
 
-          {/* 중앙: 메인 네비게이션 - 화면 중앙에 고정 */}
-          <div className="flex justify-center">
-            <nav className="flex items-center">
-              {/* 왼쪽 링크 그룹 */}
-              <div className="flex items-center">
-                <Link
-                  href="/"
-                  className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors mr-12"
-                >
-                  Home
-                </Link>
-                
-                <Link
-                  href="/about"
-                  className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors mr-14"
-                >
-                  About
-                </Link>
+          {/* 중앙: 5개 요소 (Home, About, Logo, Archive, Latest) - 화면 정중앙에 배치 */}
+          <nav className="flex items-center">
+            <Link
+              href="/"
+              className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors mr-12"
+            >
+              Home
+            </Link>
+            
+            <Link
+              href="/about"
+              className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors mr-14"
+            >
+              About
+            </Link>
+            
+            {/* 로고 */}
+            <Link href="/" className="flex items-center mx-8">
+              <div className="relative w-[122px] h-[69px] sm:h-12 md:h-14 lg:h-16 xl:h-[69px]">
+                <Image 
+                  src="/Ezilog2.svg"
+                  alt="EziLog"
+                  fill
+                  className="object-contain dark:invert"
+                  priority
+                />
               </div>
-              
-              {/* 로고 */}
-              <Link href="/" className="flex items-center mx-8">
-                <div className="relative w-[122px] h-[69px] sm:h-12 md:h-14 lg:h-16 xl:h-[69px]">
-                  <Image 
-                    src="/Ezilog2.svg"
-                    alt="EziLog"
-                    fill
-                    className="object-contain dark:invert"
-                    priority
-                  />
-                </div>
-              </Link>
-              
-              {/* 오른쪽 링크 그룹 */}
-              <div className="flex items-center">
-                <Link
-                  href="/search"
-                  className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors ml-14"
-                >
-                  Archive
-                </Link>
-                
-                <Link
-                  href="/latest"
-                  className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors ml-12 mr-6"
-                >
-                  Latest
-                </Link>
-              </div>
-            </nav>
-          </div>
+            </Link>
+            
+            <Link
+              href="/search"
+              className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors ml-14"
+            >
+              Archive
+            </Link>
+            
+            <Link
+              href="/latest"
+              className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors ml-12"
+            >
+              Latest
+            </Link>
+          </nav>
 
-          {/* 오른쪽: 검색바, 다크모드 토글 */}
-          <div className="flex justify-end items-center space-x-4">
+          {/* 검색바, 다크모드 토글 - 절대 위치로 오른쪽에 고정 */}
+          <div className="absolute right-0 flex items-center space-x-4">
             {/* 검색바 (PC) - 항상 표시 */}
-            <div className="hidden md:block ml-4">
+            <div className="hidden md:block">
               <SearchBar 
                 variant="compact" 
                 placeholder="포스트 검색..."

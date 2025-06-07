@@ -111,7 +111,7 @@ export default function PostCard({
               return (
                 <Link 
                   key={index} 
-                  href={`/post/${slug}`}
+                  href={`/search?q=${encodeURIComponent(tag.name)}&type=tag`}
                   className={`mr-1.5 mb-1 px-1.5 py-0.5 text-xs font-medium uppercase 
                     ${tagColor.text} ${tagColor.hover} transition-colors rounded-sm tracking-wide`}
                 >
