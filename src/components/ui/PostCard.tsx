@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FiCalendar } from "react-icons/fi";
+import { getTagColor } from "@/utils/tagColors";
 
 // 포스트 데이터 타입 정의
 export interface PostData {
@@ -105,16 +106,19 @@ export default function PostCard({
         {/* 태그 표시 */}
         <div className="mb-1.5 flex flex-wrap">
           {post.tags && post.tags.length > 0 ? (
-            post.tags.map((tag, index) => (
-              <Link 
-                key={index} 
-                href={`/post/${slug}`}
-                className="mr-1.5 mb-1 px-1.5 py-0.5 text-xs font-medium uppercase text-blue-600 dark:text-blue-400 
-                  hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors rounded-sm tracking-wide"
-              >
-                {tag.name}
-              </Link>
-            ))
+            post.tags.map((tag, index) => {
+              const tagColor = getTagColor(tag.name);
+              return (
+                <Link 
+                  key={index} 
+                  href={`/post/${slug}`}
+                  className={`mr-1.5 mb-1 px-1.5 py-0.5 text-xs font-medium uppercase 
+                    ${tagColor.text} ${tagColor.hover} transition-colors rounded-sm tracking-wide`}
+                >
+                  {tag.name}
+                </Link>
+              );
+            })
           ) : (
             <span className="text-xs text-gray-500 dark:text-gray-400">
               태그 없음

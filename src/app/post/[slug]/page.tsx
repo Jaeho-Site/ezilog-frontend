@@ -13,6 +13,7 @@ import {
 } from "@/utils/content";
 import TableOfContents from "@/components/ui/TableOfContents";
 import { FiHome, FiCalendar } from "react-icons/fi";
+import { getTagColor } from "@/utils/tagColors";
 
 // 정적 페이지 생성 설정
 export const dynamic = 'force-static';
@@ -103,16 +104,19 @@ export default async function PostPage({ params }: any) {
         {/* 태그 */}
         {tags && tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 justify-center mb-6">
-            {tags.map((tag: any) => (
-              <Link
-                key={tag.id}
-                href={`/tag/${tag.slug}`}
-                className="px-1.5 py-0.5 text-xs font-medium uppercase text-blue-600 dark:text-blue-400 
-                   transition-colors rounded-sm tracking-wide"
-              >
-                {tag.name}
-              </Link>
-            ))}
+            {tags.map((tag: any) => {
+              const tagColor = getTagColor(tag.name);
+              return (
+                <Link
+                  key={tag.id}
+                  href={`/tag/${tag.slug}`}
+                  className={`px-1.5 py-0.5 text-sm font-medium uppercase 
+                    ${tagColor.text} ${tagColor.hover} transition-colors rounded-sm tracking-wide`}
+                >
+                  {tag.name}
+                </Link>
+              );
+            })}
           </div>
         )}
         
