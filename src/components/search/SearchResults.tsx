@@ -69,8 +69,8 @@ export default function SearchResults({ initialPosts }: SearchResultsProps) {
     setPage(prevPage => prevPage + 1);
   };
   
-  // 태그 모드인지 확인
-  const isTagsMode = searchType === "tags" && !searchQuery;
+  // 태그 관련 모드인지 확인 (태그 목록 표시 + 태그 검색 모두 포함)
+  const isTagsMode = searchType === "tags" || (searchType === "tag" && searchQuery);
 
   return (
     <>
