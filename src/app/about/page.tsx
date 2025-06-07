@@ -1,80 +1,52 @@
-import { getPostBySlug } from "@/lib/api";
-import Image from "next/image";
-import Link from "next/link";
-import { 
-  HtmlContent, 
-  MarkdownContent,
-  getImageUrl, 
-  transformMarkdownImageUrls, 
-  formatDate 
-} from "@/utils/content";
+import { getAllPosts } from "@/lib/api";
+import { Metadata } from "next";
+import SearchResults from "@/components/search/SearchResults";
+import TagsOverview from "@/components/ui/TagsOverview";
+import { extractUniqueTagsFromPosts } from "@/utils/tagUtils";
 
-export default async function About() {
-  // 슬러그가 "1"인 포스트 가져오기
-  const post = await getPostBySlug("1");
+// 정적 페이지 생성 설정
+export const dynamic = 'force-static';
+
+// SEO 메타데이터
+export const metadata: Metadata = {
+  title: '태그별 탐색 | EziLog',
+  description: '모든 태그를 확인하고 관심 있는 주제의 포스트를 찾아보세요.',
+};
+
+// 서버 컴포넌트에서 모든 포스트 데이터 가져오기
+async function fetchAllPosts() {
+  const posts = await getAllPosts(100, 0);
+  return posts;
+}
+
+// About 페이지 - 태그 중심의 탐색 페이지
+export default async function AboutPage() {
+  // 모든 포스트 데이터 가져오기
+  const allPosts = await fetchAllPosts();
   
-  // 포스트가 존재하는 경우에만 처리
-  let contentElement = null;
-  let coverImageUrl = '';
-  
-  if (post) {
-    // 콘텐츠 타입 결정
-    const htmlContent = post.html || '';
-    let markdownContent = post.markdown || '';
-    
-    // 마크다운 이미지 URL 변환
-    if (markdownContent) {
-      markdownContent = transformMarkdownImageUrls(markdownContent);
-    }
-    
-    // 이미지 URL
-    if (post.coverImage && post.coverImage.url) {
-      coverImageUrl = getImageUrl(post.coverImage.url);
-    }
-    
-    // 컨텐츠 렌더링
-    if (htmlContent) {
-      contentElement = <HtmlContent html={htmlContent} postTitle={post.title} />;
-    } else if (markdownContent) {
-      contentElement = <MarkdownContent markdown={markdownContent} postTitle={post.title} />;
-    }
-  }
-  
+  // 포스트에서 유니크한 태그들 추출
+  const allTags = extractUniqueTagsFromPosts(allPosts);
+
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold mb-8 text-center">EziLog 소개</h1>
-      
-      {post ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden max-w-3xl mx-auto">
-          {coverImageUrl && (
-            <div className="relative w-full h-64">
-              <Image
-                src={coverImageUrl}
-                alt={post.title}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-cover"
-              />
-            </div>
-          )}
-          
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">{post.title}</h2>
-            
-            {post.publishedDate && (
-              <div className="text-gray-500 mb-6">
-                {formatDate(post.publishedDate)}
-              </div>
-            )}
-            
-            <div className="mt-6 prose prose-lg max-w-none dark:prose-invert">
-              {contentElement}
-            </div>
-          </div>
-        </div>
-      ) : (
-        <p className="text-center text-gray-600 dark:text-gray-400">포스트를 찾을 수 없습니다.</p>
-      )}
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* 페이지 헤더 */}
+      <div className="mb-12 text-center">
+        <h1 className="text-4xl font-bold mb-4 text-gray-900 dark:text-white">
+          태그별 탐색
+        </h1>
+        <p className="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+          관심 있는 태그를 클릭하여 관련 포스트를 확인해보세요.
+        </p>
+      </div>
+
+      {/* 태그 목록 */}
+      <TagsOverview tags={allTags} />
+
+      {/* 구분선 */}
+      <div className="border-t border-gray-200 dark:border-gray-700 mb-8"></div>
+
+      {/* 검색 결과 (SearchResults 컴포넌트 재사용) */}
+      <SearchResults initialPosts={allPosts} />
     </div>
   );
 }
