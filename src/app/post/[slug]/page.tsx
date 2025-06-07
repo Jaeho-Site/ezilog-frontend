@@ -120,7 +120,7 @@ export default async function PostPage({ params }: any) {
           </div>
         )}
         
-        <h1 className="text-4xl font-bold mb-4 text-gray-900 dark:text-white text-center">{post.title}</h1>
+        <h1 className="text-4xl font-bold mb-4 text-gray-900 dark:text-gray-200 text-center">{post.title}</h1>
         
         {/* 메타 정보 (날짜 + 홈으로 가기) */}
         <div className="flex items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400 mb-2">
@@ -152,15 +152,10 @@ export default async function PostPage({ params }: any) {
         <main className="lg:flex-1 lg:max-w-[800px]">
           <article className="bg-gray-50 dark:bg-gray-950 overflow-hidden">
             <div className="py-6 pl-6 pr-3 lg:pr-2">
-              <div className="prose prose-lg max-w-none dark:prose-invert
-                prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-white
-                prose-h1:text-2xl prose-h1:mt-8 prose-h1:mb-4
-                prose-h2:text-xl prose-h2:mt-6 prose-h2:mb-3
-                prose-p:my-4 prose-p:text-gray-700 dark:prose-p:text-gray-300
-                prose-strong:font-bold prose-strong:text-gray-900 dark:prose-strong:text-white
-                prose-em:italic prose-em:text-gray-700 dark:prose-em:text-gray-300
-                prose-ul:list-disc prose-ul:pl-6 prose-ol:list-decimal prose-ol:pl-6
-                prose-li:my-2">
+              <div className="prose prose-base max-w-none dark:prose-invert
+                prose-headings:font-semibold prose-headings:text-gray-900 dark:prose-headings:text-gray-200
+                prose-p:text-gray-700 dark:prose-p:text-gray-400 prose-p:leading-loose
+                prose-strong:text-gray-900 dark:prose-strong:text-gray-200">
                 {contentElement}
               </div>
             </div>
