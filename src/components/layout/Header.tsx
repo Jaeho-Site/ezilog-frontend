@@ -97,10 +97,10 @@ const Header = () => {
             </Link>
             
             <Link
-              href="/about"
+              href="/search?type=tags"
               className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors mr-14"
             >
-              About
+              Tags
             </Link>
             
             {/* 로고 */}
@@ -224,11 +224,11 @@ const Header = () => {
               Home
             </Link>
             <Link
-              href="/about"
+              href="/search?type=tags"
               className="text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              About
+              Tags
             </Link>
             <Link
               href="/search"

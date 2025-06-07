@@ -5,11 +5,33 @@ import SearchResults from "@/components/search/SearchResults";
 // 정적 페이지 생성 설정
 export const dynamic = 'force-static';
 
-// SEO 메타데이터
-export const metadata: Metadata = {
-  title: '포스트 검색 | EziLog',
-  description: '블로그의 모든 포스트를 검색할 수 있습니다.',
-};
+// SEO 메타데이터 
+export async function generateMetadata({ searchParams }: any): Promise<Metadata> {
+  const type = searchParams?.type;
+  const q = searchParams?.q;
+  
+  if (type === 'tags' && !q) {
+    return {
+      title: '태그별 탐색 | EziLog',
+      description: '모든 태그를 확인하고 관심 있는 주제의 포스트를 찾아보세요.',
+    };
+  } else if (q && type === 'tag') {
+    return {
+      title: `${q} 태그 | EziLog`,
+      description: `${q} 태그가 달린 포스트를 확인해보세요.`,
+    };
+  } else if (q) {
+    return {
+      title: `"${q}" 검색 결과 | EziLog`,
+      description: `"${q}"에 대한 검색 결과입니다.`,
+    };
+  } else {
+    return {
+      title: '포스트 검색 | EziLog',
+      description: '블로그의 모든 포스트를 검색할 수 있습니다.',
+    };
+  }
+}
 
 // 서버 컴포넌트에서 모든 포스트 데이터 가져오기
 async function fetchAllPosts() {

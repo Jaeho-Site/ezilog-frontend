@@ -34,7 +34,7 @@ export default function TagsOverview({ tags }: TagsOverviewProps) {
           return (
             <Link
               key={tag.id}
-              href={`/about?q=${encodeURIComponent(tag.name)}&type=tag`}
+              href={`/search?q=${encodeURIComponent(tag.name)}&type=tag`}
               className={`px-3 py-2 text-sm font-medium uppercase rounded-lg
                 ${tagColor.text} ${tagColor.hover} transition-all duration-200
                 hover:scale-105 hover:shadow-md tracking-wide`}
