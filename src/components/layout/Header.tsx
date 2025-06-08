@@ -54,7 +54,6 @@ const Header = () => {
       try {
         await getTopLevelCategories();
       } catch (error) {
-        console.log('카테고리 prefetch 실패:', error);
       }
     }
   };

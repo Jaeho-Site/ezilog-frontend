@@ -49,7 +49,6 @@ const CategoryBar = ({ isOpen, onClose }: CategoryBarProps) => {
       }
       setIsInitialized(true);
     } catch (err) {
-      console.error('카테고리 로드 실패', err);
       setError('카테고리를 불러오는 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);

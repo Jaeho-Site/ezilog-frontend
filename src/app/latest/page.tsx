@@ -18,7 +18,6 @@ async function PostList() {
     
     return <PostListGrid posts={posts} />;
   } catch (error) {
-    console.error("포스트 목록을 가져오는 중 오류 발생:", error);
     return (
       <div className="text-center py-10">
         <p className="text-red-600 dark:text-red-400">포스트를 불러오는 중 오류가 발생했습니다.</p>

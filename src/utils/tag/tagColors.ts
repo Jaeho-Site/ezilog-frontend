@@ -66,8 +66,6 @@ export function testColorDistribution(tagNames: string[]) {
     const colorKey = colorKeys[colorIndex];
     distribution[colorKey] = (distribution[colorKey] || 0) + 1;
   });
-  
-  console.log('색상 분포:', distribution);
   return distribution;
 } 
 

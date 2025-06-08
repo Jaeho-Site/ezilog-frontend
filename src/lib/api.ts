@@ -97,7 +97,6 @@ export async function getTopLevelCategories() {
 
     return response.data ?? { data: [] };
   } catch (error) {
-    console.error('상위 카테고리 목록 가져오기 오류:', error);
     return { data: [] };
   }
 }
@@ -130,7 +129,6 @@ export async function getAllCategories() {
       };
     });
   } catch (error) {
-    console.error('카테고리 목록을 가져오는 중 오류 발생:', error);
     return [];
   }
 }
@@ -225,7 +223,6 @@ export async function getCategoryPosts(slug: string, limit = 6, offset = 0) {
       );
     }
   } catch (error) {
-    console.error('카테고리 포스트 가져오기 오류:', error);
     return [];
   }
 }
@@ -328,7 +325,6 @@ export async function getRelatedPosts(slug: string) {
     
     return [result.prev ?? null, result.next ?? null];
   } catch (error) {
-    console.error('Error fetching related posts:', error);
     return [null, null];
   }
 }

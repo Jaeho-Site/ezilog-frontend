@@ -106,7 +106,6 @@ export default function TableOfContents() {
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     } catch (error) {
-      console.error('URL 복사 실패:', error);
     }
   };
 
