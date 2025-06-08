@@ -292,9 +292,11 @@ export async function getPostBySlug(slug: string) {
 
 export async function getRelatedPosts(slug: string) {
   const currentSlugNumber = Number(slug);
-  if (isNaN(currentSlugNumber)) return [];
+  if (isNaN(currentSlugNumber)) return [null, null];
+  
   const prevSlug = (currentSlugNumber - 1).toString();
   const nextSlug = (currentSlugNumber + 1).toString();
+  
   try {
     const response = await strapiAPI.get('/posts', {
       params: {
@@ -303,17 +305,27 @@ export async function getRelatedPosts(slug: string) {
             $in: [prevSlug, nextSlug],
           },
         },
-        fields: ['slug', 'title'], 
+        fields: ['slug', 'title', 'description'], 
       },
     });
+    
     const data = response.data?.data || [];
-    const result: { prev?: string; next?: string } = {};
+    const result: { 
+      prev?: { title: string; description?: string }; 
+      next?: { title: string; description?: string }; 
+    } = {};
 
     for (const item of data) {
       const s = item.slug;
-      if (s === prevSlug) result.prev = item.title;
-      else if (s === nextSlug) result.next = item.title;
+      const postData = {
+        title: item.title,
+        description: item.description || ''
+      };
+      
+      if (s === prevSlug) result.prev = postData;
+      else if (s === nextSlug) result.next = postData;
     }
+    
     return [result.prev ?? null, result.next ?? null];
   } catch (error) {
     console.error('Error fetching related posts:', error);

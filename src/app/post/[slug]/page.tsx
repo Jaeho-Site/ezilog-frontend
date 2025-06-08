@@ -12,6 +12,7 @@ import {
   formatDate 
 } from "@/utils/content";
 import TableOfContents from "@/components/ui/TableOfContents";
+import PostNavigationCard from "@/components/ui/PostNavigationCard";
 import { FiHome, FiCalendar, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { getTagColor } from "@/utils/tagColors";
 
@@ -68,7 +69,7 @@ export default async function PostPage({ params }: any) {
   if (!post) notFound();
   
   // 관련 포스트 가져오기 (이전/다음)
-  const [prevPostTitle, nextPostTitle] = await getRelatedPosts(slug);
+  const [prevPost, nextPost] = await getRelatedPosts(slug);
   
   // 콘텐츠 타입 결정
   const htmlContent = post.html || post.htmlContent || '';
@@ -173,66 +174,30 @@ export default async function PostPage({ params }: any) {
       </div>
       
       {/* 이전/다음 포스트 네비게이션 - 본문+사이드바 실제 너비(1088px)와 맞춤 */}
-      {(prevPostTitle || nextPostTitle) && (
+      {(prevPost || nextPost) && (
         <div className="max-w-[1088px] mx-auto mb-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* 이전 포스트 */}
-            <div className="flex justify-start">
-              {prevPostTitle ? (
-                <Link
-                  href={`/post/${Number(slug) - 1}`}
-                  className="group flex items-center p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
-                    rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-600 
-                    w-full md:max-w-sm"
-                >
-                  <div className="flex items-center text-left">
-                    <div className="flex-shrink-0 mr-3">
-                      <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center
-                        group-hover:bg-blue-200 dark:group-hover:bg-blue-800 transition-colors">
-                        <FiChevronLeft className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      </div>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">이전 포스트</p>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-200 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                        {prevPostTitle}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              ) : (
-                <div className="w-full md:max-w-sm"></div>
-              )}
-            </div>
+            {prevPost ? (
+              <PostNavigationCard
+                post={prevPost}
+                href={`/post/${Number(slug) - 1}`}
+                direction="prev"
+              />
+            ) : (
+              <div className="w-full md:max-w-md"></div>
+            )}
             
             {/* 다음 포스트 */}
-            <div className="flex justify-end">
-              {nextPostTitle ? (
-                <Link
-                  href={`/post/${Number(slug) + 1}`}
-                  className="group flex items-center p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
-                    rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-600 
-                    w-full md:max-w-sm"
-                >
-                  <div className="flex items-center text-right w-full">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">다음 포스트</p>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-200 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                        {nextPostTitle}
-                      </p>
-                    </div>
-                    <div className="flex-shrink-0 ml-3">
-                      <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center
-                        group-hover:bg-blue-200 dark:group-hover:bg-blue-800 transition-colors">
-                        <FiChevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ) : (
-                <div className="w-full md:max-w-sm"></div>
-              )}
-            </div>
+            {nextPost ? (
+              <PostNavigationCard
+                post={nextPost}
+                href={`/post/${Number(slug) + 1}`}
+                direction="next"
+              />
+            ) : (
+              <div className="w-full md:max-w-md"></div>
+            )}
           </div>
         </div>
       )}
