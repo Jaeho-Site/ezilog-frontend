@@ -29,7 +29,7 @@ export default function PostListGrid({
   return (
     <>
       {showTitle && title && (
-        <h1 className={titleClassName}>
+        <h1 className={`${titleClassName} px-4 md:px-12 xl:px-16`}>
           {title}
         </h1>
       )}

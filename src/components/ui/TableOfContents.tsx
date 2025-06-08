@@ -211,7 +211,7 @@ export default function TableOfContents() {
         <div className="border-t border-neutral-300 dark:border-neutral-600"></div>
 
         {/* 기능 섹션 */}
-        <div className="flex items-center justify-between px-4 py-2.5 bg-neutral-50/50 dark:bg-neutral-700/20">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-gray-200 dark:bg-neutral-700/20">
           {/* 왼쪽: URL 복사 버튼 */}
           <button
             onClick={copyCurrentUrl}
