@@ -28,13 +28,14 @@ const CategoryBar = ({ isOpen, onClose }: CategoryBarProps) => {
   const [expandedCategories, setExpandedCategories] = useState<Record<number, boolean>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // 카테고리 메뉴가 열릴 때 카테고리 데이터 로드
+  // 컴포넌트 마운트 시 카테고리 데이터 미리 로드 (백그라운드)
   useEffect(() => {
-    if (isOpen && categories.length === 0) {
+    if (!isInitialized) {
       loadCategories();
     }
-  }, [isOpen, categories.length]);
+  }, [isInitialized]);
 
   // 카테고리 데이터 로드 함수
   const loadCategories = async () => {
@@ -46,6 +47,7 @@ const CategoryBar = ({ isOpen, onClose }: CategoryBarProps) => {
       if (response.data) {
         setCategories(response.data);
       }
+      setIsInitialized(true);
     } catch (err) {
       console.error('카테고리 로드 실패', err);
       setError('카테고리를 불러오는 중 오류가 발생했습니다.');
@@ -140,7 +142,7 @@ const CategoryBar = ({ isOpen, onClose }: CategoryBarProps) => {
     <div className="absolute left-0 w-72 max-h-[80vh] overflow-y-auto bg-white dark:bg-gray-800 shadow-lg rounded-br-md p-6 transition-all z-50">
       <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">카테고리</h2>
       
-      {isLoading && (
+      {isLoading && !isInitialized && (
         <div className="py-4 text-gray-500 dark:text-gray-400">
           카테고리를 불러오는 중...
         </div>
@@ -149,16 +151,22 @@ const CategoryBar = ({ isOpen, onClose }: CategoryBarProps) => {
       {error && (
         <div className="py-4 text-red-500">
           {error}
+          <button 
+            onClick={() => loadCategories()}
+            className="ml-2 text-blue-500 hover:text-blue-700 underline"
+          >
+            다시 시도
+          </button>
         </div>
       )}
       
-      {!isLoading && !error && categories.length === 0 && (
+      {!isLoading && !error && categories.length === 0 && isInitialized && (
         <div className="py-4 text-gray-500 dark:text-gray-400">
           카테고리가 없습니다.
         </div>
       )}
       
-      {!isLoading && !error && categories.length > 0 && (
+      {categories.length > 0 && (
         <div className="divide-y divide-gray-200 dark:divide-gray-700">
           {categories.map(category => renderCategoryItem(category))}
         </div>
