@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
-import { getAllCategories, getCategoryBySlug, getCategoryPosts } from "@/lib/api";
+import { getAllCategories, getCategoryBySlug, getCategoryPosts, getCategoryPostCount } from "@/lib/api";
 import CategoryPostList, { POSTS_PER_PAGE } from "@/components/category/CategoryPostList";
 
 // 정적 페이지 생성 설정
@@ -8,43 +8,50 @@ export const dynamic = 'force-static';
 
 // 빌드 시 정적으로 생성할 경로 정의 (최적화됨)
 export async function generateStaticParams() {
-  const categories = await getAllCategories();
-  const paths = [];
-  
-  // 병렬 처리로 빌드 시간 단축
-  const categoryPromises = categories.map(async (category: any) => {
-    const categoryPaths = [];
+  try {
+    const categories = await getAllCategories();
+    const paths = [];
     
-    // 1페이지: /category/react
-    categoryPaths.push({ slug: category.slug });
-    
-    // 실제 포스트 수를 정확히 계산하여 필요한 페이지만 생성
-    let page = 2;
-    let hasMore = true;
-    
-    while (hasMore && page <= 50) { // 최대 50페이지까지 (필요시 조정)
-      const posts = await getCategoryPosts(category.slug, POSTS_PER_PAGE, (page - 1) * POSTS_PER_PAGE);
-      
-      if (posts.length > 0) {
-        // 2페이지 이상: /category/react/2, /category/react/3, ...
-        categoryPaths.push({
-          slug: category.slug,
-          page: [page.toString()]
-        });
-        page++;
-      } else {
-        hasMore = false;
+    // 병렬 처리로 빌드 시간 단축
+    const categoryPromises = categories.map(async (category: any) => {
+      try {
+        const categoryPaths = [];
+        
+        // 1페이지: /category/react
+        categoryPaths.push({ slug: category.slug });
+        
+        // 포스트 총 개수를 한 번에 가져와서 필요한 페이지 수 계산
+        const totalPosts = await getCategoryPostCount(category.slug);
+        const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
+        
+        // 계산된 페이지 수만큼 정적 경로 생성 (최대 50페이지 제한)
+        const maxPages = Math.min(totalPages, 50);
+        
+        for (let page = 2; page <= maxPages; page++) {
+          categoryPaths.push({
+            slug: category.slug,
+            page: [page.toString()]
+          });
+        }
+        
+        return categoryPaths;
+      } catch (error) {
+        console.error(`Error generating paths for category ${category.slug}:`, error);
+        // 에러 발생 시 최소한 첫 페이지는 생성
+        return [{ slug: category.slug }];
       }
-    }
+    });
     
-    return categoryPaths;
-  });
-  
-  // 모든 카테고리의 페이지들을 병렬로 생성
-  const allCategoryPaths = await Promise.all(categoryPromises);
-  
-  // 2차원 배열을 1차원으로 평탄화
-  return allCategoryPaths.flat();
+    // 모든 카테고리의 페이지들을 병렬로 생성
+    const allCategoryPaths = await Promise.all(categoryPromises);
+    
+    // 2차원 배열을 1차원으로 평탄화
+    return allCategoryPaths.flat();
+  } catch (error) {
+    console.error('Error in generateStaticParams:', error);
+    // 전체 실패 시 빈 배열 반환하여 런타임 생성으로 폴백
+    return [];
+  }
 }
 
 // SEO 최적화를 위한 메타데이터 생성

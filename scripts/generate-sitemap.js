@@ -69,25 +69,59 @@ async function generateSitemap() {
     try {
       const categoriesResponse = await axios.get(`${API_BASE_URL}/api/categories`, {
         params: {
-          fields: ['slug', 'updatedAt'], // updatedAt 추가
+          fields: ['slug', 'updatedAt'],
+          populate: {
+            posts: {
+              count: true
+            }
+          },
           pagination: {
-            limit: 1000 // 모든 카테고리 가져오기
+            limit: 1000
           }
         }
       });
       const categories = categoriesResponse.data.data || [];  
-      // 중복 제거를 위해 Set 사용
       const addedCategories = new Set();
+      const POSTS_PER_PAGE = 6; // CategoryPostList의 POSTS_PER_PAGE와 동일
       
-      categories.forEach(category => {
+      for (const category of categories) {
         if (!addedCategories.has(category.slug)) {
           addedCategories.add(category.slug);
+          const lastmod = new Date(category.updatedAt || category.createdAt || new Date()).toISOString();
+          
+          // 1페이지 추가
           allPages.push({
             url: `${SITE_URL}/category/${category.slug}`,
-            lastmod: new Date(category.updatedAt || category.createdAt || new Date()).toISOString()
+            lastmod: lastmod
           });
+          
+          // 페이지네이션 페이지들 추가
+          try {
+            const postsCountResponse = await axios.get(`${API_BASE_URL}/api/posts`, {
+              params: {
+                filters: {
+                  category: { id: { $eq: category.id } }
+                },
+                pagination: { limit: 1 }
+              }
+            });
+            
+            const totalPosts = postsCountResponse.data.meta?.pagination?.total || 0;
+            const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
+            
+            // 2페이지부터 추가 (최대 10페이지까지만 사이트맵에 포함)
+            for (let page = 2; page <= Math.min(totalPages, 10); page++) {
+              allPages.push({
+                url: `${SITE_URL}/category/${category.slug}/${page}`,
+                lastmod: lastmod
+              });
+            }
+            
+          } catch (pageError) {
+            console.warn(`⚠️ ${category.slug} 페이지네이션 처리 실패:`, pageError.message);
+          }
         }
-      });
+      }
       
     } catch (error) {
       console.warn('⚠️ 카테고리 데이터 가져오기 실패:', error.message);

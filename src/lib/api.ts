@@ -179,6 +179,60 @@ async function getPostsByCategoryFilter(categoryFilter: any, limit: number, offs
   return postsResponse.data.data.map(formatPost).filter(Boolean);
 }
 
+export async function getCategoryPostCount(slug: string): Promise<number> {
+  try {
+    // 1. 먼저 카테고리 정보를 가져옴
+    const categoryResponse = await strapiAPI.get('/categories', {
+      params: {
+        filters: { 
+          slug: { $eq: slug } 
+        },
+        populate: {
+          categories: {
+            fields: ['id']
+          }
+        },
+        fields: ['level']
+      }
+    });
+
+    if (!categoryResponse.data.data || categoryResponse.data.data.length === 0) {
+      return 0;
+    }
+
+    const category = categoryResponse.data.data[0];
+    const level = category.level || 2;
+    
+    // 레벨에 따라 다른 쿼리 전략 사용
+    let categoryFilter;
+    if (level === 1) {
+      // 1레벨 카테고리인 경우: 자식 카테고리들의 포스트 개수
+      const childCategories = category.categories || [];
+      const childCategoryIds = childCategories.map((child: any) => child.id);
+      categoryFilter = { id: { $in: childCategoryIds } };
+    } else {
+      // 2레벨 카테고리인 경우: 해당 카테고리의 포스트 개수
+      categoryFilter = { id: { $eq: category.id } };
+    }
+
+    // 포스트 개수만 가져오기
+    const postsResponse = await strapiAPI.get('/posts', {
+      params: {
+        filters: {
+          category: categoryFilter
+        },
+        pagination: {
+          limit: 1  // 개수만 필요하므로 최소한만 가져옴
+        }
+      }
+    });
+
+    return postsResponse.data.meta?.pagination?.total || 0;
+  } catch (error) {
+    return 0;
+  }
+}
+
 export async function getCategoryPosts(slug: string, limit = 6, offset = 0) {
   try {
     // 1. 먼저 카테고리 정보를 가져옴
