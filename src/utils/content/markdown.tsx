@@ -8,6 +8,26 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { RenderImage, RenderLink } from './html';
 import { getImageUrl } from './image';
+import Image from 'next/image';
+
+// 마크다운 이미지 렌더링 컴포넌트
+export const RenderMarkdownImage = ({ src, alt, postTitle }: { src: string; alt?: string; postTitle: string }) => {
+  const imageSrc = getImageUrl(src);
+  return (
+    <div className="relative w-full my-6">
+      <div className="relative min-h-[200px] max-h-[600px] w-full">
+        <Image
+          src={imageSrc}
+          alt={alt || postTitle}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+          className="object-contain"
+          loading="lazy"
+        />
+      </div>
+    </div>
+  );
+};
 
 // 코드 블록 렌더링 컴포넌트
 export const RenderCodeBlock = ({ language = '', children }: { language?: string; children: string }) => {
@@ -65,16 +85,7 @@ export const MarkdownContent = ({ markdown, postTitle }: { markdown: string; pos
         // 이미지 처리
         img: ({ src, alt, ...props }: any) => {
           if (!src) return null;
-          return (
-            <span className="block my-4">
-              <img
-                src={getImageUrl(src)}
-                alt={alt || postTitle}
-                className="max-w-full h-auto mx-auto"
-                {...props}
-              />
-            </span>
-          );
+          return <RenderMarkdownImage src={src} alt={alt} postTitle={postTitle} />;
         },
         
         // 링크 처리
