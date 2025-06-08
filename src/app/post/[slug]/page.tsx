@@ -124,7 +124,7 @@ export default async function PostPage({ params }: any) {
           </div>
         )}
 
-        <h1 className="text-4xl font-bold mb-4 text-gray-900 dark:text-gray-200 text-center">{post.title}</h1>
+        <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-200 text-center leading-relaxed break-words max-w-4xl mx-auto" style={{ textWrap: 'balance' }}>{post.title}</h2>
 
         {/* 메타 정보 (날짜 + 홈으로 가기) */}
         <div className="flex items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400 mb-2">

@@ -93,7 +93,8 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
                 bg-no-repeat transition-[background-size] duration-500
                 hover:bg-[length:100%_3px] group-hover:bg-[length:100%_10px]
                 dark:from-purple-800 dark:to-purple-900">
-                {title}
+                기획부터 구현까지 직접 만든 블로그입니다.<br />
+                첫번째 포스트, 블로그 둘러보기!
               </span>
             </Link>
           </h2>
