@@ -289,3 +289,34 @@ export async function getPostBySlug(slug: string) {
     return null;
   }
 }
+
+export async function getRelatedPosts(slug: string) {
+  const currentSlugNumber = Number(slug);
+  if (isNaN(currentSlugNumber)) return [];
+  const prevSlug = (currentSlugNumber - 1).toString();
+  const nextSlug = (currentSlugNumber + 1).toString();
+  try {
+    const response = await strapiAPI.get('/posts', {
+      params: {
+        filters: {
+          slug: {
+            $in: [prevSlug, nextSlug],
+          },
+        },
+        fields: ['slug', 'title'], 
+      },
+    });
+    const data = response.data?.data || [];
+    const result: { prev?: string; next?: string } = {};
+
+    for (const item of data) {
+      const s = item.slug;
+      if (s === prevSlug) result.prev = item.title;
+      else if (s === nextSlug) result.next = item.title;
+    }
+    return [result.prev ?? null, result.next ?? null];
+  } catch (error) {
+    console.error('Error fetching related posts:', error);
+    return [null, null];
+  }
+}
