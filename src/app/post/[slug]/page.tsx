@@ -173,33 +173,45 @@ export default async function PostPage({ params }: any) {
         </aside>
       </div>
       
-      {/* 이전/다음 포스트 네비게이션 - 본문+사이드바 실제 너비(1088px)와 맞춤 */}
+      {/* 이전/다음 포스트 네비게이션 섹션 */}
       {(prevPost || nextPost) && (
-        <div className="max-w-[1088px] mx-auto mb-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* 이전 포스트 */}
-            {prevPost ? (
-              <PostNavigationCard
-                post={prevPost}
-                href={`/post/${Number(slug) - 1}`}
-                direction="prev"
-              />
-            ) : (
-              <div className="w-full md:max-w-md"></div>
-            )}
+        <section className="max-w-[1088px] mx-auto mb-12">
+          {/* 네비게이션 컨테이너 */}
+          <div className="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+            {/* 섹션 헤더 */}
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-200 text-center">
+                다른 포스트 보기
+              </h2>
+              <div className="w-12 h-0.5 bg-blue-500 mx-auto mt-2"></div>
+            </div>
             
-            {/* 다음 포스트 */}
-            {nextPost ? (
-              <PostNavigationCard
-                post={nextPost}
-                href={`/post/${Number(slug) + 1}`}
-                direction="next"
-              />
-            ) : (
-              <div className="w-full md:max-w-md"></div>
-            )}
+            {/* 네비게이션 카드들 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* 이전 포스트 */}
+              {prevPost ? (
+                <PostNavigationCard
+                  post={prevPost}
+                  href={`/post/${Number(slug) - 1}`}
+                  direction="prev"
+                />
+              ) : (
+                <div className="w-full md:max-w-md"></div>
+              )}
+              
+              {/* 다음 포스트 */}
+              {nextPost ? (
+                <PostNavigationCard
+                  post={nextPost}
+                  href={`/post/${Number(slug) + 1}`}
+                  direction="next"
+                />
+              ) : (
+                <div className="w-full md:max-w-md"></div>
+              )}
+            </div>
           </div>
-        </div>
+        </section>
       )}
       
       {/* 댓글 섹션 - 본문+사이드바 실제 너비(1088px)와 맞춤 */}
