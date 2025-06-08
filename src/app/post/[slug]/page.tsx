@@ -4,12 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { getPostBySlug, getAllPosts, getRelatedPosts } from "@/lib/api";
 import { lazy, Suspense } from 'react';
-import { 
-  HtmlContent, 
-  MarkdownContent, 
-  getImageUrl, 
-  transformMarkdownImageUrls, 
-  formatDate 
+import {
+  HtmlContent,
+  MarkdownContent,
+  getImageUrl,
+  transformMarkdownImageUrls,
+  formatDate
 } from "@/utils/content";
 import TableOfContents from "@/components/ui/TableOfContents";
 import PostNavigationCard from "@/components/ui/PostNavigationCard";
@@ -23,7 +23,7 @@ const GiscusComments = lazy(() => import('@/components/ui/comments'));
 // 빌드 시 정적으로 생성할 경로 정의
 export async function generateStaticParams() {
   const posts = await getAllPosts(100, 0); // 최대 100개 포스트 가져오기
-  
+
   return posts.map((post: { slug: string }) => ({
     slug: post.slug
   }));
@@ -43,11 +43,11 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const slug = params.slug;
   const post = await getPostBySlug(slug);
-  
+
   if (!post) {
     return { title: '게시물을 찾을 수 없습니다' };
   }
-  
+
   return {
     title: `${post.title} | EziLog`,
     description: post.description || '',
@@ -64,22 +64,22 @@ export default async function PostPage({ params }: any) {
   // 포스트 데이터 가져오기
   const slug = params.slug; // await 제거
   const post = await getPostBySlug(slug);
-  
+
   // 데이터가 없으면 404 페이지 표시
   if (!post) notFound();
-  
+
   // 관련 포스트 가져오기 (이전/다음)
   const [prevPost, nextPost] = await getRelatedPosts(slug);
-  
+
   // 콘텐츠 타입 결정
   const htmlContent = post.html || post.htmlContent || '';
   let markdownContent = post.markdown || post.markdownContent || '';
-  
+
   // 마크다운 이미지 URL 변환
   if (markdownContent) {
     markdownContent = transformMarkdownImageUrls(markdownContent);
   }
-  
+
   // 이미지 URL
   let coverImageUrl = '';
   if (post.coverImage && post.coverImage.url) {
@@ -87,10 +87,10 @@ export default async function PostPage({ params }: any) {
   } else if (post.attributes?.cover?.url) {
     coverImageUrl = getImageUrl(post.attributes.cover.url);
   }
-  
+
   // 태그 목록
   const tags = post.tags?.length > 0 ? post.tags : (post.attributes?.tags || []);
-  
+
   // 컨텐츠 렌더링
   let contentElement;
   if (htmlContent) {
@@ -100,7 +100,7 @@ export default async function PostPage({ params }: any) {
   } else {
     contentElement = <div className="text-center py-8 text-gray-500"><p>이 포스트에는 내용이 없습니다.</p></div>;
   }
-  
+
   return (
     <div className="max-w-7xl mx-auto p-4">
       {/* 제목 섹션 - 본문+사이드바 실제 너비(1088px)와 맞춤 */}
@@ -123,9 +123,9 @@ export default async function PostPage({ params }: any) {
             })}
           </div>
         )}
-        
+
         <h1 className="text-4xl font-bold mb-4 text-gray-900 dark:text-gray-200 text-center">{post.title}</h1>
-        
+
         {/* 메타 정보 (날짜 + 홈으로 가기) */}
         <div className="flex items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400 mb-2">
           {post.publishedDate && (
@@ -136,16 +136,16 @@ export default async function PostPage({ params }: any) {
               </time>
             </div>
           )}
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="flex items-center hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
             <FiHome className="w-4 h-4 mr-1.5" />
             홈으로 돌아가기
           </Link>
         </div>
-      </div> 
-      
+      </div>
+
       {/* 구분선 - 본문+사이드바 실제 너비(1088px)와 맞춤 */}
       <div className="border-t border-gray-200 dark:border-gray-700 mt-8 max-w-[1088px] mx-auto"></div>
 
@@ -164,7 +164,7 @@ export default async function PostPage({ params }: any) {
             </div>
           </article>
         </main>
-        
+
         {/* 사이드바 - 목차 */}
         <aside className="lg:w-64 lg:shrink-0 lg:mt-12">
           <div className="lg:sticky lg:top-12 lg:h-fit">
@@ -172,48 +172,52 @@ export default async function PostPage({ params }: any) {
           </div>
         </aside>
       </div>
-      
+
       {/* 이전/다음 포스트 네비게이션 섹션 */}
       {(prevPost || nextPost) && (
         <section className="max-w-[1088px] mx-auto mb-12">
           {/* 네비게이션 컨테이너 */}
-          <div className="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+          <div className="bg-gray-200 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
             {/* 섹션 헤더 */}
             <div className="mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-200 text-center">
-                다른 포스트 보기
+              <h2 className="text-xl md:text-2xl font-serif font-light text-emerald-700 dark:text-emerald-400 text-center">
+                🌿 다음 글도 궁금하신가요?
               </h2>
-              <div className="w-12 h-0.5 bg-blue-500 mx-auto mt-2"></div>
+              <div className="w-16 h-0.5 bg-emerald-700 dark:bg-emerald-400 rounded-full mx-auto mt-2"></div>
             </div>
-            
+
             {/* 네비게이션 카드들 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* 이전 포스트 */}
-              {prevPost ? (
-                <PostNavigationCard
-                  post={prevPost}
-                  href={`/post/${Number(slug) - 1}`}
-                  direction="prev"
-                />
-              ) : (
-                <div className="w-full md:max-w-md"></div>
-              )}
-              
+              <div className="flex justify-start">
+                {prevPost ? (
+                  <PostNavigationCard
+                    post={prevPost}
+                    href={`/post/${Number(slug) - 1}`}
+                    direction="prev"
+                  />
+                ) : (
+                  <div className="w-full md:max-w-md"></div>
+                )}
+              </div>
+
               {/* 다음 포스트 */}
-              {nextPost ? (
-                <PostNavigationCard
-                  post={nextPost}
-                  href={`/post/${Number(slug) + 1}`}
-                  direction="next"
-                />
-              ) : (
-                <div className="w-full md:max-w-md"></div>
-              )}
+              <div className="flex justify-end">
+                {nextPost ? (
+                  <PostNavigationCard
+                    post={nextPost}
+                    href={`/post/${Number(slug) + 1}`}
+                    direction="next"
+                  />
+                ) : (
+                  <div className="w-full md:max-w-md"></div>
+                )}
+              </div>
             </div>
           </div>
         </section>
       )}
-      
+
       {/* 댓글 섹션 - 본문+사이드바 실제 너비(1088px)와 맞춤 */}
       <div className="max-w-[1088px] mx-auto">
         <Suspense fallback={<div className="text-center py-4">댓글을 불러오는 중...</div>}>
