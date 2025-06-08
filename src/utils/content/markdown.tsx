@@ -6,7 +6,7 @@ import rehypeSanitize from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
-import { RenderImage, RenderLink } from './html';
+import { RenderLink } from './html';
 import { getImageUrl } from './image';
 import Image from 'next/image';
 

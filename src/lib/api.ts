@@ -2,7 +2,6 @@ const API_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 const API_TOKEN = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
 import qs from 'qs';
 import axios from 'axios';
-import PostCard from '@/components/ui/PostCard';
 // axios 인스턴스 생성
 export const strapiAPI = axios.create({
   baseURL: `${API_URL}/api`,

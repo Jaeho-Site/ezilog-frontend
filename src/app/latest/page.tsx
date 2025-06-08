@@ -1,6 +1,4 @@
-import Link from "next/link";
 import { Suspense } from "react";
-import PostCard, { PostData } from "@/components/ui/PostCard";
 import PostListGrid from "@/components/ui/PostListGrid";
 import { getAllPosts } from "@/lib/api";
 

@@ -55,29 +55,3 @@ export function mapTagsWithColors<T extends { name: string }>(tags: T[]) {
     color: getTagColor(tag.name)
   }));
 }
-
-// 색상 분포 테스트 함수 (개발용)
-export function testColorDistribution(tagNames: string[]) {
-  const distribution: Record<string, number> = {};
-  
-  tagNames.forEach(tagName => {
-    const hash = betterHash(tagName.toLowerCase());
-    const colorIndex = hash % colorKeys.length;
-    const colorKey = colorKeys[colorIndex];
-    distribution[colorKey] = (distribution[colorKey] || 0) + 1;
-  });
-  return distribution;
-} 
-
-testColorDistribution([
-    'React', 'Vue', 'Next.js', 'Node.js', 'Express', 'MongoDB', 'SQL',
-    'Firebase', 'AWS', 'Docker', 'Python', 'Django', 'Java',
-    'Android', 'iOS', 'Flutter', 'Swift', 'Kotlin', 'TypeScript',
-    'JavaScript', 'HTML', 'CSS', 'Tailwind', 'GraphQL', 'REST API',
-    'OAuth', 'JWT', 'CI/CD', 'GitHub Actions', 'Netlify',
-    'Vercel', 'Prisma', 'Zustand', 'Redux', 'Recoil',
-    'Linux', 'Nginx', 'SSL', 'CORS', 'WebSocket',
-    'Redis', 'PostgreSQL', 'SQLite', 'MySQL', 'Babel',
-    'Webpack', 'Parcel', 'Vitest', 'Jest', 'Testing Library'
-  ]);
-  

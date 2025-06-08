@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import PostCard, { PostData } from "@/components/ui/PostCard";
+import { PostData } from "@/components/ui/PostCard";
 import PostListGrid from "@/components/ui/PostListGrid";
 import FeaturedPost from "@/components/ui/FeaturedPost";
 import { getPostBySlug } from "@/lib/api";

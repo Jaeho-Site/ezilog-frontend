@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import PostCard, { PostData } from "@/components/ui/PostCard";
 import PostListGrid from "@/components/ui/PostListGrid";
 import Pagination from "@/components/ui/Pagination";
 import { getCategoryBySlug, getCategoryPosts } from "@/lib/api";

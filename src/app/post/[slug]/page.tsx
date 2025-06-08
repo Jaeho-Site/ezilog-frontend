@@ -1,7 +1,6 @@
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { getPostBySlug, getAllPosts, getRelatedPosts } from "@/lib/api";
 import { lazy, Suspense } from 'react';
 import {
@@ -13,7 +12,7 @@ import {
 } from "@/utils/content";
 import TableOfContents from "@/components/ui/TableOfContents";
 import PostNavigationCard from "@/components/ui/PostNavigationCard";
-import { FiHome, FiCalendar, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiHome, FiCalendar} from "react-icons/fi";
 import { getTagColor } from "@/utils/tag/tagColors";
 
 // 정적 페이지 생성 설정
@@ -28,14 +27,6 @@ export async function generateStaticParams() {
     slug: post.slug
   }));
 }
-
-// 포스트 페이지 속성 타입
-interface PostPageProps {
-  params: {
-    slug: string;
-  };
-}
-
 // SEO 메타데이터 생성
 export async function generateMetadata(
   { params }: any,

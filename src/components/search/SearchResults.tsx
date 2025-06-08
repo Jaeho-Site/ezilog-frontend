@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import PostCard, { PostData } from "@/components/ui/PostCard";
+import { PostData } from "@/components/ui/PostCard";
 import PostListGrid from "@/components/ui/PostListGrid";
 import TagsOverview from "@/components/ui/TagsOverview";
 import { extractUniqueTagsFromPosts } from "@/utils/tag/tagUtils";
