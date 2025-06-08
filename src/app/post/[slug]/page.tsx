@@ -102,8 +102,8 @@ export default async function PostPage({ params }: any) {
   
   return (
     <div className="max-w-7xl mx-auto p-4">
-      {/* 제목 섹션 - 중앙 배치 */}
-      <div className="max-w-4xl mx-auto mb-12">
+      {/* 제목 섹션 - 본문+사이드바 실제 너비(1088px)와 맞춤 */}
+      <div className="max-w-[1088px] mx-auto mb-12">
         {/* 태그 */}
         {tags && tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 justify-center mb-6">
@@ -145,12 +145,11 @@ export default async function PostPage({ params }: any) {
         </div>
       </div> 
       
-      {/* 구분선 */}
-      {/* <div className="border-t border-gray-200 dark:border-gray-700 mt-8"></div> */}
+      {/* 구분선 - 본문+사이드바 실제 너비(1088px)와 맞춤 */}
       <div className="border-t border-gray-200 dark:border-gray-700 mt-8 max-w-[1088px] mx-auto"></div>
 
-      {/* 본문 + 사이드바 섹션 */}
-      <div className="lg:flex lg:gap-8 mb-12 lg:justify-center lg:max-w-6xl lg:mx-auto">
+      {/* 본문 + 사이드바 섹션 - 실제 너비: 800px + 256px + 32px = 1088px */}
+      <div className="lg:flex lg:gap-8 mb-12 lg:justify-center lg:max-w-[1088px] lg:mx-auto">
         {/* 메인 콘텐츠  lg:flex-1 lg:max-w-4xl    lg:max-w-[800px]*/}
         <main className="lg:flex-1 lg:max-w-[800px]">
           <article className="bg-gray-50 dark:bg-gray-950 overflow-hidden">
@@ -173,9 +172,9 @@ export default async function PostPage({ params }: any) {
         </aside>
       </div>
       
-      {/* 이전/다음 포스트 네비게이션 */}
+      {/* 이전/다음 포스트 네비게이션 - 본문+사이드바 실제 너비(1088px)와 맞춤 */}
       {(prevPostTitle || nextPostTitle) && (
-        <div className="max-w-4xl mx-auto mb-12">
+        <div className="max-w-[1088px] mx-auto mb-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* 이전 포스트 */}
             <div className="flex justify-start">
@@ -238,8 +237,8 @@ export default async function PostPage({ params }: any) {
         </div>
       )}
       
-      {/* 댓글 섹션 - 중앙 배치 */}
-      <div className="max-w-4xl mx-auto">
+      {/* 댓글 섹션 - 본문+사이드바 실제 너비(1088px)와 맞춤 */}
+      <div className="max-w-[1088px] mx-auto">
         <Suspense fallback={<div className="text-center py-4">댓글을 불러오는 중...</div>}>
           <GiscusComments />
         </Suspense>
