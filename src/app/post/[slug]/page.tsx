@@ -14,7 +14,7 @@ import {
 import TableOfContents from "@/components/ui/TableOfContents";
 import PostNavigationCard from "@/components/ui/PostNavigationCard";
 import { FiHome, FiCalendar, FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import { getTagColor } from "@/utils/tagColors";
+import { getTagColor } from "@/utils/tag/tagColors";
 
 // 정적 페이지 생성 설정
 export const dynamic = 'force-static';

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { getTagColor } from "@/utils/tagColors";
+import { getTagColor } from "@/utils/tag/tagColors";
 
 interface Tag {
   id: number | string;

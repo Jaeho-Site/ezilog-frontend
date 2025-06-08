@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FiCalendar } from "react-icons/fi";
-import { getTagColor } from "@/utils/tagColors";
+import { getTagColor } from "@/utils/tag/tagColors";
 import { PostData } from "@/components/ui/PostCard";
 
 interface FeaturedPostProps {
