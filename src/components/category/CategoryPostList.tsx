@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+// import { notFound } from "next/navigation"; // 정적 생성을 위해 제거
 import PostListGrid from "@/components/ui/PostListGrid";
 import Pagination from "@/components/ui/Pagination";
 import { getCategoryBySlug, getCategoryPosts } from "@/lib/api";
@@ -16,7 +16,12 @@ export default async function CategoryPostList({ slug, page = 1 }: CategoryPostL
     // 카테고리 정보 가져오기
     const category = await getCategoryBySlug(slug);
     if (!category) {
-      return notFound();
+      return (
+        <div className="text-center py-10">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">카테고리를 찾을 수 없습니다</h1>
+          <p className="text-gray-600 dark:text-gray-400">요청하신 카테고리가 존재하지 않습니다.</p>
+        </div>
+      );
     }
     // 카테고리 포스트 가져오기
     const posts = await getCategoryPosts(slug, POSTS_PER_PAGE, (page - 1) * POSTS_PER_PAGE);

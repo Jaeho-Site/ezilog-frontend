@@ -1,24 +1,50 @@
-import { Suspense } from "react";
+// import { Suspense } from "react"; // Suspense 제거
 import { Metadata } from "next";
-import { getAllCategories, getCategoryBySlug, getCategoryPosts, getCategoryPostCount } from "@/lib/api";
+import { getAllCategories, getCategoryBySlug, getCategoryPosts, getCategoryPostCount, getTopLevelCategories } from "@/lib/api";
 import CategoryPostList, { POSTS_PER_PAGE } from "@/components/category/CategoryPostList";
 
 // 정적 페이지 생성 설정
 export const dynamic = 'force-static';
 
-// 빌드 시 정적으로 생성할 경로 정의 (최적화됨)
+// 빌드 시 정적으로 생성할 경로 정의 (완전한 버전)
 export async function generateStaticParams() {
   try {
-    const categories = await getAllCategories();
-    const paths = [];
+    console.log('[generateStaticParams] Starting...');
+    
+    // 1레벨 카테고리와 자식 카테고리들을 모두 가져오기
+    const topLevelCategoriesResponse = await getTopLevelCategories();
+    const topLevelCategories = topLevelCategoriesResponse.data || [];
+    
+    // 모든 카테고리 수집 (1레벨 + 2레벨)
+    const allCategories = [];
+    
+    // 1레벨 카테고리들 추가
+    for (const topCategory of topLevelCategories) {
+      allCategories.push({
+        slug: topCategory.slug,
+        level: 1
+      });
+      
+      // 2레벨 카테고리들 추가
+      if (topCategory.categories && topCategory.categories.length > 0) {
+        for (const childCategory of topCategory.categories) {
+          allCategories.push({
+            slug: childCategory.slug,
+            level: 2
+          });
+        }
+      }
+    }
+    
+    console.log(`[generateStaticParams] Found ${allCategories.length} categories`);
     
     // 병렬 처리로 빌드 시간 단축
-    const categoryPromises = categories.map(async (category: any) => {
+    const categoryPromises = allCategories.map(async (category: any) => {
       try {
         const categoryPaths = [];
         
-        // 1페이지: /category/react
-        categoryPaths.push({ slug: category.slug });
+        // 1페이지: /category/react (page 파라미터 없음)
+        categoryPaths.push({ slug: category.slug, page: undefined });
         
         // 포스트 총 개수를 한 번에 가져와서 필요한 페이지 수 계산
         const totalPosts = await getCategoryPostCount(category.slug);
@@ -38,7 +64,7 @@ export async function generateStaticParams() {
       } catch (error) {
         console.error(`Error generating paths for category ${category.slug}:`, error);
         // 에러 발생 시 최소한 첫 페이지는 생성
-        return [{ slug: category.slug }];
+        return [{ slug: category.slug, page: undefined }];
       }
     });
     
@@ -46,7 +72,11 @@ export async function generateStaticParams() {
     const allCategoryPaths = await Promise.all(categoryPromises);
     
     // 2차원 배열을 1차원으로 평탄화
-    return allCategoryPaths.flat();
+    const paths = allCategoryPaths.flat();
+    
+    console.log(`[generateStaticParams] Generated ${paths.length} static paths`);
+    
+    return paths;
   } catch (error) {
     console.error('Error in generateStaticParams:', error);
     // 전체 실패 시 빈 배열 반환하여 런타임 생성으로 폴백
@@ -104,13 +134,7 @@ export default async function CategoryPage({ params }: any) {
   
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <Suspense fallback={
-        <div className="text-center py-10">
-          <p className="text-gray-600 dark:text-gray-400">포스트를 불러오는 중...</p>
-        </div>
-      }>
-        <CategoryPostList slug={slug} page={page} />
-      </Suspense>
+      <CategoryPostList slug={slug} page={page} />
     </div>
   );
 } 
