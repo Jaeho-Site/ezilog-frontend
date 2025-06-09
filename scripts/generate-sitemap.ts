@@ -18,13 +18,6 @@ interface PostData {
   updatedAt?: string;
 }
 
-interface CategoryData {
-  id: number;
-  slug: string;
-  updatedAt?: string;
-  createdAt?: string;
-}
-
 // XML 이스케이프 함수
 function escapeXml(unsafe: string): string {
   return unsafe.replace(/[<>&'"]/g, function (c) {

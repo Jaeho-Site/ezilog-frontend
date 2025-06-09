@@ -13,25 +13,6 @@ interface Category {
   posts?: Array<{ id: number }>;
 }
 
-interface Post {
-  id: number;
-  title: string;
-  slug: string;
-  description?: string;
-  publishedAt: string;
-  cover?: {
-    url: string;
-  } | null;
-  tags?: Array<{
-    name: string;
-    slug: string;
-  }>;
-  category?: {
-    name: string;
-    slug: string;
-  } | null;
-}
-
 interface CleanedPost {
   id: number;
   title: string;
@@ -53,7 +34,6 @@ interface CleanedPost {
 
 async function generateStaticData(): Promise<void> {
   try {
-    console.log('🚀 정적 데이터 생성 시작...');
     
     // public/data 디렉토리 생성
     const dataDir = path.join(process.cwd(), 'public', 'data');
@@ -67,8 +47,6 @@ async function generateStaticData(): Promise<void> {
     // 2. 모든 포스트 데이터 생성
     await generatePostsData(dataDir);
     
-    console.log('✅ 모든 정적 데이터 생성 완료!');
-    
   } catch (error) {
     console.error('❌ 정적 데이터 생성 중 오류 발생:', error);
     process.exit(1);
@@ -77,7 +55,6 @@ async function generateStaticData(): Promise<void> {
 
 async function generateCategoriesData(dataDir: string): Promise<void> {
   try {
-    console.log('📁 카테고리 데이터 생성 중...');
     
     // 1레벨 카테고리와 자식 카테고리들을 모두 가져오기
     const response = await axios.get(`${API_BASE_URL}/api/categories`, {
@@ -130,9 +107,6 @@ async function generateCategoriesData(dataDir: string): Promise<void> {
     const categoriesPath = path.join(dataDir, 'categories.json');
     fs.writeFileSync(categoriesPath, JSON.stringify(cleanedCategories, null, 2));
     
-    console.log(`✅ 카테고리 데이터 저장: ${categoriesPath}`);
-    console.log(`📊 카테고리 수: ${cleanedCategories.length}개 (1레벨) + ${cleanedCategories.reduce((acc, cat) => acc + (cat.categories?.length || 0), 0)}개 (2레벨)`);
-    
   } catch (error: any) {
     console.error('❌ 카테고리 데이터 생성 실패:', error.message);
     throw error;
@@ -141,8 +115,6 @@ async function generateCategoriesData(dataDir: string): Promise<void> {
 
 async function generatePostsData(dataDir: string): Promise<void> {
   try {
-    console.log('📄 포스트 데이터 생성 중...');
-    
     // 모든 포스트 가져오기 (페이지네이션으로 모두 가져옴)
     let allPosts: CleanedPost[] = [];
     let page = 1;
@@ -211,9 +183,6 @@ async function generatePostsData(dataDir: string): Promise<void> {
       });
       
       allPosts = allPosts.concat(cleanedPosts);
-      
-      console.log(`   페이지 ${page}: ${posts.length}개 포스트 수집`);
-      
       if (posts.length < pageSize) break;
       page++;
     }
@@ -221,10 +190,6 @@ async function generatePostsData(dataDir: string): Promise<void> {
     // posts.json 파일 생성
     const postsPath = path.join(dataDir, 'posts.json');
     fs.writeFileSync(postsPath, JSON.stringify(allPosts, null, 2));
-    
-    console.log(`✅ 포스트 데이터 저장: ${postsPath}`);
-    console.log(`📊 총 포스트 수: ${allPosts.length}개`);
-    
   } catch (error: any) {
     console.error('❌ 포스트 데이터 생성 실패:', error.message);
     throw error;
