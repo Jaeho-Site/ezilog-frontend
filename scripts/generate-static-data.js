@@ -128,24 +128,40 @@ async function generatePostsData(dataDir) {
       if (posts.length === 0) break;
       
       // 포스트 데이터 정리
-      const cleanedPosts = posts.map(post => ({
-        id: post.id,
-        title: post.title,
-        slug: post.slug,
-        description: post.description,
-        publishedAt: post.publishedAt,
-        cover: post.cover?.url ? {
-          url: post.cover.url
-        } : null,
-        tags: (post.tags || []).map(tag => ({
-          name: tag.name,
-          slug: tag.slug
-        })),
-        category: post.category ? {
-          name: post.category.name,
-          slug: post.category.slug
-        } : null
-      }));
+      const cleanedPosts = posts.map(post => {
+        // 이미지 URL을 절대 경로로 변환
+        let coverUrl = null;
+        if (post.cover?.url) {
+          const url = post.cover.url;
+          // 상대 경로인지 확인 (/, http:// 또는 https://로 시작하지 않는 경우)
+          if (url.startsWith('/')) {
+            coverUrl = `${API_BASE_URL}${url}`;
+          } else if (url.startsWith('http://') || url.startsWith('https://')) {
+            coverUrl = url;
+          } else {
+            coverUrl = `${API_BASE_URL}/${url}`;
+          }
+        }
+
+        return {
+          id: post.id,
+          title: post.title,
+          slug: post.slug,
+          description: post.description,
+          publishedAt: post.publishedAt,
+          cover: coverUrl ? {
+            url: coverUrl
+          } : null,
+          tags: (post.tags || []).map(tag => ({
+            name: tag.name,
+            slug: tag.slug
+          })),
+          category: post.category ? {
+            name: post.category.name,
+            slug: post.category.slug
+          } : null
+        };
+      });
       
       allPosts = allPosts.concat(cleanedPosts);
       

@@ -18,7 +18,27 @@ async function fetchAllPosts() {
     // 빌드 시점에 생성된 정적 데이터 읽기
     const postsPath = path.join(process.cwd(), 'public', 'data', 'posts.json');
     const postsData = fs.readFileSync(postsPath, 'utf-8');
-    return JSON.parse(postsData);
+    const rawPosts = JSON.parse(postsData);
+    
+    // PostCard 컴포넌트가 기대하는 형태로 데이터 변환
+    const transformedPosts = rawPosts.map((post: any) => ({
+      id: post.id,
+      title: post.title,
+      description: post.description || '',
+      slug: post.slug,
+      coverImage: post.cover ? {
+        url: post.cover.url,
+        alt: post.title
+      } : null,
+      publishedDate: post.publishedAt,
+      category: post.category || {
+        name: '미분류',
+        slug: 'uncategorized'
+      },
+      tags: post.tags || []
+    }));
+    
+    return transformedPosts;
   } catch (error) {
     console.error('포스트 데이터 로드 실패:', error);
     return [];
