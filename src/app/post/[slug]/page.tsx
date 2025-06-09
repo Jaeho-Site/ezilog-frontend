@@ -14,46 +14,90 @@ import TableOfContents from "@/components/ui/TableOfContents";
 import PostNavigationCard from "@/components/ui/PostNavigationCard";
 import { FiHome, FiCalendar} from "react-icons/fi";
 import { getTagColor } from "@/utils/tag/tagColors";
+import * as fs from 'fs';
+import * as path from 'path';
 
 // 정적 페이지 생성 설정
 export const dynamic = 'force-static';
 const GiscusComments = lazy(() => import('@/components/ui/comments'));
 
+// 정적 포스트 데이터 로드 함수 (빌드 시간 최적화)
+async function loadStaticPosts() {
+  try {
+    const postsPath = path.join(process.cwd(), 'public', 'data', 'posts.json');
+    if (fs.existsSync(postsPath)) {
+      const postsData = JSON.parse(fs.readFileSync(postsPath, 'utf-8'));
+      return postsData;
+    }
+  } catch (error) {
+    console.warn('[loadStaticPosts] Failed to load static data');
+  }
+  return [];
+}
+
 // 빌드 시 정적으로 생성할 경로 정의
 export async function generateStaticParams() {
-  const posts = await getAllPosts(100, 0); // 최대 100개 포스트 가져오기
+  // 정적 데이터 우선 사용
+  let posts = await loadStaticPosts();
+  
+  // 정적 데이터가 없는 경우에만 API 호출
+  if (posts.length === 0) {
+    posts = await getAllPosts(100, 0);
+  }
 
   return posts.map((post: { slug: string }) => ({
     slug: post.slug
   }));
 }
-// SEO 메타데이터 생성
+
+// SEO 메타데이터 생성 (API 호출 최소화)
 export async function generateMetadata(
   { params }: any,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const slug = params.slug;
-  const post = await getPostBySlug(slug);
-
-  if (!post) {
-    return { title: '게시물을 찾을 수 없습니다' };
+  
+  // 정적 데이터에서 먼저 찾기
+  const staticPosts = await loadStaticPosts();
+  const staticPost = staticPosts.find((post: any) => post.slug === slug);
+  
+  if (staticPost) {
+    return {
+      title: `${staticPost.title} | EziLog`,
+      description: staticPost.description || '',
+      openGraph: {
+        title: staticPost.title,
+        description: staticPost.description || '',
+        images: staticPost.coverImage ? [{ url: staticPost.coverImage }] : [],
+      },
+    };
   }
 
-  return {
-    title: `${post.title} | EziLog`,
-    description: post.description || '',
-    openGraph: {
-      title: post.title,
+  // 정적 데이터에 없는 경우에만 API 호출 (새 포스트)
+  try {
+    const post = await getPostBySlug(slug);
+    if (!post) {
+      return { title: '게시물을 찾을 수 없습니다 | EziLog' };
+    }
+
+    return {
+      title: `${post.title} | EziLog`,
       description: post.description || '',
-      images: post.coverImage ? [{ url: post.coverImage.url }] : [],
-    },
-  };
+      openGraph: {
+        title: post.title,
+        description: post.description || '',
+        images: post.coverImage ? [{ url: post.coverImage.url }] : [],
+      },
+    };
+  } catch (error) {
+    return { title: '게시물을 찾을 수 없습니다 | EziLog' };
+  }
 }
 
 // 포스트 페이지 컴포넌트
 export default async function PostPage({ params }: any) {
   // 포스트 데이터 가져오기
-  const slug = params.slug; // await 제거
+  const slug = params.slug;
   const post = await getPostBySlug(slug);
 
   // 데이터가 없으면 404 페이지 표시
