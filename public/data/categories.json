@@ -1,0 +1,220 @@
+[
+  {
+    "id": 51,
+    "name": "Programming",
+    "slug": "programming",
+    "level": 1,
+    "categories": [
+      {
+        "id": 34,
+        "name": "Python",
+        "slug": "python",
+        "level": 2,
+        "posts": []
+      }
+    ],
+    "posts": []
+  },
+  {
+    "id": 48,
+    "name": "CS",
+    "slug": "cs",
+    "level": 1,
+    "categories": [
+      {
+        "id": 62,
+        "name": "운영체제",
+        "slug": "os",
+        "level": 2,
+        "posts": []
+      },
+      {
+        "id": 22,
+        "name": "Network",
+        "slug": "network",
+        "level": 2,
+        "posts": []
+      },
+      {
+        "id": 18,
+        "name": "자료구조",
+        "slug": "data-structures",
+        "level": 2,
+        "posts": []
+      },
+      {
+        "id": 20,
+        "name": "알고리즘",
+        "slug": "algorithms",
+        "level": 2,
+        "posts": []
+      }
+    ],
+    "posts": []
+  },
+  {
+    "id": 49,
+    "name": "Frontend",
+    "slug": "frontend",
+    "level": 1,
+    "categories": [
+      {
+        "id": 24,
+        "name": "HTML",
+        "slug": "html",
+        "level": 2,
+        "posts": []
+      },
+      {
+        "id": 26,
+        "name": "CSS",
+        "slug": "css",
+        "level": 2,
+        "posts": []
+      },
+      {
+        "id": 28,
+        "name": "Javascript",
+        "slug": "javascript",
+        "level": 2,
+        "posts": []
+      },
+      {
+        "id": 30,
+        "name": "React",
+        "slug": "react",
+        "level": 2,
+        "posts": []
+      },
+      {
+        "id": 32,
+        "name": "Next.js",
+        "slug": "nextjs",
+        "level": 2,
+        "posts": []
+      }
+    ],
+    "posts": []
+  },
+  {
+    "id": 56,
+    "name": "Tech News",
+    "slug": "tech-news",
+    "level": 1,
+    "categories": [
+      {
+        "id": 44,
+        "name": "CursorAI",
+        "slug": "cursor-ai",
+        "level": 2,
+        "posts": [
+          {
+            "id": 72,
+            "documentId": "ipvud1hvsixqdat8gdeopo91"
+          }
+        ]
+      },
+      {
+        "id": 46,
+        "name": "Blog만들기",
+        "slug": "blog",
+        "level": 2,
+        "posts": [
+          {
+            "id": 70,
+            "documentId": "sengdnwqx8gksnftug50w5js"
+          },
+          {
+            "id": 94,
+            "documentId": "as4y7dr0n13jm6qmrszc8vqh"
+          },
+          {
+            "id": 91,
+            "documentId": "kd2or3vevjiafmhfrl8vjs9e"
+          },
+          {
+            "id": 86,
+            "documentId": "rasumqle6cb6xah97ti2zvvc"
+          }
+        ]
+      },
+      {
+        "id": 55,
+        "name": "기타",
+        "slug": "else",
+        "level": 2,
+        "posts": [
+          {
+            "id": 139,
+            "documentId": "ioalrvuigp8t7n72bl288gf1"
+          },
+          {
+            "id": 65,
+            "documentId": "qu2fe8gg51ek3ox06xus7s0n"
+          },
+          {
+            "id": 66,
+            "documentId": "xkfgtwve1sp3ibqwxkc54myj"
+          },
+          {
+            "id": 102,
+            "documentId": "ha3mx9knmklpkzfevlx6j4h0"
+          },
+          {
+            "id": 83,
+            "documentId": "kdmfwgggejiio81v88frkwgy"
+          },
+          {
+            "id": 84,
+            "documentId": "d6fsr8881379xxi7f8b06ty5"
+          },
+          {
+            "id": 92,
+            "documentId": "kkr0nbx32wdu0h1g7pd3si2z"
+          },
+          {
+            "id": 93,
+            "documentId": "lpkwztqit3qk5wtutspbu0u5"
+          },
+          {
+            "id": 99,
+            "documentId": "db1bvm1oa8qbw3vy7qnjkfun"
+          },
+          {
+            "id": 121,
+            "documentId": "pk0wg3h633bemmhq7cvwzmg9"
+          }
+        ]
+      }
+    ],
+    "posts": []
+  },
+  {
+    "id": 61,
+    "name": "Cloud & Devops",
+    "slug": "cloud-devops",
+    "level": 1,
+    "categories": [
+      {
+        "id": 60,
+        "name": "AWS",
+        "slug": "aws",
+        "level": 2,
+        "posts": [
+          {
+            "id": 95,
+            "documentId": "ipywf6netg9zq7pwamwp4gsy"
+          }
+        ]
+      },
+      {
+        "id": 38,
+        "name": "Supabase",
+        "slug": "supabase",
+        "level": 2,
+        "posts": []
+      }
+    ],
+    "posts": []
+  }
+]

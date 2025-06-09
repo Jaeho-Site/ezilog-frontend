@@ -1,48 +1,33 @@
-import { getAllPosts } from "@/lib/api";
 import { Metadata } from "next";
 import SearchResults from "@/components/search/SearchResults";
+import fs from 'fs';
+import path from 'path';
 
 // 정적 페이지 생성 설정
 export const dynamic = 'force-static';
 
-// SEO 메타데이터 
-export async function generateMetadata({ searchParams }: any): Promise<Metadata> {
-  const type = searchParams?.type;
-  const q = searchParams?.q;
-  
-  if (type === 'tags' && !q) {
-    return {
-      title: '태그별 탐색 | EziLog',
-      description: '모든 태그를 확인하고 관심 있는 주제의 포스트를 찾아보세요.',
-    };
-  } else if (q && type === 'tag') {
-    return {
-      title: `${q} 태그 | EziLog`,
-      description: `${q} 태그가 달린 포스트를 확인해보세요.`,
-    };
-  } else if (q) {
-    return {
-      title: `"${q}" 검색 결과 | EziLog`,
-      description: `"${q}"에 대한 검색 결과입니다.`,
-    };
-  } else {
-    return {
-      title: '포스트 검색 | EziLog',
-      description: '블로그의 모든 포스트를 검색할 수 있습니다.',
-    };
+// SEO 메타데이터 (간단하게 수정)
+export const metadata: Metadata = {
+  title: '포스트 검색 | EziLog',
+  description: '블로그의 모든 포스트를 검색할 수 있습니다.',
+};
+
+// 서버 컴포넌트에서 정적 포스트 데이터 가져오기
+async function fetchAllPosts() {
+  try {
+    // 빌드 시점에 생성된 정적 데이터 읽기
+    const postsPath = path.join(process.cwd(), 'public', 'data', 'posts.json');
+    const postsData = fs.readFileSync(postsPath, 'utf-8');
+    return JSON.parse(postsData);
+  } catch (error) {
+    console.error('포스트 데이터 로드 실패:', error);
+    return [];
   }
 }
 
-// 서버 컴포넌트에서 모든 포스트 데이터 가져오기
-async function fetchAllPosts() {
-  // 일단 최대 100개 포스트 가져오기 (실제로는 페이지네이션으로 모두 가져와야 함)
-  const posts = await getAllPosts(100, 0);
-  return posts;
-}
-
-// 검색 페이지 - 서버 컴포넌트
+// 검색 페이지 - 서버 컴포넌트 (SSG)
 export default async function SearchPage() {
-  // 모든 포스트 데이터 가져오기 (build time에 실행)
+  // 정적 포스트 데이터 가져오기 (build time에 실행)
   const allPosts = await fetchAllPosts();
 
   return (

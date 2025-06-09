@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { FiChevronDown, FiChevronRight } from "react-icons/fi";
-import { getTopLevelCategories } from "@/lib/api";
+// import { getTopLevelCategories } from "@/lib/api"; // 정적 데이터 사용으로 변경
 
 // Category 타입 정의
 interface Category {
@@ -37,19 +37,24 @@ const CategoryBar = ({ isOpen, onClose }: CategoryBarProps) => {
     }
   }, [isInitialized]);
 
-  // 카테고리 데이터 로드 함수
+  // 카테고리 데이터 로드 함수 (정적 데이터 사용)
   const loadCategories = async () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await getTopLevelCategories();
       
-      if (response.data) {
-        setCategories(response.data);
+      // 정적 JSON 파일에서 카테고리 데이터 로드
+      const response = await fetch('/data/categories.json');
+      if (!response.ok) {
+        throw new Error('카테고리 데이터를 불러올 수 없습니다.');
       }
+      
+      const categories = await response.json();
+      setCategories(categories);
       setIsInitialized(true);
     } catch (err) {
       setError('카테고리를 불러오는 중 오류가 발생했습니다.');
+      console.error('CategoryBar 데이터 로드 오류:', err);
     } finally {
       setIsLoading(false);
     }
