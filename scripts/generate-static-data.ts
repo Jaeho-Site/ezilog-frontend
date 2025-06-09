@@ -1,10 +1,57 @@
-const fs = require('fs');
-const path = require('path');
-const axios = require('axios');
+import * as fs from 'fs';
+import * as path from 'path';
+import axios from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
 
-async function generateStaticData() {
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  level: number;
+  categories?: Category[];
+  posts?: Array<{ id: number }>;
+}
+
+interface Post {
+  id: number;
+  title: string;
+  slug: string;
+  description?: string;
+  publishedAt: string;
+  cover?: {
+    url: string;
+  } | null;
+  tags?: Array<{
+    name: string;
+    slug: string;
+  }>;
+  category?: {
+    name: string;
+    slug: string;
+  } | null;
+}
+
+interface CleanedPost {
+  id: number;
+  title: string;
+  slug: string;
+  description?: string;
+  publishedAt: string;
+  cover: {
+    url: string;
+  } | null;
+  tags: Array<{
+    name: string;
+    slug: string;
+  }>;
+  category: {
+    name: string;
+    slug: string;
+  } | null;
+}
+
+async function generateStaticData(): Promise<void> {
   try {
     console.log('🚀 정적 데이터 생성 시작...');
     
@@ -28,7 +75,7 @@ async function generateStaticData() {
   }
 }
 
-async function generateCategoriesData(dataDir) {
+async function generateCategoriesData(dataDir: string): Promise<void> {
   try {
     console.log('📁 카테고리 데이터 생성 중...');
     
@@ -57,10 +104,10 @@ async function generateCategoriesData(dataDir) {
       }
     });
 
-    const categories = response.data.data || [];
+    const categories: any[] = response.data.data || [];
     
     // 카테고리 데이터 정리
-    const cleanedCategories = categories.map((category) => {
+    const cleanedCategories: Category[] = categories.map((category: any) => {
       const childCategories = category.categories || [];
       
       return {
@@ -68,7 +115,7 @@ async function generateCategoriesData(dataDir) {
         name: category.name,
         slug: category.slug,
         level: 1,
-        categories: childCategories.map((child) => ({
+        categories: childCategories.map((child: any) => ({
           id: child.id,
           name: child.name,
           slug: child.slug,
@@ -86,18 +133,18 @@ async function generateCategoriesData(dataDir) {
     console.log(`✅ 카테고리 데이터 저장: ${categoriesPath}`);
     console.log(`📊 카테고리 수: ${cleanedCategories.length}개 (1레벨) + ${cleanedCategories.reduce((acc, cat) => acc + (cat.categories?.length || 0), 0)}개 (2레벨)`);
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ 카테고리 데이터 생성 실패:', error.message);
     throw error;
   }
 }
 
-async function generatePostsData(dataDir) {
+async function generatePostsData(dataDir: string): Promise<void> {
   try {
     console.log('📄 포스트 데이터 생성 중...');
     
     // 모든 포스트 가져오기 (페이지네이션으로 모두 가져옴)
-    let allPosts = [];
+    let allPosts: CleanedPost[] = [];
     let page = 1;
     const pageSize = 25;
     
@@ -124,15 +171,15 @@ async function generatePostsData(dataDir) {
         }
       });
       
-      const posts = response.data.data || [];
+      const posts: any[] = response.data.data || [];
       if (posts.length === 0) break;
       
       // 포스트 데이터 정리
-      const cleanedPosts = posts.map(post => {
+      const cleanedPosts: CleanedPost[] = posts.map((post: any) => {
         // 이미지 URL을 절대 경로로 변환
-        let coverUrl = null;
+        let coverUrl: string | null = null;
         if (post.cover?.url) {
-          const url = post.cover.url;
+          const url: string = post.cover.url;
           // 상대 경로인지 확인 (/, http:// 또는 https://로 시작하지 않는 경우)
           if (url.startsWith('/')) {
             coverUrl = `${API_BASE_URL}${url}`;
@@ -152,7 +199,7 @@ async function generatePostsData(dataDir) {
           cover: coverUrl ? {
             url: coverUrl
           } : null,
-          tags: (post.tags || []).map(tag => ({
+          tags: (post.tags || []).map((tag: any) => ({
             name: tag.name,
             slug: tag.slug
           })),
@@ -178,7 +225,7 @@ async function generatePostsData(dataDir) {
     console.log(`✅ 포스트 데이터 저장: ${postsPath}`);
     console.log(`📊 총 포스트 수: ${allPosts.length}개`);
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ 포스트 데이터 생성 실패:', error.message);
     throw error;
   }
