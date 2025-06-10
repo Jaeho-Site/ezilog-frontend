@@ -115,6 +115,10 @@ async function generateCategoriesData(dataDir: string): Promise<void> {
 
 async function generatePostsData(dataDir: string): Promise<void> {
   try {
+    // 🎯 환경변수에서 도메인 정보 가져오기 (빌드 타임에만 사용)
+    const S3_DOMAIN = process.env.S3_DOMAIN || '';
+    const CLOUDFRONT_DOMAIN = process.env.CLOUDFRONT_DOMAIN || '';
+    
     // 모든 포스트 가져오기 (페이지네이션으로 모두 가져옴)
     let allPosts: CleanedPost[] = [];
     let page = 1;
@@ -148,17 +152,29 @@ async function generatePostsData(dataDir: string): Promise<void> {
       
       // 포스트 데이터 정리
       const cleanedPosts: CleanedPost[] = posts.map((post: any) => {
-        // 이미지 URL을 절대 경로로 변환
+        // 🎯 이미지 URL을 CloudFront URL로 변환 (빌드 타임에 처리)
         let coverUrl: string | null = null;
         if (post.cover?.url) {
           const url: string = post.cover.url;
-          // 상대 경로인지 확인 (/, http:// 또는 https://로 시작하지 않는 경우)
-          if (url.startsWith('/')) {
-            coverUrl = `${API_BASE_URL}${url}`;
-          } else if (url.startsWith('http://') || url.startsWith('https://')) {
+          
+          // S3 URL을 CloudFront URL로 변환
+          if (url.includes('amazonaws.com') && S3_DOMAIN && CLOUDFRONT_DOMAIN) {
+            coverUrl = url.replace(
+              new RegExp(`https://${S3_DOMAIN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'g'),
+              CLOUDFRONT_DOMAIN.replace(/\/$/, '')
+            );
+          }
+          // 상대 경로 처리
+          else if (url.startsWith('/')) {
+            coverUrl = `${CLOUDFRONT_DOMAIN || API_BASE_URL}${url}`;
+          } 
+          // 이미 완전한 URL인 경우
+          else if (url.startsWith('http://') || url.startsWith('https://')) {
             coverUrl = url;
-          } else {
-            coverUrl = `${API_BASE_URL}/${url}`;
+          } 
+          // 기타 경우
+          else {
+            coverUrl = `${CLOUDFRONT_DOMAIN || API_BASE_URL}/${url}`;
           }
         }
 

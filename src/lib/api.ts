@@ -1,5 +1,5 @@
 const API_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
-const API_TOKEN = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
+const API_TOKEN = process.env.STRAPI_API_TOKEN;
 import qs from 'qs';
 import axios from 'axios';
 // axios 인스턴스 생성

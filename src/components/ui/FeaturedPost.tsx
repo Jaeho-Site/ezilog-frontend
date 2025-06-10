@@ -18,16 +18,8 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
     category,
   } = post;
 
-  // 이미지 URL 처리 함수
-  const getImageUrl = (url: string) => {
-    if (url.startsWith('http')) {
-      return url;
-    }
-    if (url.startsWith('/')) {
-      return url;
-    }
-    return `${process.env.NEXT_PUBLIC_CDN_URL || ''}/${url}`;
-  };
+  // 🎯 빌드 타임에 이미 처리된 URL 사용 (단순화됨)
+  const getImageUrl = (url: string) => url || '';
 
   // 날짜 포맷팅 (YYYY-MM-DD)
   const formattedDate = new Date(publishedDate).toLocaleDateString('ko-KR', {

@@ -53,21 +53,8 @@ export default function PostCard({
     category,
   } = post;
 
-  // 이미지 URL 처리 함수
-  const getImageUrl = (url: string) => {
-    // 이미 http나 https로 시작하는 완전한 URL인 경우 그대로 사용
-    if (url.startsWith('http')) {
-      return url;
-    }
-    
-    // 상대 경로인 경우(/로 시작하는 경우) 그대로 사용
-    if (url.startsWith('/')) {
-      return url;
-    }
-    
-    // 그 외의 경우 CDN URL과 결합
-    return `${process.env.NEXT_PUBLIC_CDN_URL || ''}/${url}`;
-  };
+  // 🎯 빌드 타임에 이미 처리된 URL 사용 (단순화됨)
+  const getImageUrl = (url: string) => url || '';
   
 
   // 날짜 포맷팅 (YYYY-MM-DD)
