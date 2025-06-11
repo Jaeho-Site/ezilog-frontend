@@ -41,6 +41,43 @@ function escapeXml(unsafe: string): string {
   });
 }
 
+// CategoryPostList와 동일한 getCategoryPostCount 로직
+async function getCategoryPostCount(slug: string, allCategories: any[]): Promise<number> {
+  try {
+    // 카테고리 찾기
+    const category = allCategories.find(cat => cat.slug === slug);
+    if (!category) return 0;
+    
+    const countParams = new URLSearchParams({
+      'pagination[limit]': '1'
+    });
+
+    if (category.level === 1) {
+      // 1레벨 카테고리: 자식 카테고리들의 포스트 개수
+      const childCategories = category.categories || [];
+      const childCategoryIds = childCategories.map((child: any) => child.id);
+      
+      if (childCategoryIds.length === 0) return 0;
+      
+      childCategoryIds.forEach((id: number, index: number) => {
+        countParams.append(`filters[category][id][$in][${index}]`, id.toString());
+      });
+    } else {
+      // 2레벨 카테고리: 해당 카테고리의 포스트 개수
+      countParams.set('filters[category][id][$eq]', category.id.toString());
+    }
+
+    const postsResponse = await fetch(`${API_BASE_URL}/api/posts?${countParams}`);
+    if (!postsResponse.ok) return 0;
+    
+    const postsData = await postsResponse.json();
+    return postsData.meta?.pagination?.total || 0;
+  } catch (error) {
+    console.warn(`⚠️ ${slug} 포스트 개수 가져오기 실패:`, error);
+    return 0;
+  }
+}
+
 async function generateSitemap(): Promise<void> {
   try {
     // 정적 페이지들 (빌드 시점을 lastmod로 사용)
@@ -84,7 +121,6 @@ async function generateSitemap(): Promise<void> {
       
       const postsData = await postsResponse.json();
       const posts: PostData[] = postsData.data || [];
-      
       posts.forEach((post: PostData) => {
         allPages.push({
           url: `${SITE_URL}/post/${post.slug}`,
@@ -95,42 +131,43 @@ async function generateSitemap(): Promise<void> {
     } catch (error: any) {
       console.warn('⚠️ 포스트 데이터 가져오기 실패:', error.message);
     }
-    // 카테고리 데이터 가져오기 (page.tsx와 동일한 방식으로 수정)
+    
+    // 카테고리 데이터 가져오기 (CategoryPostList와 동일한 방식)
     try {    
       // 1레벨 카테고리와 자식 카테고리들을 모두 가져오기
-      const categoriesParams = new URLSearchParams({
+      const level1CategoriesParams = new URLSearchParams({
         'filters[level][$eq]': '1',
         'fields[0]': 'name',
         'fields[1]': 'slug',
-        'fields[2]': 'updatedAt',
-        'populate[categories][fields][0]': 'name',
-        'populate[categories][fields][1]': 'slug',
-        'populate[categories][populate][posts][fields][0]': 'id',
-        'populate[posts][fields][0]': 'id'
+        'fields[2]': 'level',
+        'fields[3]': 'updatedAt',
+        'populate[categories][fields][0]': 'id',
+        'populate[categories][fields][1]': 'name',
+        'populate[categories][fields][2]': 'slug',
+        'populate[categories][fields][3]': 'level',
+        'sort': 'createdAt:asc'
       });
       
-      const categoriesResponse = await fetch(`${API_BASE_URL}/api/categories?${categoriesParams}`);
+      const level1CategoriesResponse = await fetch(`${API_BASE_URL}/api/categories?${level1CategoriesParams}`);
       
-      if (!categoriesResponse.ok) {
-        throw new Error(`HTTP error! status: ${categoriesResponse.status}`);
+      if (!level1CategoriesResponse.ok) {
+        throw new Error(`HTTP error! status: ${level1CategoriesResponse.status}`);
       }
       
-      const categoriesData = await categoriesResponse.json();
-      const topLevelCategories: any[] = categoriesData.data || [];
-      const addedCategories = new Set<string>();
-      const POSTS_PER_PAGE = 6; // CategoryPostList의 POSTS_PER_PAGE와 동일
+      const level1CategoriesData = await level1CategoriesResponse.json();
+      const level1Categories: any[] = level1CategoriesData.data || [];
       
-      // 모든 카테고리 수집 (1레벨 + 2레벨)
-      const allCategories: any[] = [];
+      // 모든 카테고리 수집 (1레벨 + 2레벨을 평탄화)
+      const allCategories = [];
       
       // 1레벨 카테고리들 추가
-      for (const topCategory of topLevelCategories) {
+      for (const topCategory of level1Categories) {
         allCategories.push({
           ...topCategory,
           level: 1
         });
         
-        // 2레벨 카테고리들 추가
+        // 2레벨 카테고리들도 추가
         if (topCategory.categories && topCategory.categories.length > 0) {
           for (const childCategory of topCategory.categories) {
             allCategories.push({
@@ -140,70 +177,31 @@ async function generateSitemap(): Promise<void> {
           }
         }
       }
+      const POSTS_PER_PAGE = 6; // CategoryPostList의 POSTS_PER_PAGE와 동일
       
       for (const category of allCategories) {
-        if (!addedCategories.has(category.slug)) {
-          addedCategories.add(category.slug);
-          const lastmod = new Date(category.updatedAt || category.createdAt || new Date()).toISOString();
-          
-          // 1페이지 추가
-          allPages.push({
-            url: `${SITE_URL}/category/${category.slug}`,
-            lastmod: lastmod
-          });
-          
-          // 페이지네이션 페이지들 추가 - getCategoryPostCount와 동일한 로직 사용
-          try {
-            let totalPosts = 0;
-            
-            if (category.level === 1) {
-              // 1레벨 카테고리인 경우: 자식 카테고리들의 포스트 개수 합산
-              const topCategoryData = topLevelCategories.find(tc => tc.slug === category.slug);
-              if (topCategoryData?.categories) {
-                const childCategoryIds = topCategoryData.categories.map((child: any) => child.id);
-                
-                if (childCategoryIds.length > 0) {
-                  const postsCountParams = new URLSearchParams({
-                    'filters[category][id][$in]': childCategoryIds.join(','),
-                    'pagination[limit]': '1'
-                  });
-                  
-                  const postsCountResponse = await fetch(`${API_BASE_URL}/api/posts?${postsCountParams}`);
-                  
-                  if (postsCountResponse.ok) {
-                    const postsCountData = await postsCountResponse.json();
-                    totalPosts = postsCountData.meta?.pagination?.total || 0;
-                  }
-                }
-              }
-            } else {
-              // 2레벨 카테고리인 경우: 해당 카테고리의 포스트 개수
-              const postsCountParams = new URLSearchParams({
-                'filters[category][id][$eq]': category.id.toString(),
-                'pagination[limit]': '1'
-              });
-              
-              const postsCountResponse = await fetch(`${API_BASE_URL}/api/posts?${postsCountParams}`);
-              
-              if (postsCountResponse.ok) {
-                const postsCountData = await postsCountResponse.json();
-                totalPosts = postsCountData.meta?.pagination?.total || 0;
-              }
-            }
-            
-            const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
-            
-            // 2페이지부터 추가 (최대 10페이지까지만 사이트맵에 포함)
-            for (let page = 2; page <= Math.min(totalPages, 10); page++) {
-              allPages.push({
-                url: `${SITE_URL}/category/${category.slug}/${page}`,
-                lastmod: lastmod
-              });
-            }
-            
-          } catch (pageError: any) {
-            console.warn(`⚠️ ${category.slug} 페이지네이션 처리 실패:`, pageError.message);
+        const lastmod = new Date(category.updatedAt || category.createdAt || new Date()).toISOString();
+        
+        // 1페이지 추가
+        allPages.push({
+          url: `${SITE_URL}/category/${category.slug}`,
+          lastmod: lastmod
+        });
+        
+        // 페이지네이션 페이지들 추가
+        try {
+          const totalPosts = await getCategoryPostCount(category.slug, allCategories);
+          const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
+          // 2페이지부터 추가 (최대 10페이지까지만 사이트맵에 포함)
+          for (let page = 2; page <= Math.min(totalPages, 10); page++) {
+            allPages.push({
+              url: `${SITE_URL}/category/${category.slug}/${page}`,
+              lastmod: lastmod
+            });
           }
+          
+        } catch (pageError: any) {
+          console.warn(`⚠️ ${category.slug} 페이지네이션 처리 실패:`, pageError.message);
         }
       }
       
@@ -229,7 +227,6 @@ Allow: /
 Sitemap: ${SITE_URL}/sitemap.xml`;
     
     fs.writeFileSync('./public/robots.txt', robotsTxt);
-    
   } catch (error: any) {
     console.error('❌ 사이트맵 생성 실패:', error);
     process.exit(1);

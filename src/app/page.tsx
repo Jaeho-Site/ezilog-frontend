@@ -12,8 +12,8 @@ export const dynamic = 'force-static';
 
 // SEO 메타데이터 생성
 export async function generateMetadata(): Promise<Metadata> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
-  
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
   return {
     title: 'EziLog | 개발자를 위한 기술 블로그',
     description: '최신 개발 기술과 프로그래밍 트렌드를 다루는 EziLog입니다. React, Next.js, JavaScript, TypeScript 등 웹 개발 정보를 제공합니다.',

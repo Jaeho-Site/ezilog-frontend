@@ -60,12 +60,14 @@ async function loadStaticPosts() {
 function filterPostsByCategory(posts: any[], categorySlug: string, allCategories: any[], limit: number, offset: number) {
   // 카테고리 찾기
   const category = allCategories.find(cat => cat.slug === categorySlug);
-  if (!category) return [];
-  
+  if (!category) {
+    return [];
+  }
   let filteredPosts: any[] = [];
   
   if (category.level === 1) {
-    // 1레벨 카테고리: 자식 카테고리들의 포스트 모두 포함
+    // 1레벨 카테고리: 정적 데이터에서 자식 카테고리들을 찾아서 포스트 수집
+    // categories.json의 1레벨 카테고리는 categories 배열에 자식들을 가지고 있음
     const childCategorySlugs = (category.categories || []).map((child: any) => child.slug);
     filteredPosts = posts.filter(post => 
       post.category && childCategorySlugs.includes(post.category.slug)
@@ -81,7 +83,8 @@ function filterPostsByCategory(posts: any[], categorySlug: string, allCategories
   filteredPosts.sort((a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime());
   
   // 페이지네이션 적용
-  return filteredPosts.slice(offset, offset + limit);
+  const paginatedPosts = filteredPosts.slice(offset, offset + limit);
+  return paginatedPosts;
 }
 
 export default async function CategoryPostList({ slug, page = 1 }: CategoryPostListProps) {
@@ -91,22 +94,36 @@ export default async function CategoryPostList({ slug, page = 1 }: CategoryPostL
       loadStaticCategories(),
       loadStaticPosts()
     ]);
-    
     let category: any = null;
     let posts: any[] = [];
     
     if (staticCategories.length > 0 && staticPosts.length > 0) {
       // 정적 데이터에서 처리 (API 호출 0회)
-      category = staticCategories.find((cat: any) => cat.slug === slug);
+      
+      // 1레벨과 2레벨 카테고리를 모두 평탄화해서 검색
+      const allCategories = [];
+      
+      for (const cat of staticCategories) {
+        // 1레벨 카테고리 추가
+        allCategories.push(cat);
+        
+        // 2레벨 카테고리들도 추가
+        if (cat.categories && cat.categories.length > 0) {
+          allCategories.push(...cat.categories);
+        }
+      }
+      category = allCategories.find((cat: any) => cat.slug === slug);
       
       if (category) {
         posts = filterPostsByCategory(
           staticPosts, 
           slug, 
-          staticCategories, 
+          allCategories, 
           POSTS_PER_PAGE, 
           (page - 1) * POSTS_PER_PAGE
         );
+      } else {
+        console.error(`[CategoryPostList] Category not found in static data: ${slug}`);
       }
     } else {
       // 정적 데이터가 없는 경우에만 API 호출 (폴백)
@@ -117,6 +134,7 @@ export default async function CategoryPostList({ slug, page = 1 }: CategoryPostL
     }
     
     if (!category) {
+      console.error(`[CategoryPostList] Category not found anywhere: ${slug}`);
       return (
         <div className="text-center py-10">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">카테고리를 찾을 수 없습니다</h1>
@@ -127,7 +145,6 @@ export default async function CategoryPostList({ slug, page = 1 }: CategoryPostL
     
     const categoryName = category.name || slug;
     const filteredPosts = posts.filter(Boolean);
-    
     return (
       <>
         <PostListGrid 
@@ -148,6 +165,7 @@ export default async function CategoryPostList({ slug, page = 1 }: CategoryPostL
       </>
     );
   } catch (error) {
+    console.error(`[CategoryPostList] Error loading category ${slug}:`, error);
     return (
       <div className="text-center py-10">
         <p className="text-red-600 dark:text-red-400">포스트를 불러오는 중 오류가 발생했습니다.</p>

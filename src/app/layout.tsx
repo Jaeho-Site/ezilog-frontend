@@ -44,11 +44,11 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'),
+  metadataBase: new URL((process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.startsWith('http') ? 'https://' + process.env.NEXT_PUBLIC_SITE_URL : process.env.NEXT_PUBLIC_SITE_URL) || 'https://yourdomain.com'),
   openGraph: {
     type: 'website',
     locale: 'ko_KR',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com',
+    url: (process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.startsWith('http') ? 'https://' + process.env.NEXT_PUBLIC_SITE_URL : process.env.NEXT_PUBLIC_SITE_URL) || 'https://yourdomain.com',
     title: 'EziLog - 개발 블로그',
     description: "프론트엔드, 백엔드, 풀스택 개발 경험과 지식을 공유하는 기술 블로그입니다.",
     siteName: 'EziLog',
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     description: "프론트엔드, 백엔드, 풀스택 개발 경험과 지식을 공유하는 기술 블로그입니다.",
   },
   alternates: {
-    canonical: process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com',
+    canonical: (process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.startsWith('http') ? 'https://' + process.env.NEXT_PUBLIC_SITE_URL : process.env.NEXT_PUBLIC_SITE_URL) || 'https://yourdomain.com',
   },
 };
 

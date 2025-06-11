@@ -8,7 +8,7 @@ export const dynamic = 'force-static';
 
 // SEO 메타데이터 강화
 export async function generateMetadata(): Promise<Metadata> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_UR;
   const canonicalUrl = `${siteUrl}/search`;
   
   return {

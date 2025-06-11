@@ -1,6 +1,6 @@
 // import { Suspense } from "react"; // Suspense 제거
 import { Metadata } from "next";
-import { getAllCategories, getCategoryBySlug, getCategoryPosts, getCategoryPostCount, getTopLevelCategories } from "@/lib/api";
+import { getAllCategories, getCategoryBySlug, getCategoryPostCount } from "@/lib/api";
 import CategoryPostList, { POSTS_PER_PAGE } from "@/components/category/CategoryPostList";
 
 // 정적 페이지 생성 설정
@@ -9,30 +9,18 @@ export const dynamic = 'force-static';
 // 빌드 시 정적으로 생성할 경로 정의 (완전한 버전)
 export async function generateStaticParams() {
   try {
-    // 1레벨 카테고리와 자식 카테고리들을 모두 가져오기
-    const topLevelCategoriesResponse = await getTopLevelCategories();
-    const topLevelCategories = topLevelCategoriesResponse.data || [];
+    // 모든 카테고리를 직접 가져오기
+    const allCategoriesData = await getAllCategories();
+    
+    // 1레벨과 2레벨 카테고리로 분류
+    const level1Categories = allCategoriesData.filter((cat: any) => cat.level === 1);
+    const level2Categories = allCategoriesData.filter((cat: any) => cat.level === 2);
     
     // 모든 카테고리 수집 (1레벨 + 2레벨)
-    const allCategories = [];
+    const allCategories = [...level1Categories, ...level2Categories];
     
-    // 1레벨 카테고리들 추가
-    for (const topCategory of topLevelCategories) {
-      allCategories.push({
-        slug: topCategory.slug,
-        level: 1
-      });
-      
-      // 2레벨 카테고리들 추가
-      if (topCategory.categories && topCategory.categories.length > 0) {
-        for (const childCategory of topCategory.categories) {
-          allCategories.push({
-            slug: childCategory.slug,
-            level: 2
-          });
-        }
-      }
-    } 
+    console.log(`[generateStaticParams] Found ${allCategories.length} categories (${level1Categories.length} level-1, ${level2Categories.length} level-2)`);
+    
     // 병렬 처리로 빌드 시간 단축
     const categoryPromises = allCategories.map(async (category: any) => {
       try {
@@ -44,6 +32,8 @@ export async function generateStaticParams() {
         // 포스트 총 개수를 한 번에 가져와서 필요한 페이지 수 계산
         const totalPosts = await getCategoryPostCount(category.slug);
         const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
+        
+        console.log(`[generateStaticParams] Category ${category.slug}: ${totalPosts} posts, ${totalPages} pages`);
         
         // 계산된 페이지 수만큼 정적 경로 생성 (최대 50페이지 제한)
         const maxPages = Math.min(totalPages, 50);
@@ -68,6 +58,7 @@ export async function generateStaticParams() {
     // 2차원 배열을 1차원으로 평탄화
     const paths = allCategoryPaths.flat();
 
+    console.log(`[generateStaticParams] Generated ${paths.length} total paths`);
     return paths;
   } catch (error) {
     console.error('Error in generateStaticParams:', error);
@@ -80,8 +71,8 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: any): Promise<Metadata> {
   const slug = params.slug;
   const pageNumber = getPageNumber(params.page);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
-  
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
   try {
     const category = await getCategoryBySlug(slug);
     const categoryName = category?.name || slug;

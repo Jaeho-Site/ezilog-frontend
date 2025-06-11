@@ -56,7 +56,7 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const slug = params.slug;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
   const canonicalUrl = `${siteUrl}/post/${slug}`;
   
   // 정적 데이터에서 먼저 찾기
