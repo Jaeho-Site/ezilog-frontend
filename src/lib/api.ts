@@ -1,6 +1,5 @@
 const API_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 const API_TOKEN = process.env.STRAPI_API_TOKEN;
-import qs from 'qs';
 import axios from 'axios';
 // axios 인스턴스 생성
 export const strapiAPI = axios.create({
@@ -71,29 +70,17 @@ function formatPost(post: any): any {
 
 export async function getTopLevelCategories() {
   try {
-    const query = qs.stringify({
-      filters: {
-        level: {
-          $eq: 1
-        }
-      },
-      fields: ['name', 'slug'],
-      populate: {
-        categories: {
-          fields: ['name', 'slug'],
-          populate: {
-            posts: {
-              fields: ['id'] 
-            }
-          }
-        }
-      }
-    }, {
-      encodeValuesOnly: true
+    // URLSearchParams 사용
+    const params = new URLSearchParams({
+      'filters[level][$eq]': '1',
+      'fields[0]': 'name',
+      'fields[1]': 'slug',
+      'populate[categories][fields][0]': 'name',
+      'populate[categories][fields][1]': 'slug',
+      'populate[categories][populate][posts][fields][0]': 'id'
     });
 
-    const response = await strapiAPI.get(`/categories?${query}`);
-
+    const response = await strapiAPI.get(`/categories?${params}`);
     return response.data ?? { data: [] };
   } catch (error) {
     return { data: [] };
