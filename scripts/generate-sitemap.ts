@@ -7,7 +7,7 @@ if (!process.env.VERCEL && !process.env.NODE_ENV) {
 }
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
-const API_BASE_URL = process.env.STRAPI_API_URL || process.env.NEXT_PUBLIC_STRAPI_API_URL;
+const API_BASE_URL = process.env.STRAPI_API_URL;
 
 if (!SITE_URL || !API_BASE_URL) {
   console.error('❌ 필수 환경변수가 설정되지 않았습니다:');

@@ -7,11 +7,11 @@ if (!process.env.VERCEL && !process.env.NODE_ENV) {
   config();
 }
 
-const API_BASE_URL = process.env.STRAPI_API_URL || process.env.NEXT_PUBLIC_STRAPI_API_URL;
+const API_BASE_URL = process.env.STRAPI_API_URL;
 
 if (!API_BASE_URL) {
   console.error('❌ API URL 환경변수가 설정되지 않았습니다:');
-  console.error('  - STRAPI_API_URL (권장) 또는 NEXT_PUBLIC_STRAPI_API_URL');
+  console.error('  - STRAPI_API_URL');
   process.exit(1);
 }
 
