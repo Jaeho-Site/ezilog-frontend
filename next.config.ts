@@ -1,23 +1,32 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   images: {
-    domains: process.env.NEXT_PUBLIC_CDN_URL ? 
-      [process.env.NEXT_PUBLIC_CDN_URL.replace(/^https?:\/\//, '')] : [],
-    formats: ['image/avif', 'image/webp'],
+    // 🎯 빌드 타임에 이미 변환된 CloudFront URL 사용하므로 간단한 설정
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: process.env.NEXT_PUBLIC_CDN_PATTERN || '**.cloudfront.net',
+        hostname: '**.cloudfront.net',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.amazonaws.com',
         port: '',
         pathname: '/**',
       },
     ],
-    // 이미지 최적화 설정 추가
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    // 최적화된 이미지 포맷 우선순위
+    formats: ['image/avif', 'image/webp'],
+    // 반응형 디바이스 크기
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    minimumCacheTTL: 60 * 60 * 24 * 365, // 1년 캐시
+    // 캐시 최적화 (1년)
+    minimumCacheTTL: 60 * 60 * 24 * 365,
+    // 외부 이미지 로더 최적화
+    dangerouslyAllowSVG: false,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   
   // 성능 최적화
@@ -26,13 +35,15 @@ const nextConfig: NextConfig = {
   // 번들 최적화
   experimental: {
     optimizePackageImports: ['react-icons'],
+    // 🎯 안정적인 최적화만 사용 (CSS 최적화 제거)
+    optimizeServerReact: true,
   },
   
-  // 보안 관련 추가 설정
-  poweredByHeader: false, // 'X-Powered-By' 헤더 제거
-  reactStrictMode: true, // 엄격 모드 활성화
+  // 보안 설정
+  poweredByHeader: false,
+  reactStrictMode: true,
   
-  // 헤더 설정
+  // 보안 헤더
   async headers() {
     return [
       {
@@ -47,8 +58,26 @@ const nextConfig: NextConfig = {
             value: 'nosniff',
           },
           {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
+        ],
+      },
+      // 정적 자산 캐시 최적화
+      {
+        source: '/data/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },

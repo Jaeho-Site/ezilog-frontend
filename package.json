@@ -4,15 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "npx tsx scripts/generate-static-data.ts",
+    "prebuild": "tsx scripts/generate-static-data.ts",
     "build": "npm run prebuild && next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "build:analyze": "cross-env ANALYZE=true next build",
     "export": "next build && next export",
-    "postbuild": "npx tsx scripts/generate-sitemap.ts",
-    "sitemap": "npx tsx scripts/generate-sitemap.ts"
+    "postbuild": "tsx scripts/generate-sitemap.ts",
+    "sitemap": "tsx scripts/generate-sitemap.ts"
   },
   "dependencies": {
     "@giscus/react": "^3.1.0",

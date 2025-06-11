@@ -1,11 +1,20 @@
 import * as fs from 'fs';
-import axios from 'axios';
-import * as dotenv from 'dotenv';
 
-dotenv.config();
+// 🎯 로컬 개발환경에서만 .env 파일 로드
+if (!process.env.VERCEL && !process.env.NODE_ENV) {
+  const { config } = require('dotenv');
+  config();
+}
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1337';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
+const API_BASE_URL = process.env.STRAPI_API_URL || process.env.NEXT_PUBLIC_STRAPI_API_URL;
+
+if (!SITE_URL || !API_BASE_URL) {
+  console.error('❌ 필수 환경변수가 설정되지 않았습니다:');
+  if (!SITE_URL) console.error('  - NEXT_PUBLIC_SITE_URL');
+  if (!API_BASE_URL) console.error('  - STRAPI_API_URL (권장) 또는 NEXT_PUBLIC_STRAPI_API_URL');
+  process.exit(1);
+}
 
 interface PageInfo {
   url: string;
@@ -34,11 +43,15 @@ function escapeXml(unsafe: string): string {
 
 async function generateSitemap(): Promise<void> {
   try {
+    console.log('🗺️ 사이트맵 생성 시작...');
+    console.log('🌐 사이트 URL:', SITE_URL);
+    console.log('📡 API URL:', API_BASE_URL);
+    
     // 정적 페이지들 (빌드 시점을 lastmod로 사용)
     const buildTime = new Date().toISOString();
     const staticPages: PageInfo[] = [
       {
-        url: SITE_URL,
+        url: SITE_URL!,
         lastmod: buildTime
       },
       {
@@ -59,16 +72,24 @@ async function generateSitemap(): Promise<void> {
     
     // 포스트 데이터 가져오기 (필요한 필드만)
     try {
-      const postsResponse = await axios.get(`${API_BASE_URL}/api/posts`, {
-        params: {
-          fields: ['slug', 'publishedAt', 'updatedAt'],
-          pagination: {
-            limit: 1000 // 충분히 큰 수로 모든 포스트 가져오기
-          },
-          sort: 'publishedAt:desc'
-        }
+      console.log('📝 포스트 데이터 가져오는 중...');
+      
+      const postsParams = new URLSearchParams({
+        'fields[0]': 'slug',
+        'fields[1]': 'publishedAt',
+        'fields[2]': 'updatedAt',
+        'pagination[limit]': '1000',
+        'sort': 'publishedAt:desc'
       });
-      const posts: PostData[] = postsResponse.data.data || [];
+      
+      const postsResponse = await fetch(`${API_BASE_URL}/api/posts?${postsParams}`);
+      
+      if (!postsResponse.ok) {
+        throw new Error(`HTTP error! status: ${postsResponse.status}`);
+      }
+      
+      const postsData = await postsResponse.json();
+      const posts: PostData[] = postsData.data || [];
       
       posts.forEach((post: PostData) => {
         allPages.push({
@@ -76,38 +97,36 @@ async function generateSitemap(): Promise<void> {
           lastmod: new Date(post.publishedAt || post.updatedAt || new Date()).toISOString()
         });
       });
+      
+      console.log(`✅ 포스트 ${posts.length}개 처리 완료`);
     } catch (error: any) {
       console.warn('⚠️ 포스트 데이터 가져오기 실패:', error.message);
     }
 
     // 카테고리 데이터 가져오기 (page.tsx와 동일한 방식으로 수정)
     try {
+      console.log('📁 카테고리 데이터 가져오는 중...');
+      
       // 1레벨 카테고리와 자식 카테고리들을 모두 가져오기
-      const categoriesResponse = await axios.get(`${API_BASE_URL}/api/categories`, {
-        params: {
-          filters: {
-            level: {
-              $eq: 1
-            }
-          },
-          fields: ['name', 'slug', 'updatedAt'],
-          populate: {
-            categories: {
-              fields: ['name', 'slug'],
-              populate: {
-                posts: {
-                  fields: ['id'] 
-                }
-              }
-            },
-            posts: {
-              fields: ['id']
-            }
-          }
-        }
+      const categoriesParams = new URLSearchParams({
+        'filters[level][$eq]': '1',
+        'fields[0]': 'name',
+        'fields[1]': 'slug',
+        'fields[2]': 'updatedAt',
+        'populate[categories][fields][0]': 'name',
+        'populate[categories][fields][1]': 'slug',
+        'populate[categories][populate][posts][fields][0]': 'id',
+        'populate[posts][fields][0]': 'id'
       });
       
-      const topLevelCategories: any[] = categoriesResponse.data.data || [];
+      const categoriesResponse = await fetch(`${API_BASE_URL}/api/categories?${categoriesParams}`);
+      
+      if (!categoriesResponse.ok) {
+        throw new Error(`HTTP error! status: ${categoriesResponse.status}`);
+      }
+      
+      const categoriesData = await categoriesResponse.json();
+      const topLevelCategories: any[] = categoriesData.data || [];
       const addedCategories = new Set<string>();
       const POSTS_PER_PAGE = 6; // CategoryPostList의 POSTS_PER_PAGE와 동일
       
@@ -154,28 +173,32 @@ async function generateSitemap(): Promise<void> {
                 const childCategoryIds = topCategoryData.categories.map((child: any) => child.id);
                 
                 if (childCategoryIds.length > 0) {
-                  const postsCountResponse = await axios.get(`${API_BASE_URL}/api/posts`, {
-                    params: {
-                      filters: {
-                        category: { id: { $in: childCategoryIds } }
-                      },
-                      pagination: { limit: 1 }
-                    }
+                  const postsCountParams = new URLSearchParams({
+                    'filters[category][id][$in]': childCategoryIds.join(','),
+                    'pagination[limit]': '1'
                   });
-                  totalPosts = postsCountResponse.data.meta?.pagination?.total || 0;
+                  
+                  const postsCountResponse = await fetch(`${API_BASE_URL}/api/posts?${postsCountParams}`);
+                  
+                  if (postsCountResponse.ok) {
+                    const postsCountData = await postsCountResponse.json();
+                    totalPosts = postsCountData.meta?.pagination?.total || 0;
+                  }
                 }
               }
             } else {
               // 2레벨 카테고리인 경우: 해당 카테고리의 포스트 개수
-              const postsCountResponse = await axios.get(`${API_BASE_URL}/api/posts`, {
-                params: {
-                  filters: {
-                    category: { id: { $eq: category.id } }
-                  },
-                  pagination: { limit: 1 }
-                }
+              const postsCountParams = new URLSearchParams({
+                'filters[category][id][$eq]': category.id.toString(),
+                'pagination[limit]': '1'
               });
-              totalPosts = postsCountResponse.data.meta?.pagination?.total || 0;
+              
+              const postsCountResponse = await fetch(`${API_BASE_URL}/api/posts?${postsCountParams}`);
+              
+              if (postsCountResponse.ok) {
+                const postsCountData = await postsCountResponse.json();
+                totalPosts = postsCountData.meta?.pagination?.total || 0;
+              }
             }
             
             const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
@@ -193,6 +216,8 @@ async function generateSitemap(): Promise<void> {
           }
         }
       }
+      
+      console.log(`✅ 카테고리 ${allCategories.length}개 처리 완료`);
       
     } catch (error: any) {
       console.warn('⚠️ 카테고리 데이터 가져오기 실패:', error.message);
