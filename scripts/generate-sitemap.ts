@@ -43,10 +43,6 @@ function escapeXml(unsafe: string): string {
 
 async function generateSitemap(): Promise<void> {
   try {
-    console.log('🗺️ 사이트맵 생성 시작...');
-    console.log('🌐 사이트 URL:', SITE_URL);
-    console.log('📡 API URL:', API_BASE_URL);
-    
     // 정적 페이지들 (빌드 시점을 lastmod로 사용)
     const buildTime = new Date().toISOString();
     const staticPages: PageInfo[] = [
@@ -72,8 +68,6 @@ async function generateSitemap(): Promise<void> {
     
     // 포스트 데이터 가져오기 (필요한 필드만)
     try {
-      console.log('📝 포스트 데이터 가져오는 중...');
-      
       const postsParams = new URLSearchParams({
         'fields[0]': 'slug',
         'fields[1]': 'publishedAt',
@@ -97,16 +91,12 @@ async function generateSitemap(): Promise<void> {
           lastmod: new Date(post.publishedAt || post.updatedAt || new Date()).toISOString()
         });
       });
-      
-      console.log(`✅ 포스트 ${posts.length}개 처리 완료`);
+
     } catch (error: any) {
       console.warn('⚠️ 포스트 데이터 가져오기 실패:', error.message);
     }
-
     // 카테고리 데이터 가져오기 (page.tsx와 동일한 방식으로 수정)
-    try {
-      console.log('📁 카테고리 데이터 가져오는 중...');
-      
+    try {    
       // 1레벨 카테고리와 자식 카테고리들을 모두 가져오기
       const categoriesParams = new URLSearchParams({
         'filters[level][$eq]': '1',
@@ -217,8 +207,6 @@ async function generateSitemap(): Promise<void> {
         }
       }
       
-      console.log(`✅ 카테고리 ${allCategories.length}개 처리 완료`);
-      
     } catch (error: any) {
       console.warn('⚠️ 카테고리 데이터 가져오기 실패:', error.message);
     }
@@ -241,8 +229,6 @@ Allow: /
 Sitemap: ${SITE_URL}/sitemap.xml`;
     
     fs.writeFileSync('./public/robots.txt', robotsTxt);
-    
-    console.log(`✅ 사이트맵 생성 완료: ${allPages.length}개 페이지`);
     
   } catch (error: any) {
     console.error('❌ 사이트맵 생성 실패:', error);

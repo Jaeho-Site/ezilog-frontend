@@ -9,8 +9,6 @@ export const dynamic = 'force-static';
 // 빌드 시 정적으로 생성할 경로 정의 (완전한 버전)
 export async function generateStaticParams() {
   try {
-    console.log('[generateStaticParams] Starting...');
-    
     // 1레벨 카테고리와 자식 카테고리들을 모두 가져오기
     const topLevelCategoriesResponse = await getTopLevelCategories();
     const topLevelCategories = topLevelCategoriesResponse.data || [];
@@ -34,10 +32,7 @@ export async function generateStaticParams() {
           });
         }
       }
-    }
-    
-    console.log(`[generateStaticParams] Found ${allCategories.length} categories`);
-    
+    } 
     // 병렬 처리로 빌드 시간 단축
     const categoryPromises = allCategories.map(async (category: any) => {
       try {
@@ -69,13 +64,10 @@ export async function generateStaticParams() {
     });
     
     // 모든 카테고리의 페이지들을 병렬로 생성
-    const allCategoryPaths = await Promise.all(categoryPromises);
-    
+    const allCategoryPaths = await Promise.all(categoryPromises);    
     // 2차원 배열을 1차원으로 평탄화
     const paths = allCategoryPaths.flat();
-    
-    console.log(`[generateStaticParams] Generated ${paths.length} static paths`);
-    
+
     return paths;
   } catch (error) {
     console.error('Error in generateStaticParams:', error);

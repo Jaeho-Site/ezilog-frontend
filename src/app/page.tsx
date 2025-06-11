@@ -108,15 +108,11 @@ async function PostList() {
       posts = FEATURED_POST_SLUGS
         .map(slug => staticPosts.find(post => post.slug === slug))
         .filter((post): post is PostData => post !== undefined);
-      
-      console.log(`[홈페이지] 정적 데이터에서 ${posts.length}개 포스트 로드`);
     } else {
       // 정적 데이터가 없는 경우에만 API 호출 (폴백)
       const postPromises = FEATURED_POST_SLUGS.map(slug => getPostBySlug(slug));
       const postsResults = await Promise.all(postPromises);
       posts = postsResults.filter((post): post is PostData => post !== null);
-      
-      console.log(`[홈페이지] API에서 ${posts.length}개 포스트 로드`);
     }
     
     // 첫 번째 포스트와 나머지 포스트 분리

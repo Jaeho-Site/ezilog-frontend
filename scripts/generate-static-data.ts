@@ -45,9 +45,6 @@ interface CleanedPost {
 
 async function generateStaticData(): Promise<void> {
   try {
-    console.log('🚀 정적 데이터 생성 시작...');
-    console.log('📡 API URL:', API_BASE_URL);
-    
     // public/data 디렉토리 생성
     const dataDir = path.join(process.cwd(), 'public', 'data');
     if (!fs.existsSync(dataDir)) {
@@ -59,8 +56,7 @@ async function generateStaticData(): Promise<void> {
     
     // 2. 모든 포스트 데이터 생성
     await generatePostsData(dataDir);
-    
-    console.log('✅ 정적 데이터 생성 완료!');
+
   } catch (error) {
     console.error('❌ 정적 데이터 생성 중 오류 발생:', error);
     process.exit(1);
@@ -69,8 +65,6 @@ async function generateStaticData(): Promise<void> {
 
 async function generateCategoriesData(dataDir: string): Promise<void> {
   try {
-    console.log('📁 카테고리 데이터 생성 중...');
-    
     // URLSearchParams를 사용하여 쿼리 파라미터 생성
     const params = new URLSearchParams({
       'filters[level][$eq]': '1',
@@ -114,8 +108,6 @@ async function generateCategoriesData(dataDir: string): Promise<void> {
     // categories.json 파일 생성
     const categoriesPath = path.join(dataDir, 'categories.json');
     fs.writeFileSync(categoriesPath, JSON.stringify(cleanedCategories, null, 2));
-    console.log(`✅ 카테고리 데이터 생성 완료: ${cleanedCategories.length}개`);
-    
   } catch (error: any) {
     console.error('❌ 카테고리 데이터 생성 실패:', error.message);
     throw error;
@@ -123,9 +115,7 @@ async function generateCategoriesData(dataDir: string): Promise<void> {
 }
 
 async function generatePostsData(dataDir: string): Promise<void> {
-  try {
-    console.log('📝 포스트 데이터 생성 중...');
-    
+  try {   
     // 🎯 환경변수에서 도메인 정보 가져오기
     const S3_DOMAIN = process.env.S3_DOMAIN || '';
     const CLOUDFRONT_DOMAIN = process.env.CLOUDFRONT_DOMAIN || '';
@@ -218,8 +208,6 @@ async function generatePostsData(dataDir: string): Promise<void> {
     // posts.json 파일 생성
     const postsPath = path.join(dataDir, 'posts.json');
     fs.writeFileSync(postsPath, JSON.stringify(allPosts, null, 2));
-    console.log(`✅ 포스트 데이터 생성 완료: ${allPosts.length}개`);
-    
   } catch (error: any) {
     console.error('❌ 포스트 데이터 생성 실패:', error.message);
     throw error;

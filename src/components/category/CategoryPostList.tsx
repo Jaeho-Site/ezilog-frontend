@@ -107,7 +107,6 @@ export default async function CategoryPostList({ slug, page = 1 }: CategoryPostL
           POSTS_PER_PAGE, 
           (page - 1) * POSTS_PER_PAGE
         );
-        console.log(`[CategoryPostList] 정적 데이터에서 ${slug} 카테고리 처리: ${posts.length}개 포스트`);
       }
     } else {
       // 정적 데이터가 없는 경우에만 API 호출 (폴백)
@@ -115,7 +114,6 @@ export default async function CategoryPostList({ slug, page = 1 }: CategoryPostL
       if (category) {
         posts = await getCategoryPosts(slug, POSTS_PER_PAGE, (page - 1) * POSTS_PER_PAGE);
       }
-      console.log(`[CategoryPostList] API에서 ${slug} 카테고리 처리: ${posts.length}개 포스트`);
     }
     
     if (!category) {
