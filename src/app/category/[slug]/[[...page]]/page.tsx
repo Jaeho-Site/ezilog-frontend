@@ -18,9 +18,6 @@ export async function generateStaticParams() {
     
     // 모든 카테고리 수집 (1레벨 + 2레벨)
     const allCategories = [...level1Categories, ...level2Categories];
-    
-    console.log(`[generateStaticParams] Found ${allCategories.length} categories (${level1Categories.length} level-1, ${level2Categories.length} level-2)`);
-    
     // 병렬 처리로 빌드 시간 단축
     const categoryPromises = allCategories.map(async (category: any) => {
       try {
@@ -32,9 +29,6 @@ export async function generateStaticParams() {
         // 포스트 총 개수를 한 번에 가져와서 필요한 페이지 수 계산
         const totalPosts = await getCategoryPostCount(category.slug);
         const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
-        
-        console.log(`[generateStaticParams] Category ${category.slug}: ${totalPosts} posts, ${totalPages} pages`);
-        
         // 계산된 페이지 수만큼 정적 경로 생성 (최대 50페이지 제한)
         const maxPages = Math.min(totalPages, 50);
         
@@ -57,8 +51,6 @@ export async function generateStaticParams() {
     const allCategoryPaths = await Promise.all(categoryPromises);    
     // 2차원 배열을 1차원으로 평탄화
     const paths = allCategoryPaths.flat();
-
-    console.log(`[generateStaticParams] Generated ${paths.length} total paths`);
     return paths;
   } catch (error) {
     console.error('Error in generateStaticParams:', error);
