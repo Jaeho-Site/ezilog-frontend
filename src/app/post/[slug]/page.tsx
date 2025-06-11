@@ -56,19 +56,64 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const slug = params.slug;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
+  const canonicalUrl = `${siteUrl}/post/${slug}`;
   
   // 정적 데이터에서 먼저 찾기
   const staticPosts = await loadStaticPosts();
   const staticPost = staticPosts.find((post: any) => post.slug === slug);
   
   if (staticPost) {
+    const imageUrl = staticPost.coverImage?.url || `${siteUrl}/og-image.png`;
+    const tagNames = staticPost.tags?.map((tag: any) => tag.name) || [];
+    
+    // 🎯 SEO 키워드 최적화 (5-8개 핵심 키워드)
+    const coreKeywords = ['개발', '프로그래밍', 'EziLog','웹 개발'];
+    const keywords = [...coreKeywords, ...tagNames.slice(0, 5)]; // 최대 8개
+    
     return {
       title: `${staticPost.title} | EziLog`,
-      description: staticPost.description || '',
+      description: staticPost.description || `${staticPost.title}에 대한 개발 포스트입니다. EziLog에서 최신 기술 정보를 확인하세요.`,
+      keywords,
+      authors: [{ name: 'EziLog' }],
+      creator: 'EziLog',
+      publisher: 'EziLog',
+      alternates: {
+        canonical: canonicalUrl,
+      },
       openGraph: {
         title: staticPost.title,
-        description: staticPost.description || '',
-        images: staticPost.coverImage ? [{ url: staticPost.coverImage }] : [],
+        description: staticPost.description || `${staticPost.title}에 대한 개발 포스트입니다.`,
+        url: canonicalUrl,
+        siteName: 'EziLog',
+        type: 'article',
+        locale: 'ko_KR',
+        images: [
+          {
+            url: imageUrl,
+            width: 1200,
+            height: 630,
+            alt: staticPost.title,
+          },
+        ],
+        publishedTime: staticPost.publishedDate,
+        authors: ['EziLog'],
+        tags: tagNames,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: staticPost.title,
+        description: staticPost.description || `${staticPost.title}에 대한 개발 포스트입니다.`,
+        images: [imageUrl],
+        creator: '@EziLog',
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+        },
       },
     };
   }
@@ -77,20 +122,71 @@ export async function generateMetadata(
   try {
     const post = await getPostBySlug(slug);
     if (!post) {
-      return { title: '게시물을 찾을 수 없습니다 | EziLog' };
+      return { 
+        title: '게시물을 찾을 수 없습니다 | EziLog',
+        alternates: { canonical: canonicalUrl },
+        robots: { index: false, follow: true },
+      };
     }
+
+    const imageUrl = post.coverImage?.url || `${siteUrl}/og-image.png`;
+    const tagNames = post.tags?.map((tag: any) => tag.name) || [];
+    
+    // 🎯 SEO 키워드 최적화 (5-8개 핵심 키워드)
+    const coreKeywords = ['개발', '프로그래밍', 'EziLog'];
+    const keywords = [...coreKeywords, ...tagNames.slice(0, 5)]; // 최대 8개
 
     return {
       title: `${post.title} | EziLog`,
-      description: post.description || '',
+      description: post.description || `${post.title}에 대한 개발 포스트입니다. EziLog에서 최신 기술 정보를 확인하세요.`,
+      keywords,
+      authors: [{ name: 'EziLog' }],
+      creator: 'EziLog',
+      publisher: 'EziLog',
+      alternates: {
+        canonical: canonicalUrl,
+      },
       openGraph: {
         title: post.title,
-        description: post.description || '',
-        images: post.coverImage ? [{ url: post.coverImage.url }] : [],
+        description: post.description || `${post.title}에 대한 개발 포스트입니다.`,
+        url: canonicalUrl,
+        siteName: 'EziLog',
+        type: 'article',
+        locale: 'ko_KR',
+        images: [
+          {
+            url: imageUrl,
+            width: 1200,
+            height: 630,
+            alt: post.title,
+          },
+        ],
+        publishedTime: post.publishedDate,
+        authors: ['EziLog'],
+        tags: tagNames,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: post.title,
+        description: post.description || `${post.title}에 대한 개발 포스트입니다.`,
+        images: [imageUrl],
+        creator: '@EziLog',
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+        },
       },
     };
   } catch (error) {
-    return { title: '게시물을 찾을 수 없습니다 | EziLog' };
+    return { 
+      title: '게시물을 찾을 수 없습니다 | EziLog',
+      alternates: { canonical: canonicalUrl },
+      robots: { index: false, follow: true },
+    };
   }
 }
 

@@ -88,34 +88,100 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: any): Promise<Metadata> {
   const slug = params.slug;
   const pageNumber = getPageNumber(params.page);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
   
   try {
     const category = await getCategoryBySlug(slug);
     const categoryName = category?.name || slug;
+    const totalPosts = await getCategoryPostCount(slug);
+    
+    // Canonical URL 생성
+    const canonicalUrl = pageNumber === 1 
+      ? `${siteUrl}/category/${slug}`
+      : `${siteUrl}/category/${slug}/${pageNumber}`;
     
     if (pageNumber === 1) {
       return {
-        title: `${categoryName} | EziLog`,
-        description: `${categoryName} 카테고리의 모든 포스트를 확인해보세요.`,
+        title: `${categoryName} 카테고리 | EziLog`,
+        description: `${categoryName} 카테고리의 ${totalPosts}개 포스트를 확인해보세요. 최신 기술 동향과 개발 팁을 만나보세요.`,
+        keywords: [`${categoryName}`, '개발', '프로그래밍', '기술', 'EziLog'],
+        authors: [{ name: 'EziLog' }],
+        creator: 'EziLog',
+        publisher: 'EziLog',
+        alternates: {
+          canonical: canonicalUrl,
+        },
         openGraph: {
-          title: `${categoryName} | EziLog`,
-          description: `${categoryName} 카테고리의 모든 포스트를 확인해보세요.`,
+          title: `${categoryName} 카테고리 | EziLog`,
+          description: `${categoryName} 카테고리의 ${totalPosts}개 포스트를 확인해보세요.`,
+          url: canonicalUrl,
+          siteName: 'EziLog',
+          type: 'website',
+          locale: 'ko_KR',
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title: `${categoryName} 카테고리 | EziLog`,
+          description: `${categoryName} 카테고리의 ${totalPosts}개 포스트를 확인해보세요.`,
+        },
+        robots: {
+          index: true,
+          follow: true,
+          googleBot: {
+            index: true,
+            follow: true,
+          },
         },
       };
     } else {
       return {
-        title: `${categoryName} - 페이지 ${pageNumber} | EziLog`,
-        description: `${categoryName} 카테고리의 포스트 목록 ${pageNumber}페이지입니다.`,
+        title: `${categoryName} 카테고리 ${pageNumber}페이지 | EziLog`,
+        description: `${categoryName} 카테고리의 포스트 목록 ${pageNumber}페이지입니다. 더 많은 개발 관련 포스트를 확인해보세요.`,
+        keywords: [`${categoryName}`, '개발', '프로그래밍', '기술', 'EziLog'],
+        authors: [{ name: 'EziLog' }],
+        creator: 'EziLog',
+        publisher: 'EziLog',
+        alternates: {
+          canonical: canonicalUrl,
+        },
         openGraph: {
-          title: `${categoryName} - 페이지 ${pageNumber} | EziLog`,
+          title: `${categoryName} 카테고리 ${pageNumber}페이지 | EziLog`,
           description: `${categoryName} 카테고리의 포스트 목록 ${pageNumber}페이지입니다.`,
+          url: canonicalUrl,
+          siteName: 'EziLog',
+          type: 'website',
+          locale: 'ko_KR',
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title: `${categoryName} 카테고리 ${pageNumber}페이지 | EziLog`,
+          description: `${categoryName} 카테고리의 포스트 목록 ${pageNumber}페이지입니다.`,
+        },
+        robots: {
+          index: true,
+          follow: true,
+          googleBot: {
+            index: true,
+            follow: true,
+          },
         },
       };
     }
   } catch (error) {
+    const canonicalUrl = pageNumber === 1 
+      ? `${siteUrl}/category/${slug}`
+      : `${siteUrl}/category/${slug}/${pageNumber}`;
+      
     return {
       title: '카테고리 | EziLog',
       description: '카테고리별 포스트를 확인해보세요.',
+      alternates: {
+        canonical: canonicalUrl,
+      },
+      robots: {
+        index: true,
+        follow: true,
+      },
     };
   }
 }

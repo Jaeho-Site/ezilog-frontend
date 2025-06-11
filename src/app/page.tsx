@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { Metadata } from "next";
 import { PostData } from "@/components/ui/PostCard";
 import PostListGrid from "@/components/ui/PostListGrid";
 import FeaturedPost from "@/components/ui/FeaturedPost";
@@ -8,6 +9,57 @@ import * as path from 'path';
 
 // 정적 페이지 생성 설정
 export const dynamic = 'force-static';
+
+// SEO 메타데이터 생성
+export async function generateMetadata(): Promise<Metadata> {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
+  
+  return {
+    title: 'EziLog | 개발자를 위한 기술 블로그',
+    description: '최신 개발 기술과 프로그래밍 트렌드를 다루는 EziLog입니다. React, Next.js, JavaScript, TypeScript 등 웹 개발 정보를 제공합니다.',
+    keywords: ['EziLog', '개발 블로그', 'React', 'Next.js', 'JavaScript', 'TypeScript', '웹 개발', '프로그래밍', 'aws'],
+    authors: [{ name: 'EziLog' }],
+    creator: 'EziLog',
+    publisher: 'EziLog',
+    alternates: {
+      canonical: siteUrl,
+    },
+    openGraph: {
+      title: 'EziLog | 개발자를 위한 기술 블로그',
+      description: '최신 개발 기술과 프로그래밍 트렌드를 다루는 EziLog입니다.',
+      url: siteUrl,
+      siteName: 'EziLog',
+      type: 'website',
+      locale: 'ko_KR',
+      images: [
+        {
+          url: `${siteUrl}/og-image.png`,
+          width: 1200,
+          height: 630,
+          alt: 'EziLog - 개발자를 위한 기술 블로그',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'EziLog | 개발자를 위한 기술 블로그',
+      description: '최신 개발 기술과 프로그래밍 트렌드를 다루는 EziLog입니다.',
+      images: [`${siteUrl}/og-image.png`],
+      creator: '@EziLog',
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+      },
+    },
+    verification: {
+      google: 'your-google-verification-code', // Google Search Console 인증 코드
+    },
+  };
+}
 
 // 원하는 포스트들의 slug 목록 (10개 선택)
 const FEATURED_POST_SLUGS = ['1', '2', '3', '4', '14', '6', '13', '8', '9', '10'];
