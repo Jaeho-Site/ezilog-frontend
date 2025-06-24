@@ -286,10 +286,7 @@ export default async function PostPage({ params }: any) {
         <main className="lg:flex-1 lg:max-w-[800px]">
           <article className="bg-gray-50 dark:bg-gray-950 overflow-hidden">
             <div className="py-6 pl-6 pr-3 lg:pr-2">
-              <div className="prose prose-base max-w-none dark:prose-invert
-                prose-headings:font-semibold prose-headings:text-gray-900 dark:prose-headings:text-gray-200
-                prose-p:text-gray-700 dark:prose-p:text-gray-400 prose-p:leading-loose
-                prose-strong:text-gray-900 dark:prose-strong:text-gray-200">
+              <div className="prose prose-base max-w-none dark:prose-invert prose-headings:font-semibold prose-p:leading-loose">
                 {contentElement}
               </div>
             </div>

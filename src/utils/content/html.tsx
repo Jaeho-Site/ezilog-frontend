@@ -94,5 +94,5 @@ export const HtmlContent = ({ html, postTitle }: { html: string; postTitle: stri
     }
   };
   
-  return <div className="ck-content">{parse(html, parseOptions)}</div>;
+  return <div className="ck-content prose prose-base max-w-none dark:prose-invert text-gray-700 dark:text-gray-300 prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-gray-100">{parse(html, parseOptions)}</div>;
 };

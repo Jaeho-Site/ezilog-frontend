@@ -52,15 +52,27 @@ export const MarkdownContent = ({ markdown, postTitle }: { markdown: string; pos
       remarkPlugins={[remarkGfm]}
       rehypePlugins={[rehypeRaw, rehypeSlug, rehypeSanitize]}
       components={{
-        // 헤딩 태그 처리
-        h1: ({ ...props }: any) => <h1 className="text-2xl font-bold mt-8 mb-4" {...props} />,
-        h2: ({ ...props }: any) => <h2 className="text-xl font-bold mt-6 mb-3" {...props} />,
-        h3: ({ ...props }: any) => <h3 className="text-lg font-bold mt-5 mb-2" {...props} />,
-        h4: ({ ...props }: any) => <h4 className="text-base font-bold mt-4 mb-2" {...props} />,
-        h5: ({ ...props }: any) => <h5 className="text-sm font-bold mt-3 mb-1" {...props} />,
-        h6: ({ ...props }: any) => <h6 className="text-xs font-bold mt-3 mb-1" {...props} />,
+        // 헤딩 태그 처리 - 명시적인 색상 클래스 추가
+        h1: ({ ...props }: any) => (
+          <h1 className="text-2xl font-bold mt-8 mb-4 text-gray-900 dark:text-gray-100" {...props} />
+        ),
+        h2: ({ ...props }: any) => (
+          <h2 className="text-xl font-bold mt-6 mb-3 text-gray-900 dark:text-gray-100" {...props} />
+        ),
+        h3: ({ ...props }: any) => (
+          <h3 className="text-lg font-bold mt-5 mb-2 text-gray-900 dark:text-gray-100" {...props} />
+        ),
+        h4: ({ ...props }: any) => (
+          <h4 className="text-base font-bold mt-4 mb-2 text-gray-900 dark:text-gray-100" {...props} />
+        ),
+        h5: ({ ...props }: any) => (
+          <h5 className="text-sm font-bold mt-3 mb-1 text-gray-900 dark:text-gray-100" {...props} />
+        ),
+        h6: ({ ...props }: any) => (
+          <h6 className="text-xs font-bold mt-3 mb-1 text-gray-900 dark:text-gray-100" {...props} />
+        ),
         
-        // 문단 처리
+        // 문단 처리 - 명시적인 색상 클래스 추가
         p: ({ children, ...props }: any) => {
           const childElements = React.Children.toArray(children);
           
@@ -79,7 +91,11 @@ export const MarkdownContent = ({ markdown, postTitle }: { markdown: string; pos
             child => React.isValidElement(child) && child.type === 'img'
           );
           
-          return hasImage ? <div {...props}>{children}</div> : <p {...props}>{children}</p>;
+          return hasImage ? (
+            <div className="text-gray-700 dark:text-gray-300" {...props}>{children}</div>
+          ) : (
+            <p className="text-gray-700 dark:text-gray-300" {...props}>{children}</p>
+          );
         },
         
         // 이미지 처리
@@ -92,6 +108,45 @@ export const MarkdownContent = ({ markdown, postTitle }: { markdown: string; pos
         a: ({ href, children, ...props }: any) => {
           return <RenderLink href={href || ''}>{children}</RenderLink>;
         },
+        
+        // 리스트 처리 - 명시적인 색상 클래스 추가
+        ul: ({ children, ...props }: any) => (
+          <ul className="list-disc pl-6 my-4 text-gray-700 dark:text-gray-300" {...props}>
+            {children}
+          </ul>
+        ),
+        ol: ({ children, ...props }: any) => (
+          <ol className="list-decimal pl-6 my-4 text-gray-700 dark:text-gray-300" {...props}>
+            {children}
+          </ol>
+        ),
+        li: ({ children, ...props }: any) => (
+          <li className="mb-1 text-gray-700 dark:text-gray-300" {...props}>
+            {children}
+          </li>
+        ),
+        
+        // 인용문 처리 - 명시적인 색상 클래스 추가
+        blockquote: ({ children, ...props }: any) => (
+          <blockquote 
+            className="border-l-4 border-gray-300 dark:border-gray-600 pl-4 my-4 italic text-gray-600 dark:text-gray-400"
+            {...props}
+          >
+            {children}
+          </blockquote>
+        ),
+        
+        // 강조 텍스트 처리 - 명시적인 색상 클래스 추가
+        strong: ({ children, ...props }: any) => (
+          <strong className="font-bold text-gray-900 dark:text-gray-100" {...props}>
+            {children}
+          </strong>
+        ),
+        em: ({ children, ...props }: any) => (
+          <em className="italic text-gray-700 dark:text-gray-300" {...props}>
+            {children}
+          </em>
+        ),
         
         // 코드 블록 처리
         code: ({ inline, className, children, ...props }: any) => {
