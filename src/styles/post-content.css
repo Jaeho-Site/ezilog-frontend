@@ -29,20 +29,47 @@
     margin-bottom: 0.5rem;
     color: #111827;
   }
+
+  & h4 {
+    font-size: 1rem; /* 16px */
+    font-weight: bold;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    color: #111827;
+  }
+
+  & h5 {
+    font-size: 0.875rem; /* 14px */
+    font-weight: bold;
+    margin-top: 0.75rem;
+    margin-bottom: 0.25rem;
+    color: #111827;
+  }
+
+  & h6 {
+    font-size: 0.75rem; /* 12px */
+    font-weight: bold;
+    margin-top: 0.75rem;
+    margin-bottom: 0.25rem;
+    color: #111827;
+  }
   
   /* 단락 스타일 */
   & p {
     margin-top: 1rem;
     margin-bottom: 1rem;
+    color: #374151;
   }
   
   /* 강조 텍스트 */
   & strong, & b {
     font-weight: bold;
+    color: #111827;
   }
   
   & em, & i {
     font-style: italic;
+    color: #374151;
   }
   
   /* 링크 스타일 */
@@ -61,6 +88,7 @@
     margin-left: 1.5rem;
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
+    color: #374151;
   }
   
   & ol {
@@ -68,11 +96,13 @@
     margin-left: 1.5rem;
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
+    color: #374151;
   }
   
   & li {
     margin-top: 0.25rem;
     margin-bottom: 0.25rem;
+    color: #374151;
   }
   
   /* 인용구 스타일 */
@@ -130,28 +160,95 @@
     padding: 0.5rem;
     border: 1px solid #e5e7eb;
   }
-  
-  /* 다크 모드 지원 */
-  @media (prefers-color-scheme: dark) {
-    & h1, & h2, & h3 {
-      color: #f9fafb;
-    }
+}
+
+/* 다크 모드 지원 - next-themes 방식 - 우선순위 강화 */
+:global(.dark) .ck-content {
+  & h1, & h2, & h3, & h4, & h5, & h6 {
+    color: #e5e7eb !important; /* text-gray-200 - 포스트 제목과 동일 */
+  }
+
+  & p {
+    color: #9ca3af !important; /* text-gray-400 - 날짜와 홈으로 돌아가기와 동일 */
+  }
+
+  & strong, & b {
+    color: #e5e7eb !important; /* text-gray-200 - 헤딩과 동일하게 강조 */
+  }
+
+  & em, & i {
+    color: #9ca3af !important; /* text-gray-400 - p태그와 동일 */
+  }
+
+  & ul, & ol, & li {
+    color: #9ca3af !important; /* text-gray-400 - p태그와 동일 */
+  }
+
+  & a {
+    color: #60a5fa !important; /* text-blue-400 - 기존 유지 */
     
-    & pre, & code {
-      background-color: #1f2937;
-    }
-    
-    & blockquote {
-      border-left-color: #4b5563;
-      color: #9ca3af;
-    }
-    
-    & th {
-      background-color: #1f2937;
-    }
-    
-    & td, & th {
-      border-color: #4b5563;
+    &:hover {
+      color: #93c5fd !important; /* text-blue-300 - 기존 유지 */
     }
   }
+  
+  & pre, & code {
+    background-color: #1f2937 !important;
+  }
+  
+  & blockquote {
+    border-left-color: #4b5563 !important;
+    color: #6b7280 !important; /* text-gray-500 - 인용문은 조금 더 어둡게 */
+  }
+  
+  & th {
+    background-color: #1f2937 !important;
+  }
+  
+  & td, & th {
+    border-color: #4b5563 !important;
+  }
+}
+
+/* 대안적인 다크모드 셀렉터 - 더 높은 우선순위 */
+html.dark .ck-content h1,
+html.dark .ck-content h2,
+html.dark .ck-content h3,
+html.dark .ck-content h4,
+html.dark .ck-content h5,
+html.dark .ck-content h6 {
+  color: #e5e7eb !important;
+}
+
+html.dark .ck-content p {
+  color: #9ca3af !important;
+}
+
+html.dark .ck-content strong,
+html.dark .ck-content b {
+  color: #e5e7eb !important;
+}
+
+html.dark .ck-content em,
+html.dark .ck-content i {
+  color: #9ca3af !important;
+}
+
+html.dark .ck-content ul,
+html.dark .ck-content ol,
+html.dark .ck-content li {
+  color: #9ca3af !important;
+}
+
+html.dark .ck-content a {
+  color: #60a5fa !important;
+}
+
+html.dark .ck-content a:hover {
+  color: #93c5fd !important;
+}
+
+html.dark .ck-content blockquote {
+  border-left-color: #4b5563 !important;
+  color: #6b7280 !important;
 } 
