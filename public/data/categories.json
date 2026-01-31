@@ -3,45 +3,18 @@
     "id": 49,
     "name": "Frontend",
     "slug": "frontend",
-    "level": 1,
-    "categories": [],
-    "posts": []
+    "postCount": 0
   },
   {
-    "id": 65,
-    "name": "Tech News",
-    "slug": "tech-news",
-    "level": 1,
-    "categories": [
-      {
-        "id": 55,
-        "name": "기타",
-        "slug": "else",
-        "level": 2,
-        "posts": [
-          {
-            "id": 144,
-            "documentId": "ioalrvuigp8t7n72bl288gf1"
-          }
-        ]
-      },
-      {
-        "id": 64,
-        "name": "회고",
-        "slug": "retrospective",
-        "level": 2,
-        "posts": [
-          {
-            "id": 146,
-            "documentId": "x1x3dawjbse5xh3uc3y12w5q"
-          },
-          {
-            "id": 148,
-            "documentId": "hvp1fxyxzprag5bnpki7g0d2"
-          }
-        ]
-      }
-    ],
-    "posts": []
+    "id": 55,
+    "name": "기타",
+    "slug": "else",
+    "postCount": 1
+  },
+  {
+    "id": 66,
+    "name": "회고",
+    "slug": "retrospective",
+    "postCount": 2
   }
 ]
