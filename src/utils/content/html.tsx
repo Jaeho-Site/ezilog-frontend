@@ -87,7 +87,6 @@ const CodeBlockWrapper = ({ code, className }: {
           padding: '1rem',
           fontSize: '0.875rem',
           lineHeight: '1.5',
-          backgroundColor: 'transparent',
         }}
         wrapLines={true}
         wrapLongLines={true}
