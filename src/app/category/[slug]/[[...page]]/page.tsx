@@ -6,20 +6,13 @@ import CategoryPostList, { POSTS_PER_PAGE } from "@/components/category/Category
 // 정적 페이지 생성 설정
 export const dynamic = 'force-static';
 
-// 빌드 시 정적으로 생성할 경로 정의 (완전한 버전)
+// 빌드 시 정적으로 생성할 경로 정의
 export async function generateStaticParams() {
   try {
-    // 모든 카테고리를 직접 가져오기
     const allCategoriesData = await getAllCategories();
     
-    // 1레벨과 2레벨 카테고리로 분류
-    const level1Categories = allCategoriesData.filter((cat: any) => cat.level === 1);
-    const level2Categories = allCategoriesData.filter((cat: any) => cat.level === 2);
-    
-    // 모든 카테고리 수집 (1레벨 + 2레벨)
-    const allCategories = [...level1Categories, ...level2Categories];
     // 병렬 처리로 빌드 시간 단축
-    const categoryPromises = allCategories.map(async (category: any) => {
+    const categoryPromises = allCategoriesData.map(async (category: any) => {
       try {
         const categoryPaths = [];
         
@@ -29,6 +22,7 @@ export async function generateStaticParams() {
         // 포스트 총 개수를 한 번에 가져와서 필요한 페이지 수 계산
         const totalPosts = await getCategoryPostCount(category.slug);
         const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
+        
         // 계산된 페이지 수만큼 정적 경로 생성 (최대 50페이지 제한)
         const maxPages = Math.min(totalPages, 50);
         
@@ -61,8 +55,8 @@ export async function generateStaticParams() {
 
 // SEO 최적화를 위한 메타데이터 생성
 export async function generateMetadata({ params }: any): Promise<Metadata> {
-  const slug = params.slug;
-  const pageNumber = getPageNumber(params.page);
+  const { slug, page } = await params;
+  const pageNumber = getPageNumber(page);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
   try {
@@ -170,8 +164,8 @@ function getPageNumber(pageParam?: string[]): number {
 
 // 통합된 카테고리 페이지 컴포넌트
 export default async function CategoryPage({ params }: any) {
-  const slug = params.slug;
-  const page = getPageNumber(params.page);
+  const { slug, page: pageParam } = await params;
+  const page = getPageNumber(pageParam);
   
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

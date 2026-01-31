@@ -56,35 +56,18 @@ async function loadStaticPosts() {
   return [];
 }
 
-// 정적 데이터에서 카테고리별 포스트 필터링
-function filterPostsByCategory(posts: any[], categorySlug: string, allCategories: any[], limit: number, offset: number) {
-  // 카테고리 찾기
-  const category = allCategories.find(cat => cat.slug === categorySlug);
-  if (!category) {
-    return [];
-  }
-  let filteredPosts: any[] = [];
-  
-  if (category.level === 1) {
-    // 1레벨 카테고리: 정적 데이터에서 자식 카테고리들을 찾아서 포스트 수집
-    // categories.json의 1레벨 카테고리는 categories 배열에 자식들을 가지고 있음
-    const childCategorySlugs = (category.categories || []).map((child: any) => child.slug);
-    filteredPosts = posts.filter(post => 
-      post.category && childCategorySlugs.includes(post.category.slug)
-    );
-  } else {
-    // 2레벨 카테고리: 해당 카테고리의 포스트만
-    filteredPosts = posts.filter(post => 
-      post.category && post.category.slug === categorySlug
-    );
-  }
+// 정적 데이터에서 카테고리별 포스트 필터링 (1-depth 단순화)
+function filterPostsByCategory(posts: any[], categorySlug: string, limit: number, offset: number) {
+  // 해당 카테고리의 포스트만 필터링
+  const filteredPosts = posts.filter(post => 
+    post.category && post.category.slug === categorySlug
+  );
   
   // 정렬 (최신순)
   filteredPosts.sort((a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime());
   
   // 페이지네이션 적용
-  const paginatedPosts = filteredPosts.slice(offset, offset + limit);
-  return paginatedPosts;
+  return filteredPosts.slice(offset, offset + limit);
 }
 
 export default async function CategoryPostList({ slug, page = 1 }: CategoryPostListProps) {
@@ -99,26 +82,12 @@ export default async function CategoryPostList({ slug, page = 1 }: CategoryPostL
     
     if (staticCategories.length > 0 && staticPosts.length > 0) {
       // 정적 데이터에서 처리 (API 호출 0회)
-      
-      // 1레벨과 2레벨 카테고리를 모두 평탄화해서 검색
-      const allCategories = [];
-      
-      for (const cat of staticCategories) {
-        // 1레벨 카테고리 추가
-        allCategories.push(cat);
-        
-        // 2레벨 카테고리들도 추가
-        if (cat.categories && cat.categories.length > 0) {
-          allCategories.push(...cat.categories);
-        }
-      }
-      category = allCategories.find((cat: any) => cat.slug === slug);
+      category = staticCategories.find((cat: any) => cat.slug === slug);
       
       if (category) {
         posts = filterPostsByCategory(
           staticPosts, 
           slug, 
-          allCategories, 
           POSTS_PER_PAGE, 
           (page - 1) * POSTS_PER_PAGE
         );
