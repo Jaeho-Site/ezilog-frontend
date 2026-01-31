@@ -248,6 +248,7 @@ export const HtmlContent = ({ html, postTitle }: { html: string; postTitle: stri
           child instanceof Element && child.name === 'img'
         );
         
+        // p 태그 안에 이미지만 있는 경우 p 태그 제거
         if (imageElements.length === 1 && domNode.children.length === 1) {
           const imageElement = imageElements[0] as Element;
           if (imageElement.attribs?.src) {
@@ -259,6 +260,33 @@ export const HtmlContent = ({ html, postTitle }: { html: string; postTitle: stri
               style={imageElement.attribs.style ? parseInlineStyle(imageElement.attribs.style) : undefined}
               className={imageElement.attribs.class}
             />;
+          }
+        }
+        
+        // p 태그 안에 이미지와 다른 요소가 섞여있는 경우도 처리
+        if (imageElements.length > 0) {
+          const hasOnlyImageAndWhitespace = domNode.children.every((child: any) => {
+            if (child instanceof Element && child.name === 'img') return true;
+            if (child.type === 'text' && child.data && child.data.trim() === '') return true;
+            return false;
+          });
+          
+          if (hasOnlyImageAndWhitespace) {
+            return (
+              <>
+                {imageElements.map((imgEl: any, idx: number) => (
+                  <RenderImage
+                    key={idx}
+                    src={imgEl.attribs.src}
+                    alt={imgEl.attribs.alt || postTitle}
+                    width={imgEl.attribs.width}
+                    height={imgEl.attribs.height}
+                    style={imgEl.attribs.style ? parseInlineStyle(imgEl.attribs.style) : undefined}
+                    className={imgEl.attribs.class}
+                  />
+                ))}
+              </>
+            );
           }
         }
       }
