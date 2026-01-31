@@ -1,293 +1,73 @@
 [
   {
-    "id": 141,
-    "title": "첫번째 포스트, 블로그 둘러보기!",
-    "slug": "1",
-    "description": "기획부터 디자인, 구현까지 직접 만든 블로그입니다. \n작은 기록들이 조금이나마 도움이 되면 좋겠습니다.",
-    "publishedAt": "2026-01-24T09:21:34.948Z",
+    "id": 148,
+    "title": "프론트엔드에서 Serverless API 다루기",
+    "slug": "3",
+    "description": "카테캠 3단계를 수행하며 다뤘던 AWS Serverless API에 대해 다룹니다.",
+    "publishedAt": "2026-01-31T09:30:21.066Z",
     "cover": {
-      "url": "https://d2d6xftfoai8ia.cloudfront.net/2786bf808843b56a0e0feda1c1747cf73673d989_3648x5472_73f8355533.avif"
+      "url": "https://d2d6xftfoai8ia.cloudfront.net/p3_0_thumbnail_66513cf9f7.png"
     },
     "tags": [
       {
-        "name": "DESIGN",
-        "slug": "design"
+        "name": "카카오테크 캠퍼스",
+        "slug": "ktc"
       },
       {
-        "name": "JAVASCRIPT",
-        "slug": "javascript"
+        "name": "AWS",
+        "slug": "aws"
+      }
+    ],
+    "category": {
+      "name": "회고",
+      "slug": "retrospective"
+    }
+  },
+  {
+    "id": 146,
+    "title": "인증/인가 모든 UserFlow에 대응해보자!",
+    "slug": "4",
+    "description": "인증/인가에 대해 떠오르는 방식은 크게 쿠키,세션,토큰이 있다. 그 중 JWT로 인증/인가를 다뤄보자.",
+    "publishedAt": "2026-01-31T07:42:16.195Z",
+    "cover": {
+      "url": "https://d2d6xftfoai8ia.cloudfront.net/post4_0_thumbnail_f5050d9e0f.png"
+    },
+    "tags": [
+      {
+        "name": "카카오테크 캠퍼스",
+        "slug": "ktc"
       },
       {
-        "name": "React",
+        "name": "TYPESCRIPT",
+        "slug": "typescript"
+      },
+      {
+        "name": "REACT",
         "slug": "react"
       }
     ],
     "category": {
-      "name": "기타",
-      "slug": "else"
+      "name": "회고",
+      "slug": "retrospective"
     }
   },
   {
-    "id": 140,
-    "title": "10번째 무한스크롤(페이지네이션 )테스트 포스트",
-    "slug": "10",
-    "description": "10번째 무한스크롤(페이지네이션 )테스트 포스트",
-    "publishedAt": "2026-01-24T08:23:54.919Z",
-    "cover": {
-      "url": "https://d2d6xftfoai8ia.cloudfront.net/bridge_9302956_1920_9506e24c77.jpg"
-    },
-    "tags": [
-      {
-        "name": "About",
-        "slug": "about"
-      }
-    ],
-    "category": {
-      "name": "Blog만들기",
-      "slug": "blog"
-    }
-  },
-  {
-    "id": 121,
-    "title": "Next.js 랜더링은 핑계고 17번째 포스트! ",
-    "slug": "17",
-    "description": "- CSR의 동작원리와 SSR의 동작원리를 비교 설명할 수 있게 됩니다. \n- CSR과 SSR의 장단점에 대해 이해할 수 있습니다, ",
-    "publishedAt": "2025-06-07T14:33:27.768Z",
-    "cover": {
-      "url": "https://d2d6xftfoai8ia.cloudfront.net/bridge_9302956_1920_9506e24c77.jpg"
-    },
-    "tags": [
-      {
-        "name": "DESIGN",
-        "slug": "design"
-      },
-      {
-        "name": "AWS S3",
-        "slug": "aws-s3"
-      }
-    ],
-    "category": {
-      "name": "기타",
-      "slug": "else"
-    }
-  },
-  {
-    "id": 102,
-    "title": "4Every Next Level of Your Life Will Demand a Different You",
-    "slug": "4",
-    "description": "마크다운 테스트",
-    "publishedAt": "2025-06-06T02:26:34.802Z",
+    "id": 144,
+    "title": "첫번째 포스트, 블로그 둘러보기!",
+    "slug": "1",
+    "description": "기획부터 디자인, 구현까지 직접 만든 블로그입니다. \n작은 기록들이 조금이나마 도움이 되면 좋겠습니다.",
+    "publishedAt": "2026-01-31T06:16:06.790Z",
     "cover": {
       "url": "https://d2d6xftfoai8ia.cloudfront.net/2786bf808843b56a0e0feda1c1747cf73673d989_3648x5472_73f8355533.avif"
     },
     "tags": [
       {
-        "name": "DESIGN",
-        "slug": "design"
-      }
-    ],
-    "category": {
-      "name": "기타",
-      "slug": "else"
-    }
-  },
-  {
-    "id": 101,
-    "title": "16번째 포스트입니다! h3테그 테스트입니다!",
-    "slug": "16",
-    "description": "16번째 포스트입니다! h3테그 테스트입니다!",
-    "publishedAt": "2025-06-06T02:10:14.034Z",
-    "cover": {
-      "url": "https://d2d6xftfoai8ia.cloudfront.net/folder_617a983e40.png"
-    },
-    "tags": [],
-    "category": null
-  },
-  {
-    "id": 99,
-    "title": "15번째 포스트 ! 사이드바 테스트용 html포스트입니다.",
-    "slug": "15",
-    "description": "h2테그와 h3테그를 사용한 계층 테스트 ! 사이드바 테스트용 html포스트입니다. ",
-    "publishedAt": "2025-06-06T02:05:12.103Z",
-    "cover": {
-      "url": "https://d2d6xftfoai8ia.cloudfront.net/bridge_9302956_1920_9506e24c77.jpg"
-    },
-    "tags": [
-      {
-        "name": "About",
-        "slug": "about"
-      }
-    ],
-    "category": {
-      "name": "기타",
-      "slug": "else"
-    }
-  },
-  {
-    "id": 95,
-    "title": "세번째 포스트! 커버이미지테스트,커버이미지 테스트,커버이미지 테스트",
-    "slug": "3",
-    "description": null,
-    "publishedAt": "2025-05-23T19:09:09.340Z",
-    "cover": {
-      "url": "https://d2d6xftfoai8ia.cloudfront.net/bridge_9302956_1920_9506e24c77.jpg"
-    },
-    "tags": [
-      {
-        "name": "AWS LAMBDA",
-        "slug": "aws-lambda"
-      }
-    ],
-    "category": {
-      "name": "AWS",
-      "slug": "aws"
-    }
-  },
-  {
-    "id": 94,
-    "title": "두번째 포스트! 커버이미지 테스트,커버이미지 테스트,커버이미지 테스트",
-    "slug": "2",
-    "description": null,
-    "publishedAt": "2025-05-23T19:08:54.849Z",
-    "cover": {
-      "url": "https://d2d6xftfoai8ia.cloudfront.net/bridge_9302956_1920_9506e24c77.jpg"
-    },
-    "tags": [
-      {
-        "name": "About",
-        "slug": "about"
-      }
-    ],
-    "category": {
-      "name": "Blog만들기",
-      "slug": "blog"
-    }
-  },
-  {
-    "id": 93,
-    "title": "14번째 포스트(3번째 페이지네이션 테스트)",
-    "slug": "14",
-    "description": "14번째 포스트(3번째 페이지네이션 테스트)",
-    "publishedAt": "2025-05-23T18:42:52.828Z",
-    "cover": {
-      "url": "https://d2d6xftfoai8ia.cloudfront.net/react_1b61271385.png"
-    },
-    "tags": [
-      {
-        "name": "About",
-        "slug": "about"
-      }
-    ],
-    "category": {
-      "name": "기타",
-      "slug": "else"
-    }
-  },
-  {
-    "id": 91,
-    "title": "9번째 포스트입니다.",
-    "slug": "9",
-    "description": "마크다운 문법 같지않은 글을 작성하기 위해 테스트합니다,",
-    "publishedAt": "2025-05-23T18:42:24.726Z",
-    "cover": {
-      "url": "https://d2d6xftfoai8ia.cloudfront.net/folder_617a983e40.png"
-    },
-    "tags": [
-      {
-        "name": "AWS S3",
-        "slug": "aws-s3"
-      }
-    ],
-    "category": {
-      "name": "Blog만들기",
-      "slug": "blog"
-    }
-  },
-  {
-    "id": 83,
-    "title": "13번째 무한스크롤(페이지네이션 )테스트 포스트",
-    "slug": "13",
-    "description": "10번째 무한스크롤(페이지네이션 )테스트 포스트",
-    "publishedAt": "2025-05-21T22:31:11.857Z",
-    "cover": {
-      "url": "https://d2d6xftfoai8ia.cloudfront.net/folder_617a983e40.png"
-    },
-    "tags": [
-      {
-        "name": "About",
-        "slug": "about"
-      }
-    ],
-    "category": {
-      "name": "기타",
-      "slug": "else"
-    }
-  },
-  {
-    "id": 72,
-    "title": "다섯번째 포스트",
-    "slug": "5",
-    "description": "다섯번째 포스트 입니다. ",
-    "publishedAt": "2025-05-16T13:58:46.418Z",
-    "cover": {
-      "url": "https://d2d6xftfoai8ia.cloudfront.net/folder_617a983e40.png"
-    },
-    "tags": [],
-    "category": {
-      "name": "CursorAI",
-      "slug": "cursor-ai"
-    }
-  },
-  {
-    "id": 70,
-    "title": "8번째 포스트",
-    "slug": "8",
-    "description": "8번째 포스트입니다",
-    "publishedAt": "2025-05-10T18:34:56.844Z",
-    "cover": null,
-    "tags": [],
-    "category": {
-      "name": "Blog만들기",
-      "slug": "blog"
-    }
-  },
-  {
-    "id": 66,
-    "title": "7번째 포스입니다. React에 대해 공부한 내용을 소개해드립니다.",
-    "slug": "7",
-    "description": "7번째 포스트입니다.",
-    "publishedAt": "2025-05-10T15:37:08.531Z",
-    "cover": {
-      "url": "https://d2d6xftfoai8ia.cloudfront.net/react_1b61271385.png"
-    },
-    "tags": [
-      {
-        "name": "About",
+        "name": "ABOUT",
         "slug": "about"
       },
       {
-        "name": "AWS S3",
-        "slug": "aws-s3"
-      }
-    ],
-    "category": {
-      "name": "기타",
-      "slug": "else"
-    }
-  },
-  {
-    "id": 65,
-    "title": "6번째 포스트",
-    "slug": "6",
-    "description": "6번째 포스트입니다.",
-    "publishedAt": "2025-05-10T15:36:22.098Z",
-    "cover": {
-      "url": "https://d2d6xftfoai8ia.cloudfront.net/github_86f86963b3.png"
-    },
-    "tags": [
-      {
-        "name": "About",
-        "slug": "about"
+        "name": "DESIGN",
+        "slug": "design"
       }
     ],
     "category": {
