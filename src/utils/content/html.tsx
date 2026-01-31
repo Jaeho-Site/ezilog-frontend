@@ -3,13 +3,11 @@
 import parse, { Element, domToReact, HTMLReactParserOptions } from 'html-react-parser';
 import Image from "next/image";
 import Link from "next/link";
-import { getImageUrl } from './image';
 import React, { useMemo } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import '@/styles/post-content.css';
 
-// 다크모드 감지 훅
 const useIsDark = () => {
   const [isDark, setIsDark] = React.useState(false);
   
@@ -32,7 +30,6 @@ const useIsDark = () => {
   return isDark;
 };
 
-// 간단한 스타일 파싱 - 필요한 경우에만 사용
 const parseInlineStyle = (styleString: string): React.CSSProperties => {
   if (!styleString) return {};
   
@@ -56,7 +53,6 @@ const parseInlineStyle = (styleString: string): React.CSSProperties => {
   return styles;
 };
 
-// 언어 추출 최적화 - 정규식 캐싱
 const LANG_REGEX = /(?:language-|hljs-)([a-zA-Z0-9-]+)/;
 const getLanguageFromClassName = (className?: string): string => {
   if (!className) return 'text';
@@ -64,7 +60,6 @@ const getLanguageFromClassName = (className?: string): string => {
   return langMatch ? langMatch[1] : 'text';
 };
 
-// 단일 코드 블록 컴포넌트 - 다크모드 감지로 테마 전환
 const CodeBlockWrapper = ({ code, className }: { 
   code: string; 
   className?: string;
@@ -102,7 +97,6 @@ export const RenderCodeBlock = (props: { code: string; className?: string }) => 
   <CodeBlockWrapper {...props} />
 );
 
-// 숫자 파싱 헬퍼
 const parseNumericValue = (value: string | number | undefined, defaultValue: number): number => {
   if (typeof value === 'number') return value;
   if (!value) return defaultValue;
@@ -125,21 +119,19 @@ export const RenderImage = ({
   style?: React.CSSProperties;
   className?: string;
 }) => {
-  const imageSrc = getImageUrl(src);
+  const imageSrc = src || '';
   const parsedStyle = style || {};
   const parsedClassName = className || '';
   
   const imageWidth = width || parsedStyle.width || '100%';
   const imageHeight = height || parsedStyle.height || 'auto';
-  
-  // 정렬 클래스 결정
+
   let alignmentClass = 'mx-auto';
   if (parsedClassName.includes('image_resized')) {
     if (parsedStyle.float === 'left') alignmentClass = 'mr-auto';
     else if (parsedStyle.float === 'right') alignmentClass = 'ml-auto';
   }
-  
-  // sizes 속성 동적 계산
+
   const isResized = parsedClassName.includes('image_resized');
   const sizes = isResized 
     ? '(max-width: 768px) 100vw, 50vw'
@@ -195,9 +187,8 @@ export const RenderLink = ({ href, children }: { href: string; children: React.R
   );
 };
 
-// 텍스트 추출 최적화 - 깊이 제한 및 단순화
 const extractTextFromNode = (node: any, depth: number = 0): string => {
-  if (!node || depth > 10) return ''; // 무한 재귀 방지
+  if (!node || depth > 10) return '';
   if (node.type === 'text' && node.data) return node.data;
   if (node.children && Array.isArray(node.children)) {
     let result = '';
@@ -210,7 +201,6 @@ const extractTextFromNode = (node: any, depth: number = 0): string => {
 };
 
 export const HtmlContent = ({ html, postTitle }: { html: string; postTitle: string }) => {
-  // parseOptions를 useMemo로 메모이제이션
   const parseOptions: HTMLReactParserOptions = useMemo(() => ({
     replace: (domNode: any) => {
       if (domNode instanceof Element && domNode.name === 'pre') {
@@ -247,8 +237,7 @@ export const HtmlContent = ({ html, postTitle }: { html: string; postTitle: stri
         const imageElements = domNode.children.filter((child: any) => 
           child instanceof Element && child.name === 'img'
         );
-        
-        // p 태그 안에 이미지만 있는 경우 p 태그 제거
+
         if (imageElements.length === 1 && domNode.children.length === 1) {
           const imageElement = imageElements[0] as Element;
           if (imageElement.attribs?.src) {
@@ -262,8 +251,7 @@ export const HtmlContent = ({ html, postTitle }: { html: string; postTitle: stri
             />;
           }
         }
-        
-        // p 태그 안에 이미지와 다른 요소가 섞여있는 경우도 처리
+
         if (imageElements.length > 0) {
           const hasOnlyImageAndWhitespace = domNode.children.every((child: any) => {
             if (child instanceof Element && child.name === 'img') return true;

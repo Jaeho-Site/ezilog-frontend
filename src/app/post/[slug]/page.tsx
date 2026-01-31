@@ -6,8 +6,6 @@ import { lazy, Suspense } from 'react';
 import {
   HtmlContent,
   MarkdownContent,
-  getImageUrl,
-  transformMarkdownImageUrls,
   formatDate
 } from "@/utils/content";
 import TableOfContents from "@/components/ui/TableOfContents";
@@ -17,11 +15,9 @@ import { getTagColor } from "@/utils/tag/tagColors";
 import * as fs from 'fs';
 import * as path from 'path';
 
-// 정적 페이지 생성 설정
 export const dynamic = 'force-static';
 const GiscusComments = lazy(() => import('@/components/ui/comments'));
 
-// 정적 포스트 데이터 로드 함수 (빌드 시간 최적화)
 async function loadStaticPosts() {
   try {
     const postsPath = path.join(process.cwd(), 'public', 'data', 'posts.json');
@@ -35,22 +31,16 @@ async function loadStaticPosts() {
   return [];
 }
 
-// 빌드 시 정적으로 생성할 경로 정의
 export async function generateStaticParams() {
-  // 정적 데이터 우선 사용
   let posts = await loadStaticPosts();
-  
-  // 정적 데이터가 없는 경우에만 API 호출
   if (posts.length === 0) {
     posts = await getAllPosts(100, 0);
   }
-
   return posts.map((post: { slug: string }) => ({
     slug: post.slug
   }));
 }
 
-// SEO 메타데이터 생성 (API 호출 최소화)
 export async function generateMetadata(
   { params }: any,
   parent: ResolvingMetadata
@@ -58,18 +48,16 @@ export async function generateMetadata(
   const slug = params.slug;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
   const canonicalUrl = `${siteUrl}/post/${slug}`;
-  
-  // 정적 데이터에서 먼저 찾기
+
   const staticPosts = await loadStaticPosts();
   const staticPost = staticPosts.find((post: any) => post.slug === slug);
   
   if (staticPost) {
     const imageUrl = staticPost.coverImage?.url || `${siteUrl}/og-image.png`;
     const tagNames = staticPost.tags?.map((tag: any) => tag.name) || [];
-    
-    // 🎯 SEO 키워드 최적화 (5-8개 핵심 키워드)
+
     const coreKeywords = ['개발', '프로그래밍', 'EziLog','웹 개발'];
-    const keywords = [...coreKeywords, ...tagNames.slice(0, 5)]; // 최대 8개
+    const keywords = [...coreKeywords, ...tagNames.slice(0, 5)];
     
     return {
       title: `${staticPost.title} | EziLog`,
@@ -118,7 +106,6 @@ export async function generateMetadata(
     };
   }
 
-  // 정적 데이터에 없는 경우에만 API 호출 (새 포스트)
   try {
     const post = await getPostBySlug(slug);
     if (!post) {
@@ -131,10 +118,9 @@ export async function generateMetadata(
 
     const imageUrl = post.coverImage?.url || `${siteUrl}/og-image.png`;
     const tagNames = post.tags?.map((tag: any) => tag.name) || [];
-    
-    // 🎯 SEO 키워드 최적화 (5-8개 핵심 키워드)
+
     const coreKeywords = ['개발', '프로그래밍', 'EziLog'];
-    const keywords = [...coreKeywords, ...tagNames.slice(0, 5)]; // 최대 8개
+    const keywords = [...coreKeywords, ...tagNames.slice(0, 5)];
 
     return {
       title: `${post.title} | EziLog`,
@@ -190,39 +176,26 @@ export async function generateMetadata(
   }
 }
 
-// 포스트 페이지 컴포넌트
 export default async function PostPage({ params }: any) {
-  // 포스트 데이터 가져오기
   const slug = params.slug;
   const post = await getPostBySlug(slug);
 
-  // 데이터가 없으면 404 페이지 표시
   if (!post) notFound();
 
-  // 관련 포스트 가져오기 (이전/다음)
   const [prevPost, nextPost] = await getRelatedPosts(slug);
 
-  // 콘텐츠 타입 결정
   const htmlContent = post.html || post.htmlContent || '';
-  let markdownContent = post.markdown || post.markdownContent || '';
+  const markdownContent = post.markdown || post.markdownContent || '';
 
-  // 마크다운 이미지 URL 변환
-  if (markdownContent) {
-    markdownContent = transformMarkdownImageUrls(markdownContent);
-  }
-
-  // 이미지 URL
   let coverImageUrl = '';
   if (post.coverImage && post.coverImage.url) {
-    coverImageUrl = getImageUrl(post.coverImage.url);
+    coverImageUrl = post.coverImage.url || '';
   } else if (post.attributes?.cover?.url) {
-    coverImageUrl = getImageUrl(post.attributes.cover.url);
+    coverImageUrl = post.attributes.cover.url || '';
   }
 
-  // 태그 목록
   const tags = post.tags?.length > 0 ? post.tags : (post.attributes?.tags || []);
 
-  // 컨텐츠 렌더링
   let contentElement;
   if (htmlContent) {
     contentElement = <HtmlContent html={htmlContent} postTitle={post.title} />;
@@ -234,9 +207,7 @@ export default async function PostPage({ params }: any) {
 
   return (
     <div className="max-w-7xl mx-auto p-4">
-      {/* 제목 섹션 - 본문+사이드바 실제 너비(1152px)와 맞춤 */}
       <div className="max-w-[1152px] mx-auto mb-12">
-        {/* 태그 */}
         {tags && tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 justify-center mb-6">
             {tags.map((tag: any) => {
@@ -257,7 +228,6 @@ export default async function PostPage({ params }: any) {
 
         <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-200 text-center leading-relaxed break-words max-w-4xl mx-auto" style={{ textWrap: 'balance' }}>{post.title}</h2>
 
-        {/* 메타 정보 (날짜 + 홈으로 가기) */}
         <div className="flex items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400 mb-2">
           {post.publishedDate && (
             <div className="flex items-center">
@@ -277,12 +247,9 @@ export default async function PostPage({ params }: any) {
         </div>
       </div>
 
-      {/* 구분선 - 본문+사이드바 실제 너비(1152px)와 맞춤 */}
       <div className="border-t border-gray-200 dark:border-gray-700 mt-8 max-w-[1152px] mx-auto"></div>
 
-      {/* 본문 + 사이드바 섹션 - 실제 너비: 800px + 320px + 32px = 1152px */}
       <div className="lg:flex lg:gap-8 mb-12 lg:justify-center lg:max-w-[1152px] lg:mx-auto">
-        {/* 메인 콘텐츠  lg:flex-1 lg:max-w-4xl    lg:max-w-[800px]*/}
         <main className="lg:flex-1 lg:max-w-[800px]">
           <article className="bg-gray-50 dark:bg-gray-950 overflow-hidden">
             <div className="py-6 pl-6 pr-3 lg:pr-2">
@@ -293,7 +260,6 @@ export default async function PostPage({ params }: any) {
           </article>
         </main>
 
-        {/* 사이드바 - 목차 */}
         <aside className="lg:w-80 lg:shrink-0 lg:mt-12">
           <div className="lg:sticky lg:top-12 lg:h-fit">
             <TableOfContents />
@@ -301,12 +267,9 @@ export default async function PostPage({ params }: any) {
         </aside>
       </div>
 
-      {/* 이전/다음 포스트 네비게이션 섹션 */}
       {(prevPost || nextPost) && (
         <section className="max-w-[1088px] mx-auto mb-12">
-          {/* 네비게이션 컨테이너 */}
           <div className="bg-gray-200 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
-            {/* 섹션 헤더 */}
             <div className="mb-6">
               <h2 className="text-xl md:text-2xl font-serif font-light text-emerald-700 dark:text-emerald-400 text-center">
                 🌿 다음 글도 궁금하신가요?
@@ -314,9 +277,7 @@ export default async function PostPage({ params }: any) {
               <div className="w-16 h-0.5 bg-emerald-700 dark:bg-emerald-400 rounded-full mx-auto mt-2"></div>
             </div>
 
-            {/* 네비게이션 카드들 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* 이전 포스트 */}
               <div className="flex justify-start">
                 {prevPost ? (
                   <PostNavigationCard
@@ -329,7 +290,6 @@ export default async function PostPage({ params }: any) {
                 )}
               </div>
 
-              {/* 다음 포스트 */}
               <div className="flex justify-end">
                 {nextPost ? (
                   <PostNavigationCard
@@ -346,7 +306,6 @@ export default async function PostPage({ params }: any) {
         </section>
       )}
 
-      {/* 댓글 섹션 - 본문+사이드바 실제 너비(1088px)와 맞춤 */}
       <div className="max-w-[1088px] mx-auto">
         <Suspense fallback={<div className="text-center py-4">댓글을 불러오는 중...</div>}>
           <GiscusComments />
