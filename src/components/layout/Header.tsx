@@ -7,7 +7,7 @@ import { useTheme } from "next-themes";
 import { FiMenu, FiMoon, FiSun, FiX, FiSearch } from "react-icons/fi";
 import CategoryBar from "@/components/category/CategoryBar";
 import SearchBar from "@/components/ui/SearchBar";
-import { getTopLevelCategories } from "@/lib/api";
+import { getAllCategories } from "@/lib/api";
 
 const Header = () => {
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -52,7 +52,7 @@ const Header = () => {
     if (!isPrefetching) {
       setIsPrefetching(true);
       try {
-        await getTopLevelCategories();
+        await getAllCategories();
       } catch (error) {
       }
     }
