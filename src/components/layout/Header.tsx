@@ -7,7 +7,6 @@ import { useTheme } from "next-themes";
 import { FiMenu, FiMoon, FiSun, FiX, FiSearch } from "react-icons/fi";
 import CategoryBar from "@/components/category/CategoryBar";
 import SearchBar from "@/components/ui/SearchBar";
-import { getAllCategories } from "@/lib/api";
 
 const Header = () => {
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -15,9 +14,6 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [mounted, setMounted] = useState(false);
-
-  // 카테고리 prefetch를 위한 상태
-  const [isPrefetching, setIsPrefetching] = useState(false);
 
   // useEffect를 사용하여 컴포넌트가 마운트된 후에만 theme 값을 사용
   useEffect(() => {
@@ -45,17 +41,6 @@ const Header = () => {
 
   const toggleSearch = () => {
     setIsSearchExpanded(!isSearchExpanded);
-  };
-
-  // 카테고리 prefetch 함수
-  const prefetchCategories = async () => {
-    if (!isPrefetching) {
-      setIsPrefetching(true);
-      try {
-        await getAllCategories();
-      } catch (error) {
-      }
-    }
   };
 
   // 공식문서 권장: mounted가 false일 때 null 반환하는 대신 플레이스홀더 렌더링
@@ -95,7 +80,6 @@ const Header = () => {
           <div className="absolute left-0 flex items-center">
             <button
               onClick={toggleCategory}
-              onMouseEnter={prefetchCategories}
               className="p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               aria-label="카테고리 메뉴"
             >
@@ -168,7 +152,6 @@ const Header = () => {
           {/* 왼쪽: 카테고리 버튼 */}
           <button
             onClick={toggleCategory}
-            onMouseEnter={prefetchCategories}
             className="p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             aria-label="카테고리 메뉴"
           >
