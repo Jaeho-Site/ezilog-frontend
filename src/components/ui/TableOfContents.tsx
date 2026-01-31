@@ -143,30 +143,27 @@ export default function TableOfContents() {
             On this page
           </h3>
           <nav>
-            <ul className="flex flex-col items-start justify-start text-sm space-y-0">
+            <ul className="space-y-0.5">
               {tocItems.map((item, index) => {
-                // 현재 h2 다음에 h3가 있는지 확인
-                const hasSubItems = item.level === 2 && 
-                  index < tocItems.length - 1 && 
-                  tocItems[index + 1]?.level === 3;
+                const isH3 = item.level === 3;
                 
                 return (
-                  <li key={`${item.id}-${index}`} className={item.level === 3 ? 'ml-4' : ''}>
+                  <li key={`${item.id}-${index}`} className={isH3 ? 'pl-4' : ''}>
                     <a
                       href={`#${item.id}`}
                       className={`
-                        group flex items-center py-1 text-sm transition-all duration-300
+                        block py-1 px-2 text-sm transition-colors rounded
                         ${
                           activeId === item.id
-                            ? 'bg-gradient-to-r from-neutral-700 to-yellow-900 bg-clip-text font-black text-transparent dark:from-yellow-400 dark:to-yellow-600 border-l-2 border-blue-500 pl-2 bg-blue-50/50 dark:bg-blue-900/20 rounded-r'
-                            : 'text-secondary font-normal hover:text-primary hover:font-medium hover:drop-shadow-sm dark:hover:drop-shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700/30 rounded'
+                            ? 'text-blue-600 dark:text-blue-400 font-medium bg-blue-50 dark:bg-blue-900/20 border-l-2 border-blue-500 -ml-[2px] pl-[10px]'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                         }
                       `}
                       onClick={(e) => {
                         e.preventDefault();
                         const element = document.getElementById(item.id);
                         if (element) {
-                          const offsetTop = element.offsetTop - 80; // 헤더 여백 고려
+                          const offsetTop = element.offsetTop - 80;
                           window.scrollTo({
                             top: offsetTop,
                             behavior: 'smooth'
@@ -174,30 +171,7 @@ export default function TableOfContents() {
                         }
                       }}
                     >
-                      {hasSubItems && (
-                        <span className="mr-2 text-tertiary group-hover:text-secondary transition-colors">
-                        </span>
-                      )}
-                      
-                      {/* h3 항목에 작은 화살표 표시 */}
-                      {item.level === 3 && (
-                        <svg
-                          width="3"
-                          height="24"
-                          viewBox="0 -9 3 24"
-                          className="mr-2 overflow-visible text-tertiary group-hover:text-secondary transition-colors"
-                        >
-                          <path
-                            d="M0 0L3 3L0 6"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                      )}
-                      
-                      <span className="flex-1">{item.text}</span>
+                      {item.text}
                     </a>
                   </li>
                 );
@@ -206,57 +180,56 @@ export default function TableOfContents() {
           </nav>
         </div>
 
-        {/* 구분선 */}
-        <div className="border-t border-neutral-300 dark:border-neutral-600"></div>
+        {/* 구분선 제거 */}
 
         {/* 기능 섹션 */}
-        <div className="flex items-center justify-between px-4 py-2.5 bg-gray-200 dark:bg-neutral-700/20">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-gray-50 dark:bg-neutral-700/20 border-t border-neutral-200 dark:border-neutral-700">
           {/* 왼쪽: URL 복사 버튼 */}
           <button
             onClick={copyCurrentUrl}
-            className="relative p-2 rounded-md hover:bg-white dark:hover:bg-neutral-600 transition-colors group shadow-sm"
+            className="relative p-2 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-600 transition-colors"
             aria-label="URL 복사"
           >
-            <FiLink className="h-4 w-4 text-secondary group-hover:text-blue-600 group-hover:scale-110 transition-all duration-200" />
+            <FiLink className="h-4 w-4 text-gray-600 dark:text-gray-400" />
             {copySuccess && (
-              <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-neutral-800 dark:bg-neutral-200 text-white dark:text-neutral-800 text-xs px-2 py-1 rounded whitespace-nowrap shadow-lg">
+              <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-xs px-2 py-1 rounded whitespace-nowrap">
                 복사됨!
               </span>
             )}
           </button>
 
           {/* 오른쪽: 네비게이션 버튼들 */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1">
             {/* 맨 위로 이동 버튼 */}
             <button
               onClick={scrollToTop}
-              className="p-2 rounded-md hover:bg-white dark:hover:bg-neutral-600 transition-colors group shadow-sm"
+              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-600 transition-colors"
               aria-label="맨 위로 이동"
             >
-              <FiArrowUp className="h-4 w-4 text-secondary group-hover:text-green-600 group-hover:scale-110 transition-all duration-200" />
+              <FiArrowUp className="h-4 w-4 text-gray-600 dark:text-gray-400" />
             </button>
 
             {/* 댓글로 이동 버튼 */}
             <button
               onClick={scrollToComments}
-              className="p-2 rounded-md hover:bg-white dark:hover:bg-neutral-600 transition-colors group shadow-sm"
+              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-600 transition-colors"
               aria-label="댓글로 이동"
             >
-              <FiMessageCircle className="h-4 w-4 text-secondary group-hover:text-indigo-600 group-hover:scale-110 transition-all duration-200 stroke-2" />
+              <FiMessageCircle className="h-4 w-4 text-gray-600 dark:text-gray-400" />
             </button>
 
             {/* 테마 토글 버튼 */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-md hover:bg-white dark:hover:bg-neutral-600 transition-colors group shadow-sm"
+              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-600 transition-colors"
               aria-label={mounted && resolvedTheme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
             >
               {!mounted ? (
-                <div className="w-4 h-4 bg-neutral-300 dark:bg-neutral-600 rounded animate-pulse" />
+                <div className="w-4 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse" />
               ) : resolvedTheme === "dark" ? (
-                <FiSun className="h-4 w-4 text-yellow-500 group-hover:text-yellow-400 group-hover:scale-110 group-hover:drop-shadow-[0_0_6px_rgba(234,179,8,0.6)] transition-all duration-200" />
+                <FiSun className="h-4 w-4 text-yellow-500" />
               ) : (
-                <FiMoon className="h-4 w-4 text-secondary group-hover:text-blue-400 group-hover:scale-110 group-hover:drop-shadow-[0_0_6px_rgba(59,130,246,0.5)] transition-all duration-200" />
+                <FiMoon className="h-4 w-4 text-gray-600" />
               )}
             </button>
           </div>

@@ -34,15 +34,15 @@ export default function TagsOverview({ tags }: TagsOverviewProps) {
         모든 태그
       </h2>
       <div className="flex flex-wrap gap-3 justify-center max-w-4xl mx-auto">
-        {tags.map((tag) => {
+        {tags.map((tag, index) => {
           const tagColor = getTagColor(tag.name);
           const isSelected = searchType === "tag" && currentQuery.toLowerCase() === tag.name.toLowerCase();
           
           return (
             <Link
-              key={tag.id}
+              key={tag.id || `tag-${index}`}
               href={`/search?q=${encodeURIComponent(tag.name)}&type=tag`}
-                              className={`px-3 py-2 text-sm font-medium uppercase rounded-lg
+              className={`px-3 py-2 text-sm font-medium uppercase rounded-lg
                 transition-all duration-200 hover:scale-105 hover:shadow-md tracking-wide
                 ${isSelected 
                   ? `${tagColor.text} ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20` 

@@ -234,8 +234,8 @@ export default async function PostPage({ params }: any) {
 
   return (
     <div className="max-w-7xl mx-auto p-4">
-      {/* 제목 섹션 - 본문+사이드바 실제 너비(1088px)와 맞춤 */}
-      <div className="max-w-[1088px] mx-auto mb-12">
+      {/* 제목 섹션 - 본문+사이드바 실제 너비(1152px)와 맞춤 */}
+      <div className="max-w-[1152px] mx-auto mb-12">
         {/* 태그 */}
         {tags && tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 justify-center mb-6">
@@ -277,11 +277,11 @@ export default async function PostPage({ params }: any) {
         </div>
       </div>
 
-      {/* 구분선 - 본문+사이드바 실제 너비(1088px)와 맞춤 */}
-      <div className="border-t border-gray-200 dark:border-gray-700 mt-8 max-w-[1088px] mx-auto"></div>
+      {/* 구분선 - 본문+사이드바 실제 너비(1152px)와 맞춤 */}
+      <div className="border-t border-gray-200 dark:border-gray-700 mt-8 max-w-[1152px] mx-auto"></div>
 
-      {/* 본문 + 사이드바 섹션 - 실제 너비: 800px + 256px + 32px = 1088px */}
-      <div className="lg:flex lg:gap-8 mb-12 lg:justify-center lg:max-w-[1088px] lg:mx-auto">
+      {/* 본문 + 사이드바 섹션 - 실제 너비: 800px + 320px + 32px = 1152px */}
+      <div className="lg:flex lg:gap-8 mb-12 lg:justify-center lg:max-w-[1152px] lg:mx-auto">
         {/* 메인 콘텐츠  lg:flex-1 lg:max-w-4xl    lg:max-w-[800px]*/}
         <main className="lg:flex-1 lg:max-w-[800px]">
           <article className="bg-gray-50 dark:bg-gray-950 overflow-hidden">
@@ -294,7 +294,7 @@ export default async function PostPage({ params }: any) {
         </main>
 
         {/* 사이드바 - 목차 */}
-        <aside className="lg:w-64 lg:shrink-0 lg:mt-12">
+        <aside className="lg:w-80 lg:shrink-0 lg:mt-12">
           <div className="lg:sticky lg:top-12 lg:h-fit">
             <TableOfContents />
           </div>
