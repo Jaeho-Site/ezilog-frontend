@@ -1,20 +1,23 @@
-[
-  {
-    "id": 49,
-    "name": "Frontend",
-    "slug": "frontend",
-    "postCount": 0
-  },
-  {
-    "id": 55,
-    "name": "기타",
-    "slug": "else",
-    "postCount": 1
-  },
-  {
-    "id": 66,
-    "name": "회고",
-    "slug": "retrospective",
-    "postCount": 2
-  }
-]
+{
+  "buildTime": "2026-02-01T06:21:41.090Z",
+  "categories": [
+    {
+      "id": 49,
+      "name": "Frontend",
+      "slug": "frontend",
+      "postCount": 0
+    },
+    {
+      "id": 55,
+      "name": "기타",
+      "slug": "else",
+      "postCount": 1
+    },
+    {
+      "id": 66,
+      "name": "회고",
+      "slug": "retrospective",
+      "postCount": 2
+    }
+  ]
+}
