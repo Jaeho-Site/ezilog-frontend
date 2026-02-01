@@ -22,11 +22,10 @@ async function loadStaticPosts() {
   try {
     const postsPath = path.join(process.cwd(), 'public', 'data', 'posts.json');
     if (fs.existsSync(postsPath)) {
-      const postsData = JSON.parse(fs.readFileSync(postsPath, 'utf-8'));
-      return postsData;
+      const data = JSON.parse(fs.readFileSync(postsPath, 'utf-8'));
+      return Array.isArray(data) ? data : data.posts;
     }
   } catch (error) {
-    console.warn('[loadStaticPosts] Failed to load static data');
   }
   return [];
 }

@@ -1,29 +1,21 @@
-// import { Suspense } from "react"; // Suspense 제거
 import { Metadata } from "next";
 import { getAllCategories, getCategoryBySlug, getCategoryPostCount } from "@/lib/api";
 import CategoryPostList, { POSTS_PER_PAGE } from "@/components/category/CategoryPostList";
 
-// 정적 페이지 생성 설정
 export const dynamic = 'force-static';
 
-// 빌드 시 정적으로 생성할 경로 정의
 export async function generateStaticParams() {
   try {
     const allCategoriesData = await getAllCategories();
-    
-    // 병렬 처리로 빌드 시간 단축
+
     const categoryPromises = allCategoriesData.map(async (category: any) => {
       try {
         const categoryPaths = [];
-        
-        // 1페이지: /category/react (page 파라미터 없음)
+
         categoryPaths.push({ slug: category.slug, page: undefined });
-        
-        // 포스트 총 개수를 한 번에 가져와서 필요한 페이지 수 계산
+
         const totalPosts = await getCategoryPostCount(category.slug);
         const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
-        
-        // 계산된 페이지 수만큼 정적 경로 생성 (최대 50페이지 제한)
         const maxPages = Math.min(totalPages, 50);
         
         for (let page = 2; page <= maxPages; page++) {
@@ -35,25 +27,18 @@ export async function generateStaticParams() {
         
         return categoryPaths;
       } catch (error) {
-        console.error(`Error generating paths for category ${category.slug}:`, error);
-        // 에러 발생 시 최소한 첫 페이지는 생성
         return [{ slug: category.slug, page: undefined }];
       }
     });
-    
-    // 모든 카테고리의 페이지들을 병렬로 생성
+
     const allCategoryPaths = await Promise.all(categoryPromises);    
-    // 2차원 배열을 1차원으로 평탄화
     const paths = allCategoryPaths.flat();
     return paths;
   } catch (error) {
-    console.error('Error in generateStaticParams:', error);
-    // 전체 실패 시 빈 배열 반환하여 런타임 생성으로 폴백
     return [];
   }
 }
 
-// SEO 최적화를 위한 메타데이터 생성
 export async function generateMetadata({ params }: any): Promise<Metadata> {
   const { slug, page } = await params;
   const pageNumber = getPageNumber(page);
@@ -63,8 +48,7 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
     const category = await getCategoryBySlug(slug);
     const categoryName = category?.name || slug;
     const totalPosts = await getCategoryPostCount(slug);
-    
-    // Canonical URL 생성
+
     const canonicalUrl = pageNumber === 1 
       ? `${siteUrl}/category/${slug}`
       : `${siteUrl}/category/${slug}/${pageNumber}`;
@@ -154,15 +138,12 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
     };
   }
 }
-
-// 페이지 번호 추출 함수 (옵셔널 라우팅용)
 function getPageNumber(pageParam?: string[]): number {
   if (!pageParam || pageParam.length === 0) return 1;
   const pageNumber = parseInt(pageParam[0], 10);
   return isNaN(pageNumber) || pageNumber < 1 ? 1 : pageNumber;
 }
 
-// 통합된 카테고리 페이지 컴포넌트
 export default async function CategoryPage({ params }: any) {
   const { slug, page: pageParam } = await params;
   const page = getPageNumber(pageParam);
