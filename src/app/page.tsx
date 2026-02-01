@@ -14,9 +14,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
   return {
-    title: 'EziLog | 개발자를 위한 기술 블로그',
+    title: 'EziLog 개발자를 위한 기술 블로그',
     description: '최신 개발 기술과 프로그래밍 트렌드를 다루는 EziLog입니다. React, Next.js, JavaScript, TypeScript 등 웹 개발 정보를 제공합니다.',
-    keywords: ['EziLog', '개발 블로그', 'React', 'Next.js', 'JavaScript', 'TypeScript', '웹 개발', '프로그래밍', 'aws'],
+    keywords: ['EziLog', '개발 블로그', 'React', 'Next.js', 'JavaScript', 'TypeScript', '웹 개발', '카카오테크 캠퍼스', 'aws'],
     authors: [{ name: 'EziLog' }],
     creator: 'EziLog',
     publisher: 'EziLog',
@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
       canonical: siteUrl,
     },
     openGraph: {
-      title: 'EziLog | 개발자를 위한 기술 블로그',
+      title: 'EziLog : 개발자를 위한 기술 블로그',
       description: '최신 개발 기술과 프로그래밍 트렌드를 다루는 EziLog입니다.',
       url: siteUrl,
       siteName: 'EziLog',
@@ -35,13 +35,13 @@ export async function generateMetadata(): Promise<Metadata> {
           url: `${siteUrl}/og-image.png`,
           width: 1200,
           height: 630,
-          alt: 'EziLog - 개발자를 위한 기술 블로그',
+          alt: 'EziLog : 개발자를 위한 기술 블로그',
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'EziLog | 개발자를 위한 기술 블로그',
+      title: 'EziLog : 개발자를 위한 기술 블로그',
       description: '최신 개발 기술과 프로그래밍 트렌드를 다루는 EziLog입니다.',
       images: [`${siteUrl}/og-image.png`],
       creator: '@EziLog',
@@ -60,7 +60,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const FEATURED_POST_SLUGS = ['1', '2', '3', '4', '14', '6', '13', '8', '9', '10'];
+const FEATURED_POST_SLUGS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
 
 async function loadStaticPosts(): Promise<PostData[]> {
   try {
