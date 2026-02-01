@@ -12,7 +12,7 @@ export const strapiAPI = axios.create({
 });
 
 export function formatDate(data: any): string {
-  return data?.publishedAt || new Date().toISOString().split('T')[0];
+  return data?.PublishedDate || data?.publishedAt || new Date().toISOString().split('T')[0];
 }
 
 export function formatImage(imageData: any, title: string = '이미지'): any {

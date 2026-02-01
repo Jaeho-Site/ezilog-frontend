@@ -9,7 +9,7 @@ export async function getAllPosts(limit = 10, offset = 0) {
           limit,
           start: offset
         },
-        fields: ['title', 'slug', 'publishedAt', 'description'],
+        fields: ['title', 'slug', 'publishedAt', 'PublishedDate', 'description'],
         populate: {
           cover: {
             fields: ['url']
@@ -108,7 +108,7 @@ export async function getCategoryPosts(slug: string, limit = 6, offset = 0) {
             fields: ['name', 'slug']
           }
         },
-        fields: ['title', 'description', 'slug', 'publishedAt']
+        fields: ['title', 'description', 'slug', 'publishedAt', 'PublishedDate']
       }
     });
 

@@ -27,6 +27,7 @@ interface CleanedPost {
   slug: string;
   description?: string;
   publishedAt: string;
+  PublishedDate?: string;
   cover: {
     url: string;
   } | null;
@@ -131,7 +132,8 @@ async function generatePostsData(dataDir: string): Promise<void> {
         'fields[0]': 'title',
         'fields[1]': 'slug', 
         'fields[2]': 'publishedAt',
-        'fields[3]': 'description',
+        'fields[3]': 'PublishedDate',
+        'fields[4]': 'description',
         'populate[cover][fields][0]': 'url',
         'populate[tags][fields][0]': 'name',
         'populate[tags][fields][1]': 'slug',
@@ -159,6 +161,7 @@ async function generatePostsData(dataDir: string): Promise<void> {
           slug: post.slug,
           description: post.description,
           publishedAt: post.publishedAt,
+          PublishedDate: post.PublishedDate,
           cover: coverUrl ? { url: coverUrl } : null,
           tags: (post.tags || []).map((tag: any) => ({
             name: tag.name,
