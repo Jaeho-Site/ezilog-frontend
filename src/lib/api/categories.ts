@@ -25,7 +25,9 @@ export async function getAllCategories(): Promise<Category[]> {
       slug: category.slug || `category-${category.id}`,
     }));
   } catch (error: any) {
-    console.error('[getAllCategories] Error:', error.response?.data || error.message);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[getAllCategories] Error:', error.response?.data || error.message);
+    }
     return [];
   }
 }
@@ -49,7 +51,9 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
       slug: category.slug,
     };
   } catch (error: any) {
-    console.error('[getCategoryBySlug] Error:', error.response?.data || error.message);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[getCategoryBySlug] Error:', error.response?.data || error.message);
+    }
     return null;
   }
 }
@@ -65,7 +69,9 @@ export async function getCategoryPostCount(slug: string): Promise<number> {
     
     return response.data.meta?.pagination?.total ?? 0;
   } catch (error: any) {
-    console.error('[getCategoryPostCount] Error:', error.response?.data || error.message);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[getCategoryPostCount] Error:', error.response?.data || error.message);
+    }
     return 0;
   }
 }

@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-// import { getTopLevelCategories } from "@/lib/api"; // 정적 데이터 사용으로 변경
-
-// Category 타입 정의 (1-depth만)
 interface Category {
   id: number;
   name: string;
   slug: string;
   postCount?: number;
+}
+
+interface CategoryData {
+  buildTime: string;
+  categories: Category[];
 }
 
 interface CategoryBarProps {
@@ -23,37 +25,39 @@ const CategoryBar = ({ isOpen, onClose }: CategoryBarProps) => {
   const [error, setError] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // 컴포넌트 마운트 시 카테고리 데이터 미리 로드
   useEffect(() => {
     if (!isInitialized) {
       loadCategories();
     }
   }, [isInitialized]);
 
-  // 카테고리 데이터 로드 함수 (정적 데이터 사용)
   const loadCategories = async () => {
     try {
       setIsLoading(true);
       setError(null);
+
+      const timestamp = Date.now();
+      const response = await fetch(`/data/categories.json?t=${timestamp}`, {
+        cache: 'no-store'
+      });
       
-      // 정적 JSON 파일에서 카테고리 데이터 로드
-      const response = await fetch('/data/categories.json');
       if (!response.ok) {
         throw new Error('카테고리 데이터를 불러올 수 없습니다.');
       }
       
-      const categories = await response.json();
+      const data: CategoryData = await response.json();
+      const categories = Array.isArray(data) ? data : data.categories;
+      
       setCategories(categories);
       setIsInitialized(true);
+
     } catch (err) {
       setError('카테고리를 불러오는 중 오류가 발생했습니다.');
-      console.error('CategoryBar 데이터 로드 오류:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 카테고리 아이템 렌더링 함수 (1-depth 단순화)
   const renderCategoryItem = (category: Category) => {
     return (
       <div key={category.id} className="py-2">
