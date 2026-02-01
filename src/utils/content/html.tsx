@@ -110,7 +110,8 @@ export const RenderImage = ({
   width, 
   height, 
   style,
-  className 
+  className,
+  inline = false
 }: { 
   src: string; 
   alt?: string; 
@@ -118,6 +119,7 @@ export const RenderImage = ({
   height?: string | number;
   style?: React.CSSProperties;
   className?: string;
+  inline?: boolean;
 }) => {
   const imageSrc = src || '';
   const parsedStyle = style || {};
@@ -140,8 +142,11 @@ export const RenderImage = ({
   const numericWidth = parseNumericValue(imageWidth, 800);
   const numericHeight = parseNumericValue(imageHeight, 400);
   
+  // inline 모드일 때는 span 사용 (p 태그 안에서 사용 가능)
+  const Wrapper = inline ? 'span' : 'div';
+  
   return (
-    <div className={`relative my-4 ${alignmentClass}`} style={{ 
+    <Wrapper className={inline ? `inline-block my-2 ${alignmentClass}` : `relative my-4 ${alignmentClass}`} style={{ 
       width: typeof imageWidth === 'string' ? imageWidth : `${imageWidth}px`,
       maxWidth: '100%'
     }}>
@@ -155,7 +160,7 @@ export const RenderImage = ({
         loading="lazy"
         style={parsedStyle}
       />
-    </div>
+    </Wrapper>
   );
 };
 
@@ -234,6 +239,19 @@ export const HtmlContent = ({ html, postTitle }: { html: string; postTitle: stri
       }
       
       if (domNode instanceof Element && domNode.name === 'p') {
+        const hasBlockElements = domNode.children.some((child: any) => 
+          child instanceof Element && ['div', 'figure', 'table', 'ul', 'ol', 'blockquote', 'pre'].includes(child.name)
+        );
+        
+        // p 태그 안에 블록 요소가 있으면 p를 div로 변환
+        if (hasBlockElements) {
+          return (
+            <div className={domNode.attribs?.class} style={domNode.attribs?.style ? parseInlineStyle(domNode.attribs.style) : undefined}>
+              {domToReact(domNode.children as any, parseOptions)}
+            </div>
+          );
+        }
+
         const imageElements = domNode.children.filter((child: any) => 
           child instanceof Element && child.name === 'img'
         );

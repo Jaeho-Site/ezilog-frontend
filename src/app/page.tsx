@@ -60,7 +60,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const FEATURED_POST_SLUGS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+const FEATURED_POST_SLUGS = ['1', '5', '6', '7', '3', '4', '2', '8', '9', '10'];
 
 async function loadStaticPosts(): Promise<PostData[]> {
   try {
@@ -78,7 +78,7 @@ async function loadStaticPosts(): Promise<PostData[]> {
           url: post.cover.url,
           alt: post.title
         } : null,
-        publishedDate: post.publishedAt,
+        publishedDate: post.PublishedDate || post.publishedAt,
         category: post.category || {
           name: '미분류',
           slug: 'uncategorized'

@@ -54,6 +54,7 @@ export async function generateMetadata(
   if (staticPost) {
     const imageUrl = staticPost.coverImage?.url || `${siteUrl}/og-image.png`;
     const tagNames = staticPost.tags?.map((tag: any) => tag.name) || [];
+    const publishedDate = staticPost.PublishedDate || staticPost.publishedAt;
 
     const coreKeywords = ['개발', '프로그래밍', 'EziLog','웹 개발'];
     const keywords = [...coreKeywords, ...tagNames.slice(0, 5)];
@@ -83,7 +84,7 @@ export async function generateMetadata(
             alt: staticPost.title,
           },
         ],
-        publishedTime: staticPost.publishedDate,
+        publishedTime: publishedDate,
         authors: ['EziLog'],
         tags: tagNames,
       },
