@@ -75,27 +75,50 @@ async function generateCategoriesData(dataDir: string): Promise<void> {
     const data = await response.json();
     const categories: any[] = data.data || [];
 
-    const cleanedCategories = categories.map((category: any) => ({
+    const cleanedCategories: Category[] = categories.map((category: any) => ({
       id: category.id,
       name: category.name,
       slug: category.slug,
       postCount: Array.isArray(category.posts) ? category.posts.length : 0
     }));
 
+    const dataWithMeta = {
+      buildTime: new Date().toISOString(),
+      categories: cleanedCategories
+    };
+
     const categoriesPath = path.join(dataDir, 'categories.json');
-    fs.writeFileSync(categoriesPath, JSON.stringify(cleanedCategories, null, 2));
-    console.log(`✅ 카테고리 데이터 생성 완료: ${cleanedCategories.length}개`);
+    fs.writeFileSync(categoriesPath, JSON.stringify(dataWithMeta, null, 2));
+    console.log(`✅ 카테고리 데이터 생성 완료: ${cleanedCategories.length}개 (빌드 시간: ${dataWithMeta.buildTime})`);
   } catch (error: any) {
     console.error('❌ 카테고리 데이터 생성 실패:', error.message);
     throw error;
   }
 }
 
-async function generatePostsData(dataDir: string): Promise<void> {
-  try {   
-    const S3_DOMAIN = process.env.S3_DOMAIN || '';
-    const CLOUDFRONT_DOMAIN = process.env.CLOUDFRONT_DOMAIN || '';
+function normalizeImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    const S3_DOMAIN = process.env.S3_DOMAIN;
+    const CLOUDFRONT_DOMAIN = process.env.CLOUDFRONT_DOMAIN;
+    
+    if (S3_DOMAIN && CLOUDFRONT_DOMAIN && url.includes(S3_DOMAIN)) {
+      return url.replace(
+        `https://${S3_DOMAIN}`,
+        CLOUDFRONT_DOMAIN.replace(/\/$/, '')
+      );
+    }    
+    return url;
+  }
 
+  const baseUrl = process.env.CLOUDFRONT_DOMAIN || API_BASE_URL || '';
+  return url.startsWith('/') 
+    ? `${baseUrl}${url}` 
+    : `${baseUrl}/${url}`;
+}
+
+async function generatePostsData(dataDir: string): Promise<void> {
+  try {
     let allPosts: CleanedPost[] = [];
     let page = 1;
     const pageSize = 25;
@@ -128,35 +151,15 @@ async function generatePostsData(dataDir: string): Promise<void> {
       if (posts.length === 0) break;
 
       const cleanedPosts: CleanedPost[] = posts.map((post: any) => {
-        let coverUrl: string | null = null;
-        if (post.cover?.url) {
-          const url: string = post.cover.url;
-          if (url.includes('amazonaws.com') && S3_DOMAIN && CLOUDFRONT_DOMAIN) {
-            coverUrl = url.replace(
-              new RegExp(`https://${S3_DOMAIN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'g'),
-              CLOUDFRONT_DOMAIN.replace(/\/$/, '')
-            );
-          }
-          else if (url.startsWith('/')) {
-            coverUrl = `${CLOUDFRONT_DOMAIN || API_BASE_URL}${url}`;
-          } 
-          else if (url.startsWith('http://') || url.startsWith('https://')) {
-            coverUrl = url;
-          } 
-          else {
-            coverUrl = `${CLOUDFRONT_DOMAIN || API_BASE_URL}/${url}`;
-          }
-        }
-
+        const coverUrl = normalizeImageUrl(post.cover?.url);
+        
         return {
           id: post.id,
           title: post.title,
           slug: post.slug,
           description: post.description,
           publishedAt: post.publishedAt,
-          cover: coverUrl ? {
-            url: coverUrl
-          } : null,
+          cover: coverUrl ? { url: coverUrl } : null,
           tags: (post.tags || []).map((tag: any) => ({
             name: tag.name,
             slug: tag.slug
@@ -174,7 +177,13 @@ async function generatePostsData(dataDir: string): Promise<void> {
     }
 
     const postsPath = path.join(dataDir, 'posts.json');
-    fs.writeFileSync(postsPath, JSON.stringify(allPosts, null, 2));
+    const postsData = {
+      buildTime: new Date().toISOString(),
+      posts: allPosts
+    };
+    
+    fs.writeFileSync(postsPath, JSON.stringify(postsData, null, 2));
+    console.log(`✅ 포스트 데이터 생성 완료: ${allPosts.length}개 (빌드 시간: ${postsData.buildTime})`);
   } catch (error: any) {
     console.error('❌ 포스트 데이터 생성 실패:', error.message);
     throw error;
