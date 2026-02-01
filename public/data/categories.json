@@ -1,5 +1,5 @@
 {
-  "buildTime": "2026-02-01T06:21:41.090Z",
+  "buildTime": "2026-02-01T11:35:39.614Z",
   "categories": [
     {
       "id": 49,
@@ -17,7 +17,7 @@
       "id": 66,
       "name": "회고",
       "slug": "retrospective",
-      "postCount": 2
+      "postCount": 6
     }
   ]
 }

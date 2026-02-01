@@ -1,6 +1,118 @@
 {
-  "buildTime": "2026-02-01T06:21:41.980Z",
+  "buildTime": "2026-02-01T11:35:40.534Z",
   "posts": [
+    {
+      "id": 161,
+      "title": "[카카오테크 캠퍼스] 2025년 회고",
+      "slug": "2",
+      "description": "2025년 한 해 동안 카카오테크 캠퍼스 3기에서 경험한 개발과 성장, 배움의 기록을 정리합니다.",
+      "publishedAt": "2026-02-01T11:28:49.707Z",
+      "cover": {
+        "url": "https://d2d6xftfoai8ia.cloudfront.net/post2_0_thumbnail_ecb495e793.png"
+      },
+      "tags": [
+        {
+          "name": "카카오테크 캠퍼스",
+          "slug": "ktc"
+        },
+        {
+          "name": "ABOUT",
+          "slug": "about"
+        },
+        {
+          "name": "DESIGN",
+          "slug": "design"
+        }
+      ],
+      "category": {
+        "name": "회고",
+        "slug": "retrospective"
+      }
+    },
+    {
+      "id": 159,
+      "title": "Vite에서 Nextjs로 마이그레이션 도전기",
+      "slug": "5",
+      "description": "vite로 개발중이던 kspot프로젝트를 nextjs로 마이그레이션 하는 과정을 요약한 회고입니다.",
+      "publishedAt": "2026-02-01T08:46:27.886Z",
+      "cover": {
+        "url": "https://d2d6xftfoai8ia.cloudfront.net/post5_0_thumbnail_89331cd435.png"
+      },
+      "tags": [
+        {
+          "name": "카카오테크 캠퍼스",
+          "slug": "ktc"
+        },
+        {
+          "name": "TYPESCRIPT",
+          "slug": "typescript"
+        },
+        {
+          "name": "NEXTJS",
+          "slug": "nextjs"
+        }
+      ],
+      "category": {
+        "name": "회고",
+        "slug": "retrospective"
+      }
+    },
+    {
+      "id": 158,
+      "title": "Next.js 서버 Kubernetes 배포 환경 구축기2",
+      "slug": "7",
+      "description": "이전 포스트에 이어 모니터링을 통한 리소스 최적화 및 AI동선 추천 기능 구현 과정을 회고합니다.",
+      "publishedAt": "2026-02-01T08:45:31.202Z",
+      "cover": {
+        "url": "https://d2d6xftfoai8ia.cloudfront.net/post7_0_thumbnail_7e90a1e3bf.png"
+      },
+      "tags": [
+        {
+          "name": "카카오테크 캠퍼스",
+          "slug": "ktc"
+        },
+        {
+          "name": "NEXTJS",
+          "slug": "nextjs"
+        },
+        {
+          "name": "KUBERNETES",
+          "slug": "kubernetes"
+        }
+      ],
+      "category": {
+        "name": "회고",
+        "slug": "retrospective"
+      }
+    },
+    {
+      "id": 157,
+      "title": "Next.js 서버 Kubernetes 배포 환경 구축기1",
+      "slug": "6",
+      "description": "KSPOT 프로젝트의 Kubernetes 기반 배포 환경을 구성하며 학습한 내용과 시행착오를 정리합니다.",
+      "publishedAt": "2026-02-01T08:43:45.880Z",
+      "cover": {
+        "url": "https://d2d6xftfoai8ia.cloudfront.net/post6_0_thumbnail_29fa050840.png"
+      },
+      "tags": [
+        {
+          "name": "KUBERNETES",
+          "slug": "kubernetes"
+        },
+        {
+          "name": "카카오테크 캠퍼스",
+          "slug": "ktc"
+        },
+        {
+          "name": "NEXTJS",
+          "slug": "nextjs"
+        }
+      ],
+      "category": {
+        "name": "회고",
+        "slug": "retrospective"
+      }
+    },
     {
       "id": 148,
       "title": "프론트엔드에서 Serverless API 다루기",
