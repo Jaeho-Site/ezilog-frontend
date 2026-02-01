@@ -27,7 +27,9 @@ export async function getAllPosts(limit = 10, offset = 0) {
     
     return response.data.data.map(formatPost).filter(Boolean);
   } catch (error) {
-    console.error('[getAllPosts] Error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[getAllPosts] Error:', error);
+    }
     return [];
   }
 }
@@ -64,7 +66,9 @@ export async function getPostBySlug(slug: string) {
       html: post.html || ''
     };
   } catch (error) {
-    console.error('[getPostBySlug] Error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[getPostBySlug] Error:', error);
+    }
     return null;
   }
 }
@@ -114,7 +118,9 @@ export async function getCategoryPosts(slug: string, limit = 6, offset = 0) {
     
     return postsResponse.data.data.map(formatPost).filter(Boolean);
   } catch (error) {
-    console.error('[getCategoryPosts] Error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[getCategoryPosts] Error:', error);
+    }
     return [];
   }
 }
@@ -159,7 +165,9 @@ export async function getRelatedPosts(slug: string) {
     
     return [result.prev ?? null, result.next ?? null];
   } catch (error) {
-    console.error('[getRelatedPosts] Error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[getRelatedPosts] Error:', error);
+    }
     return [null, null];
   }
 }
