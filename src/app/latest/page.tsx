@@ -15,7 +15,7 @@ async function PostList() {
   try {
     const posts = await getAllPosts(POSTS_COUNT, 0);    
     return <PostListGrid posts={posts} />;
-  } catch (error) {
+  } catch (error: unknown) {
     return (
       <div className="text-center py-10">
         <p className="text-red-600 dark:text-red-400">포스트를 불러오는 중 오류가 발생했습니다.</p>
