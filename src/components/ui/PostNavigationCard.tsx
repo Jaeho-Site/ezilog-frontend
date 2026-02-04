@@ -3,6 +3,7 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 interface PostNavigationCardProps {
   post: {
+    slug?: string;
     title: string;
     description?: string;
   };

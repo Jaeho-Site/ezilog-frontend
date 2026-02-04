@@ -186,7 +186,7 @@ export default async function PostPage({ params }: any) {
                 {prevPost ? (
                   <PostNavigationCard
                     post={prevPost}
-                    href={`/post/${Number(slug) - 1}`}
+                    href={`/post/${prevPost.slug}`}
                     direction="prev"
                   />
                 ) : (
@@ -198,7 +198,7 @@ export default async function PostPage({ params }: any) {
                 {nextPost ? (
                   <PostNavigationCard
                     post={nextPost}
-                    href={`/post/${Number(slug) + 1}`}
+                    href={`/post/${nextPost.slug}`}
                     direction="next"
                   />
                 ) : (

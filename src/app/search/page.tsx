@@ -33,7 +33,7 @@ async function fetchAllPosts() {
         url: post.cover.url,
         alt: post.title
       } : null,
-      publishedDate: post.publishedAt,
+      publishedDate: post.PublishedDate || post.publishedAt,
       category: post.category || {
         name: '미분류',
         slug: 'uncategorized'

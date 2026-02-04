@@ -15,7 +15,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return generateHomeMetadata();
 }
 
-const FEATURED_POST_SLUGS = ['1', '5', '6', '7', '3', '4', '2', '8', '9', '10'];
+const FEATURED_POST_SLUGS = ['about-blog', '2025-with-kakaotechcampus', 
+  'nextjs-kubernetes-1', 'nextjs-kubernetes-2', 'vite-to-nextjs-migration', 
+  'authentication-authorization-jwt', 'frontend-aws-serverless'];
 
 async function loadStaticPosts(): Promise<PostData[]> {
   try {

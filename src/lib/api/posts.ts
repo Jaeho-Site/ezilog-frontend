@@ -4,12 +4,12 @@ export async function getAllPosts(limit = 10, offset = 0) {
   try {
     const response = await strapiAPI.get('/posts', {
       params: {
-        sort: ['publishedAt:desc'],
+        sort: ['PublishedDate:desc'],
         pagination: {
           limit,
           start: offset
         },
-        fields: ['title', 'slug', 'publishedAt', 'PublishedDate', 'description'],
+        fields: ['title', 'slug','PublishedDate', 'description'],
         populate: {
           cover: {
             fields: ['url']
@@ -95,7 +95,7 @@ export async function getCategoryPosts(slug: string, limit = 6, offset = 0) {
         filters: {
           category: { id: { $eq: categoryId } }
         },
-        sort: ['publishedAt:desc'],
+        sort: ['PublishedDate:desc'],
         pagination: {
           limit,
           start: offset
@@ -108,7 +108,7 @@ export async function getCategoryPosts(slug: string, limit = 6, offset = 0) {
             fields: ['name', 'slug']
           }
         },
-        fields: ['title', 'description', 'slug', 'publishedAt', 'PublishedDate']
+        fields: ['title', 'description', 'slug', 'PublishedDate']
       }
     });
 
@@ -126,44 +126,66 @@ export async function getCategoryPosts(slug: string, limit = 6, offset = 0) {
 }
 
 export async function getRelatedPosts(slug: string) {
-  const currentSlugNumber = Number(slug);
-  if (isNaN(currentSlugNumber)) return [null, null];
-  
-  const prevSlug = (currentSlugNumber - 1).toString();
-  const nextSlug = (currentSlugNumber + 1).toString();
-  
   try {
-    const response = await strapiAPI.get('/posts', {
+    const currentPostResponse = await strapiAPI.get('/posts', {
+      params: {
+        filters: { slug: { $eq: slug } },
+        fields: ['PublishedDate']
+      }
+    });
+    
+    if (!currentPostResponse.data.data || currentPostResponse.data.data.length === 0) {
+      return [null, null];
+    }
+    
+    const currentPost = currentPostResponse.data.data[0];
+    const currentDate = currentPost.PublishedDate || currentPost.publishedAt;
+    
+    if (!currentDate) return [null, null];
+
+    const prevResponse = await strapiAPI.get('/posts', {
       params: {
         filters: {
-          slug: {
-            $in: [prevSlug, nextSlug]
-          }
+          $or: [
+            { PublishedDate: { $lt: currentDate } },
+            { publishedAt: { $lt: currentDate } }
+          ]
         },
+        sort: ['PublishedDate:desc'],
+        pagination: { limit: 1 },
+        fields: ['slug', 'title', 'description']
+      }
+    });
+
+    const nextResponse = await strapiAPI.get('/posts', {
+      params: {
+        filters: {
+          $or: [
+            { PublishedDate: { $gt: currentDate } },
+            { publishedAt: { $gt: currentDate } }
+          ]
+        },
+        sort: ['PublishedDate:asc'],
+        pagination: { limit: 1 },
         fields: ['slug', 'title', 'description']
       }
     });
     
-    const data = response.data?.data || [];
-    const result: { 
-      prev?: { title: string; description?: string }; 
-      next?: { title: string; description?: string }; 
-    } = {};
-
-    for (const item of data) {
-      const postData = {
-        title: item.title,
-        description: item.description || ''
-      };
-      
-      if (item.slug === prevSlug) {
-        result.prev = postData;
-      } else if (item.slug === nextSlug) {
-        result.next = postData;
-      }
-    }
+    const prevPost = prevResponse.data?.data?.[0];
+    const nextPost = nextResponse.data?.data?.[0];
     
-    return [result.prev ?? null, result.next ?? null];
+    return [
+      prevPost ? { 
+        slug: prevPost.slug,
+        title: prevPost.title, 
+        description: prevPost.description || '' 
+      } : null,
+      nextPost ? { 
+        slug: nextPost.slug,
+        title: nextPost.title, 
+        description: nextPost.description || '' 
+      } : null
+    ];
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
       console.error('[getRelatedPosts] Error:', error);
