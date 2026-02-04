@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: 'EziLog 개발자를 위한 기술 블로그',
-    description: '최신 개발 기술과 프로그래밍 트렌드를 다루는 EziLog입니다. React, Next.js, JavaScript, TypeScript 등 웹 개발 정보를 제공합니다.',
+    description: '학습과 개발 과정을 기록하며 웹 개발 경험을 공유합니다.',
     keywords: ['EziLog', '개발 블로그', 'React', 'Next.js', 'JavaScript', 'TypeScript', '웹 개발', '카카오테크 캠퍼스', 'aws'],
     authors: [{ name: 'EziLog' }],
     creator: 'EziLog',
