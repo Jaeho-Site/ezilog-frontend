@@ -2,16 +2,15 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
+import { Category } from "@/types/models";
+
+interface CategoryWithCount extends Category {
   postCount?: number;
 }
 
 interface CategoryData {
   buildTime: string;
-  categories: Category[];
+  categories: CategoryWithCount[];
 }
 
 interface CategoryBarProps {
@@ -20,7 +19,7 @@ interface CategoryBarProps {
 }
 
 const CategoryBar = ({ isOpen, onClose }: CategoryBarProps) => {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<CategoryWithCount[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -51,14 +50,14 @@ const CategoryBar = ({ isOpen, onClose }: CategoryBarProps) => {
       setCategories(categories);
       setIsInitialized(true);
 
-    } catch (err) {
+    } catch (error: unknown) {
       setError('카테고리를 불러오는 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const renderCategoryItem = (category: Category) => {
+  const renderCategoryItem = (category: CategoryWithCount) => {
     return (
       <div key={category.id} className="py-2">
         <Link 
