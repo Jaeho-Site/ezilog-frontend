@@ -12,6 +12,7 @@ import TableOfContents from "@/components/ui/TableOfContents";
 import PostNavigationCard from "@/components/ui/PostNavigationCard";
 import { FiHome, FiCalendar} from "react-icons/fi";
 import { getTagColor } from "@/utils/tag/tagColors";
+import { generatePostMetadata, generatePostNotFoundMetadata } from "@/lib/metadata";
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -45,134 +46,37 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const slug = params.slug;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  const canonicalUrl = `${siteUrl}/post/${slug}`;
 
   const staticPosts = await loadStaticPosts();
   const staticPost = staticPosts.find((post: any) => post.slug === slug);
   
   if (staticPost) {
-    const imageUrl = staticPost.coverImage?.url || `${siteUrl}/og-image.png`;
-    const tagNames = staticPost.tags?.map((tag: any) => tag.name) || [];
-    const publishedDate = staticPost.PublishedDate || staticPost.publishedAt;
-
-    const coreKeywords = ['개발', '프로그래밍', 'EziLog','웹 개발'];
-    const keywords = [...coreKeywords, ...tagNames.slice(0, 5)];
-    
-    return {
-      title: `${staticPost.title} | EziLog`,
-      description: staticPost.description || `${staticPost.title}에 대한 개발 포스트입니다. EziLog에서 최신 기술 정보를 확인하세요.`,
-      keywords,
-      authors: [{ name: 'EziLog' }],
-      creator: 'EziLog',
-      publisher: 'EziLog',
-      alternates: {
-        canonical: canonicalUrl,
-      },
-      openGraph: {
-        title: staticPost.title,
-        description: staticPost.description || `${staticPost.title}에 대한 개발 포스트입니다.`,
-        url: canonicalUrl,
-        siteName: 'EziLog',
-        type: 'article',
-        locale: 'ko_KR',
-        images: [
-          {
-            url: imageUrl,
-            width: 1200,
-            height: 630,
-            alt: staticPost.title,
-          },
-        ],
-        publishedTime: publishedDate,
-        authors: ['EziLog'],
-        tags: tagNames,
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: staticPost.title,
-        description: staticPost.description || `${staticPost.title}에 대한 개발 포스트입니다.`,
-        images: [imageUrl],
-        creator: '@EziLog',
-      },
-      robots: {
-        index: true,
-        follow: true,
-        googleBot: {
-          index: true,
-          follow: true,
-        },
-      },
-    };
+    return generatePostMetadata({
+      title: staticPost.title,
+      description: staticPost.description,
+      slug: staticPost.slug,
+      coverImage: staticPost.coverImage,
+      publishedDate: staticPost.PublishedDate || staticPost.publishedAt,
+      tags: staticPost.tags,
+    });
   }
 
   try {
     const post = await getPostBySlug(slug);
     if (!post) {
-      return { 
-        title: '게시물을 찾을 수 없습니다 | EziLog',
-        alternates: { canonical: canonicalUrl },
-        robots: { index: false, follow: true },
-      };
+      return generatePostNotFoundMetadata(slug);
     }
 
-    const imageUrl = post.coverImage?.url || `${siteUrl}/og-image.png`;
-    const tagNames = post.tags?.map((tag: any) => tag.name) || [];
-
-    const coreKeywords = ['개발', '프로그래밍', 'EziLog'];
-    const keywords = [...coreKeywords, ...tagNames.slice(0, 5)];
-
-    return {
-      title: `${post.title} | EziLog`,
-      description: post.description || `${post.title}에 대한 개발 포스트입니다. EziLog에서 최신 기술 정보를 확인하세요.`,
-      keywords,
-      authors: [{ name: 'EziLog' }],
-      creator: 'EziLog',
-      publisher: 'EziLog',
-      alternates: {
-        canonical: canonicalUrl,
-      },
-      openGraph: {
-        title: post.title,
-        description: post.description || `${post.title}에 대한 개발 포스트입니다.`,
-        url: canonicalUrl,
-        siteName: 'EziLog',
-        type: 'article',
-        locale: 'ko_KR',
-        images: [
-          {
-            url: imageUrl,
-            width: 1200,
-            height: 630,
-            alt: post.title,
-          },
-        ],
-        publishedTime: post.publishedDate,
-        authors: ['EziLog'],
-        tags: tagNames,
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: post.title,
-        description: post.description || `${post.title}에 대한 개발 포스트입니다.`,
-        images: [imageUrl],
-        creator: '@EziLog',
-      },
-      robots: {
-        index: true,
-        follow: true,
-        googleBot: {
-          index: true,
-          follow: true,
-        },
-      },
-    };
+    return generatePostMetadata({
+      title: post.title,
+      description: post.description,
+      slug: post.slug,
+      coverImage: post.coverImage,
+      publishedDate: post.publishedDate,
+      tags: post.tags,
+    });
   } catch (error) {
-    return { 
-      title: '게시물을 찾을 수 없습니다 | EziLog',
-      alternates: { canonical: canonicalUrl },
-      robots: { index: false, follow: true },
-    };
+    return generatePostNotFoundMetadata(slug);
   }
 }
 
