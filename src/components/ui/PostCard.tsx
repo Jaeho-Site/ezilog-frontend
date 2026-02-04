@@ -2,33 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { FiCalendar } from "react-icons/fi";
 import { getTagColor } from "@/utils/tag/tagColors";
+import { Post } from "@/types/models";
 
-// 포스트 데이터 타입 정의
-export interface PostData {
-  id: number | string;
-  title: string;
-  description: string;
-  slug: string;
-  coverImage?: {
-    url: string;
-    alt: string;
-  } | null;
-  publishedDate: string;
-  category: {
-    name: string;
-    slug: string;
-    id?: number | string;
-  };
-  tags: Array<{
-    id: number | string;
-    name: string;
-    slug: string;
-  }>;
-  [key: string]: any; // 추가 필드를 허용하기 위한 인덱스 시그니처
-}
+// PostData는 Post 타입의 별칭
+export type PostData = Post;
 
 interface PostCardProps {
-  post: PostData;
+  post: Post;
   aspect?: 'square' | 'video' | 'custom' | '3/2' | '4/3' | '2/3' | '5/4' | '4/5';
   minimal?: boolean;
   preloadImage?: boolean;
