@@ -1,6 +1,7 @@
 import PostListGrid from "@/components/ui/PostListGrid";
 import Pagination from "@/components/ui/Pagination";
 import { getCategoryBySlug, getCategoryPosts } from "@/lib/api";
+import { Post, Category } from "@/types/models";
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -11,26 +12,46 @@ interface CategoryPostListProps {
   page?: number;
 }
 
-async function loadStaticCategories() {
+async function loadStaticCategories(): Promise<Category[]> {
   try {
     const categoriesPath = path.join(process.cwd(), 'public', 'data', 'categories.json');
     if (fs.existsSync(categoriesPath)) {
       const data = JSON.parse(fs.readFileSync(categoriesPath, 'utf-8'));
       return Array.isArray(data) ? data : data.categories;
     }
-  } catch (error) {
-  }
+  } catch (error: unknown) { return []; }
   return [];
 }
 
-async function loadStaticPosts() {
+interface RawStaticPost {
+  id: number;
+  title: string;
+  description?: string;
+  slug: string;
+  cover?: {
+    url: string;
+  };
+  publishedAt: string;
+  category?: {
+    id?: number;
+    name: string;
+    slug: string;
+  };
+  tags?: Array<{
+    id: number;
+    name: string;
+    slug: string;
+  }>;
+}
+
+async function loadStaticPosts(): Promise<Post[]> {
   try {
     const postsPath = path.join(process.cwd(), 'public', 'data', 'posts.json');
     if (fs.existsSync(postsPath)) {
       const data = JSON.parse(fs.readFileSync(postsPath, 'utf-8'));
-      const posts = Array.isArray(data) ? data : data.posts;
+      const posts: RawStaticPost[] = Array.isArray(data) ? data : data.posts;
 
-      return posts.map((post: any) => ({
+      return posts.map((post): Post => ({
         id: post.id,
         title: post.title,
         description: post.description || '',
@@ -40,19 +61,21 @@ async function loadStaticPosts() {
           alt: post.title
         } : null,
         publishedDate: post.publishedAt,
-        category: post.category || {
-          name: '미분류',
-          slug: 'uncategorized'
+        category: {
+          id: post.category?.id ?? 0,
+          name: post.category?.name ?? '미분류',
+          slug: post.category?.slug ?? 'uncategorized'
         },
         tags: post.tags || []
       }));
     }
-  } catch (error) {
+  } catch (error: unknown) {
+    // 에러 무시
   }
   return [];
 }
 
-function filterPostsByCategory(posts: any[], categorySlug: string, limit: number, offset: number) {
+function filterPostsByCategory(posts: Post[], categorySlug: string, limit: number, offset: number): Post[] {
   const filteredPosts = posts.filter(post => 
     post.category && post.category.slug === categorySlug
   );
@@ -68,11 +91,11 @@ export default async function CategoryPostList({ slug, page = 1 }: CategoryPostL
       loadStaticCategories(),
       loadStaticPosts()
     ]);
-    let category: any = null;
-    let posts: any[] = [];
+    let category: Category | null = null;
+    let posts: Post[] = [];
     
     if (staticCategories.length > 0 && staticPosts.length > 0) {
-      category = staticCategories.find((cat: any) => cat.slug === slug);
+      category = staticCategories.find((cat: Category) => cat.slug === slug) || null;
       
       if (category) {
         posts = filterPostsByCategory(
@@ -118,7 +141,7 @@ export default async function CategoryPostList({ slug, page = 1 }: CategoryPostL
         )}
       </>
     );
-  } catch (error) {
+  } catch (error: unknown) {
     return (
       <div className="text-center py-10">
         <p className="text-red-600 dark:text-red-400">포스트를 불러오는 중 오류가 발생했습니다.</p>
