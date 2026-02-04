@@ -105,7 +105,8 @@ export default function TableOfContents() {
       await navigator.clipboard.writeText(window.location.href);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
-    } catch (error) {
+    } catch (error: unknown) {
+      // 클립보드 복사 실패 시 에러 무시
     }
   };
 
