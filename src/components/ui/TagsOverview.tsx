@@ -3,16 +3,14 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { getTagColor } from "@/utils/tag/tagColors";
+import { Tag } from "@/types/models";
 
-interface Tag {
-  id: number | string;
-  name: string;
-  slug: string;
+interface TagWithCount extends Tag {
   count?: number;
 }
 
 interface TagsOverviewProps {
-  tags: Tag[];
+  tags: TagWithCount[];
 }
 
 export default function TagsOverview({ tags }: TagsOverviewProps) {
