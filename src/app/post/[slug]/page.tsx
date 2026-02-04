@@ -13,20 +13,32 @@ import PostNavigationCard from "@/components/ui/PostNavigationCard";
 import { FiHome, FiCalendar} from "react-icons/fi";
 import { getTagColor } from "@/utils/tag/tagColors";
 import { generatePostMetadata, generatePostNotFoundMetadata } from "@/lib/metadata";
+import { Post, Tag } from "@/types/models";
 import * as fs from 'fs';
 import * as path from 'path';
 
 export const dynamic = 'force-static';
 const GiscusComments = lazy(() => import('@/components/ui/comments'));
 
-async function loadStaticPosts() {
+interface RawStaticPostData {
+  slug: string;
+  title: string;
+  description?: string;
+  coverImage?: { url: string; alt: string } | null;
+  PublishedDate?: string;
+  publishedAt?: string;
+  tags?: Tag[];
+}
+
+async function loadStaticPosts(): Promise<RawStaticPostData[]> {
   try {
     const postsPath = path.join(process.cwd(), 'public', 'data', 'posts.json');
     if (fs.existsSync(postsPath)) {
       const data = JSON.parse(fs.readFileSync(postsPath, 'utf-8'));
       return Array.isArray(data) ? data : data.posts;
     }
-  } catch (error) {
+  } catch (error: unknown) {
+    // 에러 무시
   }
   return [];
 }
@@ -36,19 +48,23 @@ export async function generateStaticParams() {
   if (posts.length === 0) {
     posts = await getAllPosts(100, 0);
   }
-  return posts.map((post: { slug: string }) => ({
+  return posts.map((post) => ({
     slug: post.slug
   }));
 }
 
+interface PageParams {
+  params: Promise<{ slug: string }>;
+}
+
 export async function generateMetadata(
-  { params }: any,
+  { params }: PageParams,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const slug = params.slug;
+  const { slug } = await params;
 
   const staticPosts = await loadStaticPosts();
-  const staticPost = staticPosts.find((post: any) => post.slug === slug);
+  const staticPost = staticPosts.find((post) => post.slug === slug);
   
   if (staticPost) {
     return generatePostMetadata({
@@ -75,17 +91,27 @@ export async function generateMetadata(
       publishedDate: post.publishedDate,
       tags: post.tags,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     return generatePostNotFoundMetadata(slug);
   }
 }
 
-export default async function PostPage({ params }: any) {
-  const slug = params.slug;
-  const post = await getPostBySlug(slug);
+interface ExtendedPost extends Post {
+  attributes?: {
+    cover?: { url: string };
+    tags?: Tag[];
+  };
+  htmlContent?: string;
+  markdownContent?: string;
+}
 
-  if (!post) notFound();
+export default async function PostPage({ params }: PageParams) {
+  const { slug } = await params;
+  const fetchedPost = await getPostBySlug(slug);
 
+  if (!fetchedPost) notFound();
+
+  const post = fetchedPost as ExtendedPost;
   const [prevPost, nextPost] = await getRelatedPosts(slug);
 
   const htmlContent = post.html || post.htmlContent || '';
@@ -114,7 +140,7 @@ export default async function PostPage({ params }: any) {
       <div className="max-w-[1152px] mx-auto mb-12">
         {tags && tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 justify-center mb-6">
-            {tags.map((tag: any) => {
+            {tags.map((tag) => {
               const tagColor = getTagColor(tag.name);
               return (
                 <Link
