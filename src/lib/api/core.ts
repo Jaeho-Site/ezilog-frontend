@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Category, Tag, Post, FormattedImage, RawPostData } from '@/types/models';
 
 const API_URL = process.env.STRAPI_API_URL;
 const API_TOKEN = process.env.STRAPI_API_TOKEN;
@@ -11,14 +12,20 @@ export const strapiAPI = axios.create({
   }
 });
 
-export function formatDate(data: any): string {
-  return data?.PublishedDate || data?.publishedAt || new Date().toISOString().split('T')[0];
+export function formatDate(data: RawPostData | null | undefined): string {
+  if (!data) return new Date().toISOString().split('T')[0];
+  return data.PublishedDate || data.publishedAt || new Date().toISOString().split('T')[0];
 }
 
-export function formatImage(imageData: any, title: string = '이미지'): any {
+export function formatImage(
+  imageData: RawPostData['cover'] | null | undefined,
+  title: string = '이미지'
+): FormattedImage | null {
   if (!imageData) return null;
   
   const cover = imageData.data || imageData;
+  
+  if (!cover || typeof cover !== 'object') return null;
   
   return {
     url: cover.url || '',
@@ -26,22 +33,32 @@ export function formatImage(imageData: any, title: string = '이미지'): any {
   };
 }
 
-export function formatTags(tagsData: any): any[] {
+export function formatTags(
+  tagsData: RawPostData['tags'] | null | undefined
+): Tag[] {
   if (!tagsData) return [];
   
-  const tagsList = tagsData.data || (Array.isArray(tagsData) ? tagsData : []);
+  const tagsList = Array.isArray(tagsData) 
+    ? tagsData 
+    : (tagsData.data || []);
   
-  return tagsList.map((tag: any) => ({
+  return tagsList.map((tag) => ({
     id: tag.id,
     name: tag.name || '태그',
     slug: tag.slug || `tag-${tag.id}`
   }));
 }
 
-export function formatCategory(categoryData: any): any {
-  const data = categoryData?.data || categoryData;
+export function formatCategory(
+  categoryData: RawPostData['category'] | null | undefined
+): Category {
+  if (!categoryData) {
+    return { id: 0, name: "미분류", slug: "uncategorized" };
+  }
+  
+  const data = categoryData.data || categoryData;
 
-  if (!data) {
+  if (!data || typeof data !== 'object') {
     return { id: 0, name: "미분류", slug: "uncategorized" };
   }
   
@@ -52,7 +69,7 @@ export function formatCategory(categoryData: any): any {
   };
 }
 
-export function formatPost(post: any): any {
+export function formatPost(post: RawPostData | null | undefined): Post | null {
   if (!post) return null;
   
   return {
