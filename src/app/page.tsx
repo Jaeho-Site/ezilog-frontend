@@ -4,6 +4,7 @@ import { PostData } from "@/components/ui/PostCard";
 import PostListGrid from "@/components/ui/PostListGrid";
 import FeaturedPost from "@/components/ui/FeaturedPost";
 import { getPostBySlug } from "@/lib/api";
+import { generateHomeMetadata } from "@/lib/metadata";
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -11,53 +12,7 @@ import * as path from 'path';
 export const dynamic = 'force-static';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-
-  return {
-    title: 'EziLog 개발자를 위한 기술 블로그',
-    description: '학습과 개발 과정을 기록하며 웹 개발 경험을 공유합니다.',
-    keywords: ['EziLog', '개발 블로그', 'React', 'Next.js', 'JavaScript', 'TypeScript', '웹 개발', '카카오테크 캠퍼스', 'aws'],
-    authors: [{ name: 'EziLog' }],
-    creator: 'EziLog',
-    publisher: 'EziLog',
-    alternates: {
-      canonical: siteUrl,
-    },
-    openGraph: {
-      title: 'EziLog : 개발자를 위한 기술 블로그',
-      description: '최신 개발 기술과 프로그래밍 트렌드를 다루는 EziLog입니다.',
-      url: siteUrl,
-      siteName: 'EziLog',
-      type: 'website',
-      locale: 'ko_KR',
-      images: [
-        {
-          url: `${siteUrl}/og-image.png`,
-          width: 1200,
-          height: 630,
-          alt: 'EziLog : 개발자를 위한 기술 블로그',
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: 'EziLog : 개발자를 위한 기술 블로그',
-      description: '최신 개발 기술과 프로그래밍 트렌드를 다루는 EziLog입니다.',
-      images: [`${siteUrl}/og-image.png`],
-      creator: '@EziLog',
-    },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-      },
-    },
-    verification: {
-      google: 'your-google-verification-code',
-    },
-  };
+  return generateHomeMetadata();
 }
 
 const FEATURED_POST_SLUGS = ['1', '5', '6', '7', '3', '4', '2', '8', '9', '10'];
