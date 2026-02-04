@@ -8,7 +8,6 @@ import { generateHomeMetadata } from "@/lib/metadata";
 import * as fs from 'fs';
 import * as path from 'path';
 
-
 export const dynamic = 'force-static';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,14 +18,36 @@ const FEATURED_POST_SLUGS = ['about-blog', '2025-with-kakaotechcampus',
   'nextjs-kubernetes-1', 'nextjs-kubernetes-2', 'vite-to-nextjs-migration', 
   'authentication-authorization-jwt', 'frontend-aws-serverless'];
 
+interface RawStaticPost {
+  id: number;
+  title: string;
+  description?: string;
+  slug: string;
+  cover?: {
+    url: string;
+  };
+  PublishedDate?: string;
+  publishedAt?: string;
+  category?: {
+    id?: number;
+    name: string;
+    slug: string;
+  };
+  tags?: Array<{
+    id: number;
+    name: string;
+    slug: string;
+  }>;
+}
+
 async function loadStaticPosts(): Promise<PostData[]> {
   try {
     const postsPath = path.join(process.cwd(), 'public', 'data', 'posts.json');
     if (fs.existsSync(postsPath)) {
       const postsData = JSON.parse(fs.readFileSync(postsPath, 'utf-8'));
-      const posts = Array.isArray(postsData) ? postsData : postsData.posts;
+      const posts: RawStaticPost[] = Array.isArray(postsData) ? postsData : postsData.posts;
 
-      return posts.map((post: any) => ({
+      return posts.map((post): PostData => ({
         id: post.id,
         title: post.title,
         description: post.description || '',
@@ -35,15 +56,17 @@ async function loadStaticPosts(): Promise<PostData[]> {
           url: post.cover.url,
           alt: post.title
         } : null,
-        publishedDate: post.PublishedDate || post.publishedAt,
-        category: post.category || {
-          name: '미분류',
-          slug: 'uncategorized'
+        publishedDate: post.PublishedDate || post.publishedAt || new Date().toISOString(),
+        category: {
+          id: post.category?.id ?? 0,
+          name: post.category?.name ?? '미분류',
+          slug: post.category?.slug ?? 'uncategorized'
         },
         tags: post.tags || []
       }));
     }
-  } catch (error) {
+  } catch (error: unknown) {
+    // 에러 무시
   }
   return [];
 }
@@ -71,7 +94,7 @@ async function PostList() {
         {remainingPosts.length > 0 && <PostListGrid posts={remainingPosts} />}
       </>
     );
-  } catch (error) {
+  } catch (error: unknown) {
     return (
       <div className="text-center py-10">
         <p className="text-red-600 dark:text-red-400">포스트를 불러오는 중 오류가 발생했습니다.</p>
