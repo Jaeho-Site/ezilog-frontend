@@ -42,7 +42,7 @@ async function fetchAllPosts() {
     }));
     
     return transformedPosts;
-  } catch (error) {
+  } catch (error: unknown) {
     return [];
   }
 }
