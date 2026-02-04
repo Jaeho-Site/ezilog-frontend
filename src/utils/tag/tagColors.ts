@@ -1,4 +1,3 @@
-// 태그 색상 정의 (더 균등한 분포를 위해 순서 조정)
 export const tagColors = {
   blue: {
     text: "text-blue-600 dark:text-blue-400", 
@@ -27,20 +26,17 @@ export const tagColors = {
   }
 } as const;
 
-// 색상 키 배열
 const colorKeys = Object.keys(tagColors) as Array<keyof typeof tagColors>;
 
-// FNV-1a 해시 함수 (더 균등한 분포를 위해)
 function betterHash(str: string): number {
-  let hash = 2166136261; // FNV offset basis
+  let hash = 2166136261; 
   for (let i = 0; i < str.length; i++) {
     hash ^= str.charCodeAt(i);
-    hash = (hash * 16777619) >>> 0; // FNV prime, unsigned 32-bit
+    hash = (hash * 16777619) >>> 0; 
   }
   return hash;
 }
 
-// 태그에 따른 색상 반환 함수
 export function getTagColor(tagName: string): typeof tagColors[keyof typeof tagColors] {
   const hash = betterHash(tagName.toLowerCase());
   const colorIndex = hash % colorKeys.length;
@@ -48,7 +44,6 @@ export function getTagColor(tagName: string): typeof tagColors[keyof typeof tagC
   return tagColors[colorKey];
 }
 
-// 태그 배열에 색상을 매핑하는 함수
 export function mapTagsWithColors<T extends { name: string }>(tags: T[]) {
   return tags.map(tag => ({
     ...tag,
