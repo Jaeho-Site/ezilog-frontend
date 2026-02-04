@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { getAllCategories, getCategoryBySlug, getCategoryPostCount } from "@/lib/api";
 import CategoryPostList, { POSTS_PER_PAGE } from "@/components/category/CategoryPostList";
 import { generateCategoryMetadata, generateCategoryNotFoundMetadata } from "@/lib/metadata";
+import { Category } from "@/types/models";
 
 export const dynamic = 'force-static';
 
@@ -9,7 +10,7 @@ export async function generateStaticParams() {
   try {
     const allCategoriesData = await getAllCategories();
 
-    const categoryPromises = allCategoriesData.map(async (category: any) => {
+    const categoryPromises = allCategoriesData.map(async (category) => {
       try {
         const categoryPaths = [];
 
@@ -27,7 +28,7 @@ export async function generateStaticParams() {
         }
         
         return categoryPaths;
-      } catch (error) {
+      } catch (error: unknown) {
         return [{ slug: category.slug, page: undefined }];
       }
     });
@@ -35,12 +36,16 @@ export async function generateStaticParams() {
     const allCategoryPaths = await Promise.all(categoryPromises);    
     const paths = allCategoryPaths.flat();
     return paths;
-  } catch (error) {
+  } catch (error: unknown) {
     return [];
   }
 }
 
-export async function generateMetadata({ params }: any): Promise<Metadata> {
+interface PageParams {
+  params: Promise<{ slug: string; page?: string[] }>;
+}
+
+export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
   const { slug, page } = await params;
   const pageNumber = getPageNumber(page);
 
@@ -55,17 +60,18 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
       totalPosts,
       pageNumber,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     return generateCategoryNotFoundMetadata(slug, pageNumber);
   }
 }
+
 function getPageNumber(pageParam?: string[]): number {
   if (!pageParam || pageParam.length === 0) return 1;
   const pageNumber = parseInt(pageParam[0], 10);
   return isNaN(pageNumber) || pageNumber < 1 ? 1 : pageNumber;
 }
 
-export default async function CategoryPage({ params }: any) {
+export default async function CategoryPage({ params }: PageParams) {
   const { slug, page: pageParam } = await params;
   const page = getPageNumber(pageParam);
   
