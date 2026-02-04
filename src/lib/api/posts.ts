@@ -127,52 +127,22 @@ export async function getCategoryPosts(slug: string, limit = 6, offset = 0) {
 
 export async function getRelatedPosts(slug: string) {
   try {
-    const currentPostResponse = await strapiAPI.get('/posts', {
+    const response = await strapiAPI.get('/posts', {
       params: {
-        filters: { slug: { $eq: slug } },
-        fields: ['PublishedDate']
+        sort: ['PublishedDate:desc', 'publishedAt:desc'],
+        pagination: { limit: 100 },
+        fields: ['slug', 'title', 'description', 'PublishedDate', 'publishedAt']
       }
     });
     
-    if (!currentPostResponse.data.data || currentPostResponse.data.data.length === 0) {
-      return [null, null];
-    }
-    
-    const currentPost = currentPostResponse.data.data[0];
-    const currentDate = currentPost.PublishedDate || currentPost.publishedAt;
-    
-    if (!currentDate) return [null, null];
+    const allPosts = response.data?.data || [];
+    if (allPosts.length === 0) return [null, null];
 
-    const prevResponse = await strapiAPI.get('/posts', {
-      params: {
-        filters: {
-          $or: [
-            { PublishedDate: { $lt: currentDate } },
-            { publishedAt: { $lt: currentDate } }
-          ]
-        },
-        sort: ['PublishedDate:desc'],
-        pagination: { limit: 1 },
-        fields: ['slug', 'title', 'description']
-      }
-    });
+    const currentIndex = allPosts.findIndex((post: any) => post.slug === slug);
+    if (currentIndex === -1) return [null, null];
 
-    const nextResponse = await strapiAPI.get('/posts', {
-      params: {
-        filters: {
-          $or: [
-            { PublishedDate: { $gt: currentDate } },
-            { publishedAt: { $gt: currentDate } }
-          ]
-        },
-        sort: ['PublishedDate:asc'],
-        pagination: { limit: 1 },
-        fields: ['slug', 'title', 'description']
-      }
-    });
-    
-    const prevPost = prevResponse.data?.data?.[0];
-    const nextPost = nextResponse.data?.data?.[0];
+    const prevPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
+    const nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
     
     return [
       prevPost ? { 
