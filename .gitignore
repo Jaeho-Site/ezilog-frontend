@@ -41,3 +41,9 @@ next-env.d.ts
 /build
 /public/robots.txt
 /public/sitemap*.xml
+
+# IDE,AI Rules
+.kiro*
+.cursor*
+.claude*
+.vscode*
