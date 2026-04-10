@@ -24,6 +24,7 @@ interface RawStaticPostData {
   slug: string;
   title: string;
   description?: string;
+  cover?: { url: string } | null;
   coverImage?: { url: string; alt: string } | null;
   PublishedDate?: string;
   publishedAt?: string;
@@ -67,11 +68,15 @@ export async function generateMetadata(
   const staticPost = staticPosts.find((post) => post.slug === slug);
   
   if (staticPost) {
+    const coverImage =
+      staticPost.coverImage ??
+      (staticPost.cover?.url ? { url: staticPost.cover.url, alt: staticPost.title } : null);
+
     return generatePostMetadata({
       title: staticPost.title,
       description: staticPost.description,
       slug: staticPost.slug,
-      coverImage: staticPost.coverImage,
+      coverImage,
       publishedDate: staticPost.PublishedDate || staticPost.publishedAt,
       tags: staticPost.tags,
     });
