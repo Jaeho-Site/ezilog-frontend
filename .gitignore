@@ -47,3 +47,8 @@ next-env.d.ts
 .cursor*
 .claude*
 .vscode*
+
+# 빌드 타임 생성 콘텐츠 (prebuild 산출물)
+/src/data/
+/public/rss.xml
+/public/llms.txt

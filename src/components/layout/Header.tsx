@@ -5,10 +5,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { FiMenu, FiMoon, FiSun, FiX, FiSearch } from "react-icons/fi";
-import CategoryBar from "@/components/category/CategoryBar";
+import CategoryBar, { CategoryWithCount } from "@/components/category/CategoryBar";
 import SearchBar from "@/components/ui/SearchBar";
 
-const Header = () => {
+interface HeaderProps {
+  categories: CategoryWithCount[];
+}
+
+const Header = ({ categories }: HeaderProps) => {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -210,7 +214,7 @@ const Header = () => {
       </div>
 
       {/* 카테고리 바 컴포넌트 */}
-      <CategoryBar isOpen={isCategoryOpen} onClose={() => setIsCategoryOpen(false)} />
+      <CategoryBar isOpen={isCategoryOpen} onClose={() => setIsCategoryOpen(false)} categories={categories} />
 
       {/* 모바일 메뉴 드롭다운 */}
       {isMobileMenuOpen && (
