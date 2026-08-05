@@ -7,6 +7,8 @@ interface PostListGridProps {
   showTitle?: boolean;
   title?: string;
   titleClassName?: string;
+  /** 뷰포트 상단에 놓이는 앞쪽 카드 수 — 해당 이미지는 lazy 대신 priority 로드 (LCP 대응) */
+  preloadCount?: number;
 }
 
 export default function PostListGrid({
@@ -15,7 +17,8 @@ export default function PostListGrid({
   className = "mt-10 px-4 md:px-12 xl:px-16 grid gap-10 md:gap-10 grid-cols-1 md:grid-cols-2 xl:grid-cols-3",
   showTitle = false,
   title,
-  titleClassName = "text-3xl font-bold mb-6"
+  titleClassName = "text-3xl font-bold mb-6",
+  preloadCount = 0
 }: PostListGridProps) {
   // 포스트가 없는 경우
   if (!posts || posts.length === 0) {
@@ -35,8 +38,8 @@ export default function PostListGrid({
       )}
       
       <div className={className}>
-        {posts.map((post: PostData) => (
-          <PostCard key={post.id} post={post} />
+        {posts.map((post: PostData, index: number) => (
+          <PostCard key={post.id} post={post} preloadImage={index < preloadCount} />
         ))}
       </div>
     </>

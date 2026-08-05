@@ -27,7 +27,7 @@ export default function Home() {
     <div className="max-w-6xl mx-auto py-12">
       <h1 className="sr-only">EziLog — 개발 블로그</h1>
       {featuredPost && <FeaturedPost post={featuredPost} />}
-      {remainingPosts.length > 0 && <PostListGrid posts={remainingPosts} />}
+      {remainingPosts.length > 0 && <PostListGrid posts={remainingPosts} preloadCount={2} />}
     </div>
   );
 }
