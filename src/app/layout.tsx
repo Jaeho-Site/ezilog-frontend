@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { Geist, Geist_Mono } from "next/font/google";
-import { Inter, Lora } from "next/font/google";
 import { ThemeProvider } from 'next-themes';
 import "./globals.css";
 
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import JsonLd from "@/components/seo/JsonLd";
+import { getAllCategories } from "@/lib/content";
+import { siteConfig, getMetadataBase, buildWebSiteJsonLd } from "@/lib/metadata/config";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,50 +20,49 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const lora = Lora({
-  variable: "--font-lora",
-  subsets: ["latin"],
-  display: "swap",
-});
-
 export const metadata: Metadata = {
   title: {
-    template: '%s | EziLog',
-    default: 'EziLog - 개발 블로그',
+    template: `%s | ${siteConfig.name}`,
+    default: siteConfig.title,
   },
-  description: "프론트엔드, 백엔드, 풀스택 개발 경험과 지식을 공유하는 기술 블로그입니다.",
+  description: siteConfig.description,
   keywords: ["개발 블로그", "프론트엔드", "백엔드", "풀스택", "Next.js", "React", "TypeScript"],
-  authors: [{ name: "EziLog" }],
-  creator: "EziLog",
-  publisher: "EziLog",
+  authors: [{ name: siteConfig.author.name }],
+  creator: siteConfig.author.name,
+  publisher: siteConfig.author.name,
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL((process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.startsWith('http') ? 'https://' + process.env.NEXT_PUBLIC_SITE_URL : process.env.NEXT_PUBLIC_SITE_URL) || 'https://yourdomain.com'),
+  metadataBase: getMetadataBase(),
   openGraph: {
     type: 'website',
-    locale: 'ko_KR',
-    url: (process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.startsWith('http') ? 'https://' + process.env.NEXT_PUBLIC_SITE_URL : process.env.NEXT_PUBLIC_SITE_URL) || 'https://yourdomain.com',
-    title: 'EziLog - 개발 블로그',
-    description: "프론트엔드, 백엔드, 풀스택 개발 경험과 지식을 공유하는 기술 블로그입니다.",
-    siteName: 'EziLog',
+    locale: siteConfig.locale,
+    url: siteConfig.url,
+    title: siteConfig.title,
+    description: siteConfig.description,
+    siteName: siteConfig.name,
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'EziLog - 개발 블로그',
-    description: "프론트엔드, 백엔드, 풀스택 개발 경험과 지식을 공유하는 기술 블로그입니다.",
+    title: siteConfig.title,
+    description: siteConfig.description,
   },
   alternates: {
-    canonical: (process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.startsWith('http') ? 'https://' + process.env.NEXT_PUBLIC_SITE_URL : process.env.NEXT_PUBLIC_SITE_URL) || 'https://yourdomain.com',
+    canonical: siteConfig.url,
+    types: {
+      'application/rss+xml': `${siteConfig.url}/rss.xml`,
+    },
   },
+  // 네이버 서치어드바이저 소유 확인 (환경변수 설정 시에만 노출)
+  ...(process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION && {
+    verification: {
+      other: {
+        'naver-site-verification': process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION,
+      },
+    },
+  }),
 };
 
 export default function RootLayout({
@@ -72,16 +73,17 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${lora.variable} 
+        className={`${geistSans.variable} ${geistMono.variable}
         font-sans antialiased min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-200`}
       >
-        <ThemeProvider 
-          attribute="class" 
-          defaultTheme="system" 
+        <JsonLd data={buildWebSiteJsonLd()} />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
+          <Header categories={getAllCategories()} />
           <main className="flex-grow">{children}</main>
           <Footer />
         </ThemeProvider>

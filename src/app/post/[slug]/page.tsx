@@ -1,157 +1,83 @@
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getPostBySlug, getAllPosts, getRelatedPosts } from "@/lib/api";
 import { lazy, Suspense } from 'react';
-import {
-  HtmlContent,
-  MarkdownContent,
-  formatDate
-} from "@/utils/content";
+import { getAllPosts, getPostBySlug, getAdjacentPosts } from "@/lib/content";
+import { formatDate } from "@/utils/content";
+import PostContent from "@/components/content/PostContent";
 import TableOfContents from "@/components/ui/TableOfContents";
 import PostNavigationCard from "@/components/ui/PostNavigationCard";
-import { FiHome, FiCalendar} from "react-icons/fi";
+import { FiHome, FiCalendar } from "react-icons/fi";
 import { getTagColor } from "@/utils/tag/tagColors";
 import { generatePostMetadata, generatePostNotFoundMetadata } from "@/lib/metadata";
-import { Post, Tag } from "@/types/models";
-import * as fs from 'fs';
-import * as path from 'path';
+import JsonLd from "@/components/seo/JsonLd";
+import { siteConfig, getImageUrl, buildBlogPostingJsonLd, buildBreadcrumbJsonLd } from "@/lib/metadata/config";
 
 export const dynamic = 'force-static';
 const GiscusComments = lazy(() => import('@/components/ui/comments'));
 
-interface RawStaticPostData {
-  slug: string;
-  title: string;
-  description?: string;
-  cover?: { url: string } | null;
-  coverImage?: { url: string; alt: string } | null;
-  PublishedDate?: string;
-  publishedAt?: string;
-  tags?: Tag[];
-}
-
-async function loadStaticPosts(): Promise<RawStaticPostData[]> {
-  try {
-    const postsPath = path.join(process.cwd(), 'public', 'data', 'posts.json');
-    if (fs.existsSync(postsPath)) {
-      const data = JSON.parse(fs.readFileSync(postsPath, 'utf-8'));
-      return Array.isArray(data) ? data : data.posts;
-    }
-  } catch (error: unknown) {
-    // 에러 무시
-  }
-  return [];
-}
-
 export async function generateStaticParams() {
-  let posts = await loadStaticPosts();
-  if (posts.length === 0) {
-    posts = await getAllPosts(100, 0);
-  }
-  return posts.map((post) => ({
-    slug: post.slug
-  }));
+  return getAllPosts().map((post) => ({ slug: post.slug }));
 }
 
 interface PageParams {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata(
-  { params }: PageParams,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
+export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
   const { slug } = await params;
+  const post = getPostBySlug(slug);
 
-  const staticPosts = await loadStaticPosts();
-  const staticPost = staticPosts.find((post) => post.slug === slug);
-  
-  if (staticPost) {
-    const coverImage =
-      staticPost.coverImage ??
-      (staticPost.cover?.url ? { url: staticPost.cover.url, alt: staticPost.title } : null);
-
-    return generatePostMetadata({
-      title: staticPost.title,
-      description: staticPost.description,
-      slug: staticPost.slug,
-      coverImage,
-      publishedDate: staticPost.PublishedDate || staticPost.publishedAt,
-      tags: staticPost.tags,
-    });
-  }
-
-  try {
-    const post = await getPostBySlug(slug);
-    if (!post) {
-      return generatePostNotFoundMetadata(slug);
-    }
-
-    return generatePostMetadata({
-      title: post.title,
-      description: post.description,
-      slug: post.slug,
-      coverImage: post.coverImage,
-      publishedDate: post.publishedDate,
-      tags: post.tags,
-    });
-  } catch (error: unknown) {
+  if (!post) {
     return generatePostNotFoundMetadata(slug);
   }
-}
 
-interface ExtendedPost extends Post {
-  attributes?: {
-    cover?: { url: string };
-    tags?: Tag[];
-  };
-  htmlContent?: string;
-  markdownContent?: string;
+  return generatePostMetadata({
+    title: post.title,
+    description: post.description,
+    slug: post.slug,
+    coverImage: post.coverImage,
+    publishedDate: post.publishedDate,
+    tags: post.tags,
+  });
 }
 
 export default async function PostPage({ params }: PageParams) {
   const { slug } = await params;
-  const fetchedPost = await getPostBySlug(slug);
+  const post = getPostBySlug(slug);
 
-  if (!fetchedPost) notFound();
+  if (!post) notFound();
 
-  const post = fetchedPost as ExtendedPost;
-  const [prevPost, nextPost] = await getRelatedPosts(slug);
-
-  const htmlContent = post.html || post.htmlContent || '';
-  const markdownContent = post.markdown || post.markdownContent || '';
-
-  let coverImageUrl = '';
-  if (post.coverImage && post.coverImage.url) {
-    coverImageUrl = post.coverImage.url || '';
-  } else if (post.attributes?.cover?.url) {
-    coverImageUrl = post.attributes.cover.url || '';
-  }
-
-  const tags = post.tags?.length > 0 ? post.tags : (post.attributes?.tags || []);
-
-  let contentElement;
-  if (htmlContent) {
-    contentElement = <HtmlContent html={htmlContent} postTitle={post.title} />;
-  } else if (markdownContent) {
-    contentElement = <MarkdownContent markdown={markdownContent} postTitle={post.title} />;
-  } else {
-    contentElement = <div className="text-center py-8 text-gray-500"><p>이 포스트에는 내용이 없습니다.</p></div>;
-  }
+  const [prevPost, nextPost] = getAdjacentPosts(slug);
 
   return (
     <div className="max-w-7xl mx-auto p-4">
+      <JsonLd data={buildBlogPostingJsonLd({
+        title: post.title,
+        description: post.description,
+        slug: post.slug,
+        imageUrl: getImageUrl(post.coverImage?.url || siteConfig.defaultImage),
+        datePublished: post.publishedDate,
+        dateModified: post.updatedAt,
+        tags: post.tags.map((tag) => tag.name),
+      })} />
+      <JsonLd data={buildBreadcrumbJsonLd([
+        { name: '홈', path: '' },
+        ...(post.category.slug !== 'uncategorized'
+          ? [{ name: post.category.name, path: `/category/${post.category.slug}` }]
+          : []),
+        { name: post.title, path: `/post/${post.slug}` },
+      ])} />
       <div className="max-w-[1152px] mx-auto mb-12">
-        {tags && tags.length > 0 && (
+        {post.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 justify-center mb-6">
-            {tags.map((tag) => {
+            {post.tags.map((tag) => {
               const tagColor = getTagColor(tag.name);
               return (
                 <Link
                   key={tag.id}
                   href={`/search?q=${encodeURIComponent(tag.name)}&type=tag`}
-                  className={`px-1.5 py-0.5 text-sm font-medium uppercase 
+                  className={`px-1.5 py-0.5 text-sm font-medium uppercase
                     ${tagColor.text} ${tagColor.hover} transition-colors rounded-sm tracking-wide`}
                 >
                   {tag.name}
@@ -161,7 +87,7 @@ export default async function PostPage({ params }: PageParams) {
           </div>
         )}
 
-        <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-200 text-center leading-relaxed break-words max-w-4xl mx-auto" style={{ textWrap: 'balance' }}>{post.title}</h2>
+        <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-200 text-center leading-relaxed break-words max-w-4xl mx-auto" style={{ textWrap: 'balance' }}>{post.title}</h1>
 
         <div className="flex items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400 mb-2">
           {post.publishedDate && (
@@ -189,7 +115,7 @@ export default async function PostPage({ params }: PageParams) {
           <article className="bg-gray-50 dark:bg-gray-950 overflow-hidden">
             <div className="py-6 pl-6 pr-3 lg:pr-2">
               <div className="prose prose-base max-w-none dark:prose-invert prose-headings:font-semibold prose-p:leading-loose">
-                {contentElement}
+                <PostContent html={post.html} markdown={post.markdown} postTitle={post.title} />
               </div>
             </div>
           </article>

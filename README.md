@@ -50,10 +50,19 @@
 ## ⚙️ 동작 방식
 
 1. **Trigger:** `git push` → Vercel 빌드 트리거
-2. **Prebuild:** 스크립트가 Strapi에서 전체 콘텐츠를 가져와 정적 JSON으로 직렬화
-3. **SSG:** Next.js가 해당 JSON을 기반으로 모든 페이지를 정적 생성
-4. **Postbuild:** `sitemap.xml` 자동 생성 (SEO 최적화)
+2. **Prebuild:** 본문 포함 전체 콘텐츠를 단 2회의 API 호출로 수집해 `src/data/content.json` 직렬화
+3. **SSG:** Next.js가 로컬 JSON만으로 모든 페이지를 정적 생성 — 빌드 중 Strapi 추가 호출 0회
+4. **Postbuild:** `sitemap.xml` · `rss.xml` · `robots.txt`(AI 크롤러 정책) · `llms.txt` 자동 생성
 5. **Serve:** 독자는 순수 정적 HTML을 받음 (Strapi는 요청 경로에 관여하지 않음)
+
+```bash
+# 로컬 개발 (pnpm)
+pnpm install
+pnpm run build   # 콘텐츠 수집 → next build → sitemap/rss/llms 생성
+pnpm run dev
+```
+
+코드 하이라이팅은 빌드 타임 Shiki(dual theme)로 처리되어 본문 렌더링에 클라이언트 JS가 필요 없습니다.
 
 <br/>
 
