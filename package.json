@@ -2,11 +2,12 @@
   "name": "ezilog-frontend",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.34.5",
   "scripts": {
     "dev": "next dev",
     "generate:data": "tsx scripts/generate-static-data.ts",
     "generate:meta": "tsx scripts/generate-sitemap.ts",
-    "build": "npm run generate:data && next build && npm run generate:meta",
+    "build": "tsx scripts/generate-static-data.ts && next build && tsx scripts/generate-sitemap.ts",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit"
