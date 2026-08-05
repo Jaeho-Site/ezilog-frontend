@@ -55,7 +55,6 @@ export const metadata: Metadata = {
       'application/rss+xml': `${siteConfig.url}/rss.xml`,
     },
   },
-  // 네이버 서치어드바이저 소유 확인 (환경변수 설정 시에만 노출)
   ...(process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION && {
     verification: {
       other: {

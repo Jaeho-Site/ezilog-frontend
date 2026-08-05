@@ -48,8 +48,5 @@ export function generateHomeMetadata(): MetadataResult {
     openGraph,
     twitter,
     robots,
-    verification: {
-      google: 'your-google-verification-code',
-    },
   };
 }
