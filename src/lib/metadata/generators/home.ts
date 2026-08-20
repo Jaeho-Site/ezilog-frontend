@@ -45,6 +45,8 @@ export function generateHomeMetadata(): MetadataResult {
   return {
     metadataBase: getMetadataBase(),
     ...baseMetadata,
+    // 제목에 이미 사이트명이 들어 있어 루트 템플릿(`%s | EziLog`)을 적용하지 않는다.
+    title: { absolute: title },
     openGraph,
     twitter,
     robots,

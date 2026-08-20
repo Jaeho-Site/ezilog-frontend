@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 // TODO: Strapi에 featured 필드를 추가해 CMS에서 관리하도록 이관
 const FEATURED_POST_SLUGS = ['about-blog', '2025-with-kakaotechcampus',
-  'nextjs-kubernetes-1', 'nextjs-kubernetes-2', 'vite-to-nextjs-migration',
+  'javascript-prototype-visual-guide', 'aws-3-tier-web-architecture', 'vite-to-nextjs-migration',
   'authentication-authorization-jwt', 'frontend-aws-serverless'];
 
 export default function Home() {

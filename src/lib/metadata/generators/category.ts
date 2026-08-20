@@ -68,7 +68,7 @@ export function generateCategoryNotFoundMetadata(slug: string, pageNumber: numbe
   
   return {
     metadataBase: getMetadataBase(),
-    title: '카테고리 | EziLog',
+    title: '카테고리',
     description: '카테고리별 포스트를 확인해보세요.',
     alternates: {
       canonical: canonicalUrl,

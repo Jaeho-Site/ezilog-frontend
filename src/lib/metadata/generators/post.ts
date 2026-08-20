@@ -6,7 +6,8 @@ import { PostMetadataParams, MetadataResult } from '../types';
 export function generatePostMetadata(params: PostMetadataParams): MetadataResult {
   const { title, description, slug, coverImage, publishedDate, tags } = params;
 
-  const pageTitle = `${title} | EziLog`;
+  // 루트 레이아웃의 title 템플릿(`%s | EziLog`)이 붙으므로 사이트명은 넣지 않는다.
+  const pageTitle = title;
   const pageDescription =
     description || `${title}에 대한 개발 포스트입니다.`;
   
