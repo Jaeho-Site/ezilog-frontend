@@ -7,7 +7,7 @@ import { formatDate } from "@/utils/content";
 import PostContent from "@/components/content/PostContent";
 import TableOfContents from "@/components/ui/TableOfContents";
 import PostNavigationCard from "@/components/ui/PostNavigationCard";
-import { FiHome, FiCalendar } from "react-icons/fi";
+import { FiHome, FiCalendar, FiUser } from "react-icons/fi";
 import { getTagColor } from "@/utils/tag/tagColors";
 import { generatePostMetadata, generatePostNotFoundMetadata } from "@/lib/metadata";
 import JsonLd from "@/components/seo/JsonLd";
@@ -89,7 +89,16 @@ export default async function PostPage({ params }: PageParams) {
 
         <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-200 text-center leading-relaxed break-words max-w-4xl mx-auto" style={{ textWrap: 'balance' }}>{post.title}</h1>
 
-        <div className="flex items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400 mb-2">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-gray-500 dark:text-gray-400 mb-2">
+          {/* 저자 바이라인 — 모든 글을 /about 의 Person 엔티티로 연결한다 */}
+          <Link
+            href="/about"
+            rel="author"
+            className="flex items-center hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
+            <FiUser className="w-4 h-4 mr-1.5" />
+            {siteConfig.author.name}
+          </Link>
           {post.publishedDate && (
             <div className="flex items-center">
               <FiCalendar className="w-4 h-4 mr-1.5" />
