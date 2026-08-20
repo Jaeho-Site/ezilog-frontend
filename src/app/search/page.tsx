@@ -4,9 +4,13 @@ import SearchResults from "@/components/search/SearchResults";
 import { getAllPosts } from "@/lib/content";
 import { generateSearchMetadata } from "@/lib/metadata";
 
-export const dynamic = 'force-static';
+// `dynamic = 'force-static'` 을 쓰면 안 된다.
+// 그 옵션은 useSearchParams() 가 빈 값을 반환하게 만들어서, 새 탭에서 연
+// /search?q=HTTP&type=tag 같은 주소가 필터 없이 전체 목록으로 열린다.
+// (클라이언트 라우팅으로 들어올 때만 동작해서 눈치채기 어려웠다.)
+// Suspense 경계 안에서 useSearchParams 를 쓰면 셸은 그대로 정적으로 프리렌더된다.
 
-// searchParams를 읽으면 페이지가 Dynamic으로 전환되므로 metadata는 정적으로 생성한다.
+// generateMetadata 는 searchParams 를 읽지 않으므로 메타데이터는 정적으로 생성된다.
 // (검색어별 결과는 클라이언트 필터링이라 서버 메타데이터에 반영할 수 없음)
 export async function generateMetadata(): Promise<Metadata> {
   return generateSearchMetadata({});
