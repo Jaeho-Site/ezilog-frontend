@@ -100,7 +100,7 @@ export default function AboutPage() {
   const findPost = (slug: string) => allPosts.find((post) => post.slug === slug);
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-16">
+    <div className="max-w-3xl mx-auto py-16">
       <JsonLd data={buildPersonJsonLd({ description: aboutDescription, knowsAbout: KNOWS_ABOUT })} />
       <JsonLd data={buildProfilePageJsonLd({ description: aboutDescription, dateModified: LAST_UPDATED })} />
       <JsonLd data={buildFaqJsonLd(FAQ)} />

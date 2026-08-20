@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
 import SearchResults from "@/components/search/SearchResults";
-import { getAllPosts } from "@/lib/content";
+import { getAllPosts, getAllCategories } from "@/lib/content";
 import { generateSearchMetadata } from "@/lib/metadata";
 
 // `dynamic = 'force-static'` 을 쓰면 안 된다.
@@ -18,11 +18,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function SearchPage() {
   const allPosts = getAllPosts();
+  // 글이 없는 카테고리는 눌러도 빈 화면이라 탭에서 제외한다.
+  const categories = getAllCategories().filter((category) => category.postCount > 0);
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Suspense fallback={null}>
-        <SearchResults initialPosts={allPosts} />
+        <SearchResults initialPosts={allPosts} categories={categories} />
       </Suspense>
     </div>
   );

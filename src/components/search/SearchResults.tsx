@@ -7,15 +7,31 @@ import PostListGrid from "@/components/ui/PostListGrid";
 import TagsOverview from "@/components/ui/TagsOverview";
 import { extractUniqueTagsFromPosts } from "@/utils/tag/tagUtils";
 import { FiSearch } from "react-icons/fi";
+import Link from "next/link";
+import { Category } from "@/types/models";
+
+const CHIP_BASE = "px-3 py-1.5 rounded-full text-sm font-medium border transition-colors";
+const CHIP_IDLE =
+  "border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 " +
+  "hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-900 dark:hover:text-gray-200";
+const CHIP_ACTIVE =
+  "border-gray-900 dark:border-gray-100 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900";
+
+export interface CategoryWithCount extends Category {
+  postCount: number;
+}
 
 interface SearchResultsProps {
   initialPosts: PostData[];
+  /** Archive 상단 카테고리 탭 — 글이 있는 카테고리만 넘어온다. */
+  categories: CategoryWithCount[];
 }
 
-export default function SearchResults({ initialPosts }: SearchResultsProps) {
+export default function SearchResults({ initialPosts, categories }: SearchResultsProps) {
   const searchParams = useSearchParams();
   const searchQuery = searchParams?.get("q") || "";
   const searchType = searchParams?.get("type") || "title"; // 기본값: title 검색
+  const activeCategory = searchParams?.get("category") || ""; // Archive 카테고리 탭
   const [posts, setPosts] = useState<PostData[]>(initialPosts);
   const [visiblePosts, setVisiblePosts] = useState<PostData[]>([]);
   const [page, setPage] = useState(1);
@@ -24,12 +40,16 @@ export default function SearchResults({ initialPosts }: SearchResultsProps) {
   // 태그 목록 추출 (tags 모드일 때 사용)
   const allTags = extractUniqueTagsFromPosts(initialPosts);
   
-  // 검색어 변경시 포스트 필터링
+  // 검색어·카테고리 변경시 포스트 필터링
   useEffect(() => {
+    const byCategory = activeCategory
+      ? initialPosts.filter((post) => post.category?.slug === activeCategory)
+      : initialPosts;
+
     if (!searchQuery) {
-      setPosts(initialPosts);
+      setPosts(byCategory);
     } else {
-      const filteredPosts = initialPosts.filter((post) => {
+      const filteredPosts = byCategory.filter((post) => {
         if (searchType === "tag") {
           // tag만 검색
           const tags = post.tags?.map(tag => tag.name.toLowerCase()).join(" ") || "";
@@ -41,9 +61,9 @@ export default function SearchResults({ initialPosts }: SearchResultsProps) {
         }
       });
       setPosts(filteredPosts);
-      setPage(1); // 검색어 변경시 페이지 초기화
     }
-  }, [searchQuery, searchType, initialPosts]);
+    setPage(1); // 조건이 바뀌면 첫 페이지부터
+  }, [searchQuery, searchType, activeCategory, initialPosts]);
   
   // 페이지 변경시 보여줄 포스트 계산
   useEffect(() => {
@@ -71,6 +91,7 @@ export default function SearchResults({ initialPosts }: SearchResultsProps) {
   
   // 태그 관련 모드인지 확인 (태그 목록 표시 + 태그 검색 모두 포함)
   const isTagsMode = searchType === "tags" || (searchType === "tag" && searchQuery);
+  const activeCategoryName = categories.find((c) => c.slug === activeCategory)?.name;
 
   return (
     <>
@@ -80,13 +101,43 @@ export default function SearchResults({ initialPosts }: SearchResultsProps) {
           <h1 className="text-4xl font-bold mb-4 text-center">
             {searchQuery 
               ? `"${searchQuery}" ${searchType === "tag" ? "Tag" : "제목"} 검색 결과 (${posts.length})`
-              : "Archive"}
+              : activeCategoryName || "Archive"}
           </h1>
           
           {!searchQuery && (
             <p className="text-lg text-gray-500 dark:text-gray-400 text-center mb-6">
-              See all posts I have ever written.
+              {activeCategoryName
+                ? `${activeCategoryName} 카테고리의 글 ${posts.length}편`
+                : "See all posts I have ever written."}
             </p>
+          )}
+
+          {/* 카테고리 탭 — Archive는 카테고리로 관리한다 (태그는 Tags 페이지에서) */}
+          {categories.length > 0 && (
+            <nav aria-label="카테고리" className="flex flex-wrap justify-center gap-2 mb-2">
+              <Link
+                href="/search"
+                aria-current={activeCategory === "" ? "page" : undefined}
+                className={`${CHIP_BASE} ${activeCategory === "" ? CHIP_ACTIVE : CHIP_IDLE}`}
+              >
+                전체
+                <span className="ml-1.5 text-xs opacity-70">{initialPosts.length}</span>
+              </Link>
+              {categories.map((category) => {
+                const isActive = activeCategory === category.slug;
+                return (
+                  <Link
+                    key={category.id}
+                    href={isActive ? "/search" : `/search?category=${category.slug}`}
+                    aria-current={isActive ? "page" : undefined}
+                    className={`${CHIP_BASE} ${isActive ? CHIP_ACTIVE : CHIP_IDLE}`}
+                  >
+                    {category.name}
+                    <span className="ml-1.5 text-xs opacity-70">{category.postCount}</span>
+                  </Link>
+                );
+              })}
+            </nav>
           )}
           
           {searchQuery && posts.length === 0 && (
