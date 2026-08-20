@@ -17,6 +17,7 @@ interface ContentPost {
   updatedAt: string;
   publishedDate: string;
   coverUrl: string | null;
+  coverAlt: string | null;
   tags: Tag[];
   category: Category | null;
   html: string | null;
@@ -69,7 +70,9 @@ function toPost(post: ContentPost): Post {
     title: post.title,
     description: post.description,
     slug: post.slug,
-    coverImage: post.coverUrl ? { url: post.coverUrl, alt: post.title } : null,
+    coverImage: post.coverUrl
+      ? { url: post.coverUrl, alt: post.coverAlt || post.title }
+      : null,
     publishedDate: post.publishedDate,
     category: post.category ?? UNCATEGORIZED,
     tags: post.tags,
