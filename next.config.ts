@@ -33,6 +33,14 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
 
+  // Latest는 Archive와 같은 목록을 12편만 잘라 보여주던 중복 진입점이라 Archive로 합쳤다.
+  // 이미 색인된 URL의 신호를 넘기기 위해 영구 리다이렉트를 남긴다.
+  async redirects() {
+    return [
+      { source: '/latest', destination: '/search', permanent: true },
+    ];
+  },
+
   async headers() {
     return [
       {

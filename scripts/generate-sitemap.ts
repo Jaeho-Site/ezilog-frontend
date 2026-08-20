@@ -68,7 +68,6 @@ function generateSitemap(posts: ContentPost[], categories: ContentCategory[]): s
   const pages: Array<{ url: string; lastmod: string }> = [
     { url: `${SITE_URL}`, lastmod: buildTime },
     { url: `${SITE_URL}/search`, lastmod: buildTime },
-    { url: `${SITE_URL}/latest`, lastmod: buildTime },
   ];
 
   for (const post of posts) {
