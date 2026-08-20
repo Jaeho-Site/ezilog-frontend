@@ -46,6 +46,7 @@ interface ContentCategory {
 }
 
 const POSTS_PER_PAGE = 6;
+const NOTES_URL = 'https://notes.ezilog.dev';
 
 function escapeXml(unsafe: string): string {
   return unsafe.replace(/[<>&'"]/g, (c) => (
@@ -67,8 +68,8 @@ function generateSitemap(posts: ContentPost[], categories: ContentCategory[]): s
 
   const pages: Array<{ url: string; lastmod: string }> = [
     { url: `${SITE_URL}`, lastmod: buildTime },
+    { url: `${SITE_URL}/about`, lastmod: buildTime },
     { url: `${SITE_URL}/search`, lastmod: buildTime },
-    { url: `${SITE_URL}/latest`, lastmod: buildTime },
   ];
 
   for (const post of posts) {
@@ -191,11 +192,17 @@ function generateLlmsTxt(posts: ContentPost[], categories: ContentCategory[]): s
   return `# EziLog
 
 > 프론트엔드·백엔드·풀스택 개발 경험과 지식을 공유하는 한국어 기술 블로그.
-> Next.js SSG + Headless CMS(Strapi) 기반으로 직접 설계·운영합니다.
+> 저자 신재호가 Next.js SSG + Headless CMS(Strapi) 기반으로 기획부터 배포까지 직접 설계·운영합니다.
 
+- 저자·사이트 소개: ${SITE_URL}/about
 - 사이트: ${SITE_URL}
 - RSS: ${SITE_URL}/rss.xml
 - 전체 글 목록: ${SITE_URL}/search
+- 공부 노트(같은 저자의 서브도메인): ${NOTES_URL}
+
+## 소개
+
+- [소개 — 신재호](${SITE_URL}/about): 저자 신재호의 소개와 다루는 주제(AI와 개발 방식, JavaScript와 CS, 인프라와 아키텍처, 회고), 두 사이트(ezilog.dev / notes.ezilog.dev)의 역할 분담을 정리한 페이지.
 
 ${byCategory.join('\n\n')}
 `;

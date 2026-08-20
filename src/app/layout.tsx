@@ -7,7 +7,6 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import JsonLd from "@/components/seo/JsonLd";
-import { getAllCategories } from "@/lib/content";
 import { siteConfig, getMetadataBase, buildWebSiteJsonLd } from "@/lib/metadata/config";
 
 const geistSans = Geist({
@@ -82,7 +81,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header categories={getAllCategories()} />
+          <Header />
           <main className="flex-grow">{children}</main>
           <Footer />
         </ThemeProvider>

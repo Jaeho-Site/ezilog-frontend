@@ -4,27 +4,33 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
-import { FiMenu, FiMoon, FiSun, FiX, FiSearch } from "react-icons/fi";
-import CategoryBar, { CategoryWithCount } from "@/components/category/CategoryBar";
+import { FiMenu, FiMoon, FiSun, FiX, FiSearch, FiArrowUpRight } from "react-icons/fi";
 import SearchBar from "@/components/ui/SearchBar";
+import { siteConfig } from "@/lib/metadata/config";
 
-interface HeaderProps {
-  categories: CategoryWithCount[];
-}
+const NAV_LINKS = [
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/search", label: "Archive" },
+  { href: "/search?type=tags", label: "Tags" },
+] as const;
 
-const Header = ({ categories }: HeaderProps) => {
+/**
+ * 좌측 축 헤더 — 로고가 왼쪽 끝에 서고 그 오른쪽으로 내비가 이어진다.
+ * 목록 페이지의 좌측 레일(SideNav)과 같은 컨테이너 폭(max-w-[1440px] px-6)을 써서
+ * 로고와 레일이 정확히 같은 세로선에 놓인다.
+ */
+const Header = () => {
   const { theme, setTheme, resolvedTheme } = useTheme();
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // useEffect를 사용하여 컴포넌트가 마운트된 후에만 theme 값을 사용
+  // 마운트 이후에만 theme 값을 사용한다 (하이드레이션 불일치 방지)
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // 공식문서 권장: 더 명확한 테마 토글 함수
   const toggleTheme = () => {
     if (theme === 'system') {
       setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
@@ -33,26 +39,11 @@ const Header = ({ categories }: HeaderProps) => {
     }
   };
 
-  const toggleCategory = () => {
-    setIsCategoryOpen(!isCategoryOpen);
-    if (isMobileMenuOpen) setIsMobileMenuOpen(false);
-  };
-
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-    if (isCategoryOpen) setIsCategoryOpen(false);
-  };
-
-  const toggleSearch = () => {
-    setIsSearchExpanded(!isSearchExpanded);
-  };
-
-  // 공식문서 권장: mounted가 false일 때 null 반환하는 대신 플레이스홀더 렌더링
-  const ThemeToggleButton = ({ mobile = false }: { mobile?: boolean }) => {
+  const ThemeToggleButton = () => {
     if (!mounted) {
       // Layout Shift 방지를 위한 플레이스홀더
       return (
-        <div className={`p-2 rounded-md w-10 h-10 ${mobile ? 'mr-1' : ''}`}>
+        <div className="p-2 rounded-md w-10 h-10">
           <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
         </div>
       );
@@ -61,7 +52,7 @@ const Header = ({ categories }: HeaderProps) => {
     return (
       <button
         onClick={toggleTheme}
-        className={`p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${mobile ? 'mr-1' : ''}`}
+        className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         aria-label={resolvedTheme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
       >
         {resolvedTheme === "dark" ? (
@@ -74,43 +65,14 @@ const Header = ({ categories }: HeaderProps) => {
   };
 
   return (
-    <header 
-      className="bg-gray-50 dark:bg-gray-950 py-8"
-    >
-      <div className="container mx-auto px-6 relative">
-        {/* PC 헤더 - 중앙 네비게이션 우선 배치 */}
-        <div className="hidden md:flex md:items-center md:justify-center md:relative">
-          {/* 카테고리 버튼 - 절대 위치로 왼쪽에 고정 */}
-          <div className="absolute left-0 flex items-center">
-            <button
-              onClick={toggleCategory}
-              className="p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="카테고리 메뉴"
-            >
-              <FiMenu className="h-7 w-7 text-gray-700 dark:text-gray-300" />
-            </button>
-          </div>
-
-          {/* 중앙: 5개 요소 (Home, About, Logo, Archive, Latest) - 화면 정중앙에 배치 */}
-          <nav className="flex items-center">
-            <Link
-              href="/"
-              className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors mr-12"
-            >
-              Home
-            </Link>
-            
-            <Link
-              href="/search?type=tags"
-              className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors mr-14"
-            >
-              Tags
-            </Link>
-            
-            {/* 로고 */}
-            <Link href="/" className="flex items-center mx-8">
-              <div className="relative w-[122px] h-[69px] sm:h-12 md:h-14 lg:h-16 xl:h-[69px]">
-                <Image 
+    <header className="bg-gray-50 dark:bg-gray-950 py-6">
+      <div className="max-w-[1440px] mx-auto px-6">
+        <div className="flex items-center justify-between gap-6">
+          {/* 왼쪽: 로고 + 내비 */}
+          <div className="flex items-center gap-10 min-w-0">
+            <Link href="/" className="shrink-0" aria-label="EziLog 홈">
+              <div className="relative w-[100px] h-[50px] md:w-[122px] md:h-[62px]">
+                <Image
                   src="/Ezilog2.svg"
                   alt="EziLog"
                   fill
@@ -119,78 +81,53 @@ const Header = ({ categories }: HeaderProps) => {
                 />
               </div>
             </Link>
-            
-            <Link
-              href="/search"
-              className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors ml-14"
-            >
-              Archive
-            </Link>
-            
-            <Link
-              href="/latest"
-              className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors ml-12"
-            >
-              Latest
-            </Link>
-          </nav>
 
-          {/* 검색바, 다크모드 토글 - 절대 위치로 오른쪽에 고정 */}
-          <div className="absolute right-0 flex items-center space-x-4">
-            {/* 검색바 (PC) - 항상 표시 */}
+            <nav className="hidden md:flex items-center gap-8">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <a
+                href={siteConfig.author.notes}
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-0.5 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+              >
+                Notes
+                <FiArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </a>
+            </nav>
+          </div>
+
+          {/* 오른쪽: 검색 + 테마 + 모바일 메뉴 */}
+          <div className="flex items-center gap-2 shrink-0">
             <div className="hidden md:block">
-              <SearchBar 
-                variant="compact" 
+              <SearchBar
+                variant="compact"
                 placeholder="포스트 검색..."
                 className="transition-all duration-300"
               />
             </div>
 
-            {/* 다크모드 토글 버튼 */}
-            <ThemeToggleButton />
-          </div>
-        </div>
-
-        {/* 모바일 헤더 */}
-        <div className="flex md:hidden items-center justify-between">
-          {/* 왼쪽: 카테고리 버튼 */}
-          <button
-            onClick={toggleCategory}
-            className="p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            aria-label="카테고리 메뉴"
-          >
-            <FiMenu className="h-7 w-7 text-gray-700 dark:text-gray-300" />
-          </button>
-
-          {/* 중앙: 로고 */}
-          <Link href="/" className="flex items-center">
-            <div className="relative w-[100px] h-[50px] sm:h-12">
-              <Image 
-                src="/Ezilog2.svg"
-                alt="EziLog"
-                fill
-                className="object-contain dark:invert"
-                priority
-              />
-            </div>
-          </Link>
-
-          {/* 오른쪽: 검색, 다크모드, 모바일 메뉴 버튼 */}
-          <div className="flex items-center">
-            {/* 검색 버튼 (모바일) */}
             <button
-              onClick={toggleSearch}
-              className="p-2 mr-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              onClick={() => setIsSearchExpanded(!isSearchExpanded)}
+              className="md:hidden p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               aria-label="검색"
             >
               <FiSearch className="h-6 w-6 text-gray-700 dark:text-gray-300" />
             </button>
 
-            <ThemeToggleButton mobile />
+            <ThemeToggleButton />
+
             <button
-              onClick={toggleMobileMenu}
-              className="p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="모바일 메뉴"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              aria-label="메뉴"
+              aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? (
                 <FiX className="h-7 w-7 text-gray-700 dark:text-gray-300" />
@@ -204,53 +141,39 @@ const Header = ({ categories }: HeaderProps) => {
         {/* 모바일 검색바 (확장 시에만 표시) */}
         {isSearchExpanded && (
           <div className="md:hidden mt-4">
-            <SearchBar 
-              expanded={isSearchExpanded} 
-              onToggle={toggleSearch} 
+            <SearchBar
+              expanded={isSearchExpanded}
+              onToggle={() => setIsSearchExpanded(!isSearchExpanded)}
               placeholder="포스트 검색..."
             />
           </div>
         )}
-      </div>
 
-      {/* 카테고리 바 컴포넌트 */}
-      <CategoryBar isOpen={isCategoryOpen} onClose={() => setIsCategoryOpen(false)} categories={categories} />
-
-      {/* 모바일 메뉴 드롭다운 */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-24 left-0 right-0 bg-white dark:bg-gray-800 shadow-lg p-6 transition-all z-50">
-          <nav className="flex flex-col space-y-6">
-            <Link
-              href="/"
-              className="text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+        {/* 모바일 메뉴 */}
+        {isMobileMenuOpen && (
+          <nav className="md:hidden mt-6 pt-6 border-t border-gray-200 dark:border-gray-800 flex flex-col space-y-5">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <a
+              href={siteConfig.author.notes}
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-0.5 text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Home
-            </Link>
-            <Link
-              href="/search?type=tags"
-              className="text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Tags
-            </Link>
-            <Link
-              href="/search"
-              className="text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Archive
-            </Link>
-            <Link
-              href="/latest"
-              className="text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Latest
-            </Link>
+              Notes
+              <FiArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </a>
           </nav>
-        </div>
-      )}
+        )}
+      </div>
     </header>
   );
 };

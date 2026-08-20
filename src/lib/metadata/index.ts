@@ -21,4 +21,4 @@ export { generateHomeMetadata } from './generators/home';
 export { generatePostMetadata, generatePostNotFoundMetadata } from './generators/post';
 export { generateCategoryMetadata, generateCategoryNotFoundMetadata } from './generators/category';
 export { generateSearchMetadata } from './generators/search';
-export { generateLatestMetadata } from './generators/latest';
+export { generateAboutMetadata, aboutDescription } from './generators/about';

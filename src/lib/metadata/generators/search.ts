@@ -6,14 +6,14 @@ export function generateSearchMetadata(params?: SearchMetadataParams): MetadataR
   const query = params?.query;
   
   const title = query
-    ? `'${query}' 검색 결과 `
-    : '포스트 검색';
-  
+    ? `'${query}' 검색 결과`
+    : 'Archive — 전체 글';
+
   const description = query
     ? `'${query}'에 대한 검색 결과입니다.`
-    : '카테고리별, 태그별, 키워드별로 원하는 기술 정보를 빠르게 찾아보세요.';
-  
-  const keywords = ['검색', '포스트 검색', 'EziLog', '블로그'];
+    : 'EziLog에 쓴 글 전체를 한곳에 모았습니다. 카테고리·태그·키워드로 바로 걸러서 찾아보세요.';
+
+  const keywords = ['Archive', '전체 글', '포스트 검색', '카테고리', '태그', 'EziLog'];
 
   const canonicalUrl = getCanonicalUrl('/search');
 
