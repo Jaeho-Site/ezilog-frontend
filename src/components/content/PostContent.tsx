@@ -44,6 +44,16 @@ const parseNumericValue = (value: string | number | undefined, defaultValue: num
   return isNaN(parsed) ? defaultValue : parsed;
 };
 
+/**
+ * 직접 작도한 다이어그램만 카드/다크 반전 스타일 대상으로 판별.
+ * SVG 전체 + post16 계열 GIF — 스크린샷 PNG와 화면 녹화 GIF는 반전하면 안 된다.
+ */
+function isDiagramImage(src: string): boolean {
+  const basename = decodeURIComponent(src.split('?')[0].split('/').pop() || '').toLowerCase();
+  if (basename.endsWith('.svg')) return true;
+  return /^post16[-_]/.test(basename) && basename.endsWith('.gif');
+}
+
 const RenderImage = ({
   src,
   alt = '이미지',
@@ -90,7 +100,7 @@ const RenderImage = ({
         width={parseNumericValue(imageWidth, 800)}
         height={parseNumericValue(imageHeight, 400)}
         sizes={sizes}
-        className="object-contain w-full h-auto"
+        className={`object-contain w-full h-auto${isDiagramImage(src) ? ' diagram' : ''}`}
         loading="lazy"
         style={parsedStyle}
       />

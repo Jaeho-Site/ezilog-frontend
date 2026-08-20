@@ -151,6 +151,14 @@
     margin-bottom: 1rem;
     border-radius: 0.375rem;
   }
+
+  /* 직접 작도한 다이어그램: 라이트=흰 카드로 경계 부여 */
+  & img.diagram {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+  }
   
   /* 테이블 스타일 */
   & table {
@@ -230,6 +238,11 @@
   
   & td, & th {
     border-color: #4b5563 !important;
+  }
+
+  /* 다이어그램: 반전으로 다크 네이티브 톤 (흰 카드·검정 선 → 어두운 카드·밝은 선, 강조색은 hue-rotate로 복원) */
+  & img.diagram {
+    filter: invert(0.93) hue-rotate(180deg);
   }
 }
 
