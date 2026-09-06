@@ -183,7 +183,8 @@
 }
 
 /* 다크 모드 지원 - next-themes 방식 - 우선순위 강화 */
-:global(.dark) .ck-content {
+/* :global()은 CSS Modules 전용 문법이라 전역 CSS에서는 규칙이 통째로 무시된다 */
+html.dark .ck-content {
   & h1, & h2, & h3, & h4, & h5, & h6 {
     color: #e5e7eb !important; /* text-gray-200 - 포스트 제목과 동일 */
   }
@@ -234,6 +235,7 @@
   
   & th {
     background-color: #1f2937 !important;
+    color: #e5e7eb !important; /* 헤딩·strong과 동일 톤 */
   }
   
   & td, & th {
